@@ -1,25 +1,16 @@
 import { IsNotEmpty } from 'class-validator';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  Unique,
-  ManyToMany,
-  JoinTable,
-  ManyToOne,
-} from 'typeorm';
+import { Entity, Column, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
 
-import { SymptomLog } from '../interfaces/symptom-logs.interface';
-import { IntensityLog } from '../interfaces/intensity-logs.interface';
+import { SymptomLog } from '@interfaces/symptom-logs.interface';
+import { IntensityLog } from '@interfaces/intensity-logs.interface';
+import { User } from '@interfaces/users.interface';
+
 import { IntensityLogEntity } from './intensity-logs.entity';
 import { UserEntity } from './users.entity';
-import { User } from '../interfaces/users.interface';
+import { BaseEntity } from './base.entity';
 
 @Entity()
-export class SymptomLogEntity implements SymptomLog {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class SymptomLogEntity extends BaseEntity implements SymptomLog {
   @Column()
   @IsNotEmpty()
   date: Date;

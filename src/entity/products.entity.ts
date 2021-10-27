@@ -6,16 +6,17 @@ import {
   Unique,
   JoinTable,
   ManyToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Product } from '@interfaces/products.interface';
 import { Ingredient } from '../interfaces/ingredients.interface';
 import { IngredientEntity } from './ingredients.entity';
+import { BaseEntity } from './base.entity';
 
 @Entity()
-export class ProductEntity implements Product {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+@Unique(['name', 'barcode'])
+export class ProductEntity extends BaseEntity implements Product {
   @Column()
   barcode: number;
 

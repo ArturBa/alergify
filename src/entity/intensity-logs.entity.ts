@@ -5,20 +5,25 @@ import {
   Column,
   OneToOne,
   JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Check,
 } from 'typeorm';
 
 import { Symptom } from '@interfaces/symptoms.interface';
 import { IntensityLog } from '@interfaces/intensity-logs.interface';
+
 import { SymptomEntity } from './symptoms.entity';
+import { BaseEntity } from './base.entity';
 
 @Entity()
-export class IntensityLogEntity implements IntensityLog {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+@Check(`"value" > 0 AND "value" < 11`)
+export class IntensityLogEntity extends BaseEntity implements IntensityLog {
+  @Column({
+    default: 5,
+  })
   @IsNotEmpty()
-  value = 0;
+  value: number;
 
   @OneToOne(() => SymptomEntity)
   @JoinColumn()

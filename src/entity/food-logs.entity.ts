@@ -1,27 +1,18 @@
 import { IsNotEmpty } from 'class-validator';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  Unique,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-} from 'typeorm';
+import { Entity, Column, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
-import { IngredientEntity } from './ingredients.entity';
-import { Ingredient } from '@interfaces/ingredients.interface';
 import { FoodLog } from '@interfaces/food-logs.interface';
+import { Ingredient } from '@interfaces/ingredients.interface';
 import { Product } from '@interfaces/products.interface';
+import { User } from '@interfaces/users.interface';
+
+import { BaseEntity } from './base.entity';
+import { IngredientEntity } from './ingredients.entity';
 import { ProductEntity } from './products.entity';
 import { UserEntity } from './users.entity';
-import { User } from '../interfaces/users.interface';
 
 @Entity()
-export class FoodLogEntity implements FoodLog {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class FoodLogEntity extends BaseEntity implements FoodLog {
   @Column()
   @IsNotEmpty()
   date: Date;
