@@ -59,7 +59,9 @@ describe('Testing Users', () => {
       });
 
       const app = new App([usersRoute]);
-      return request(app.getServer()).get(`${usersRoute.path}/${userId}`).expect(200);
+      return request(app.getServer())
+        .get(`${usersRoute.path}/${userId}`)
+        .expect(200);
     });
   });
 
@@ -82,7 +84,10 @@ describe('Testing Users', () => {
       });
 
       const app = new App([usersRoute]);
-      return request(app.getServer()).post(`${usersRoute.path}`).send(userData).expect(201);
+      return request(app.getServer())
+        .post(`${usersRoute.path}`)
+        .send(userData)
+        .expect(201);
     });
   });
 
@@ -115,7 +120,10 @@ describe('Testing Users', () => {
       });
 
       const app = new App([usersRoute]);
-      return request(app.getServer()).put(`${usersRoute.path}/${userId}`).send(userData).expect(200);
+      return request(app.getServer())
+        .put(`${usersRoute.path}/${userId}`)
+        .send(userData)
+        .expect(200);
     });
   });
 
@@ -134,7 +142,9 @@ describe('Testing Users', () => {
       });
 
       const app = new App([usersRoute]);
-      return request(app.getServer()).delete(`${usersRoute.path}/${userId}`).expect(200);
+      return request(app.getServer())
+        .delete(`${usersRoute.path}/${userId}`)
+        .expect(200);
     });
   });
 });

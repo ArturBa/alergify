@@ -1,18 +1,18 @@
 {
-    "env": "development",
-    "dbConfig": {
-        "host": "localhost",
-        "user": "root",
-        "password": "password",
-        "database": "typeorm"
-    },
-    "secretKey": "secretKey",
-    "log": {
-        "format": "dev",
-        "dir": "../logs"
-    },
-    "cors": {
-        "origin": true,
-        "credentials": true
-    }
+  "env": "development",
+  "dbConfig": {
+    "host": "./db.sqlite3",
+    "user": "root",
+    "password": "password",
+    "database": "./typeorm.sqlite3"
+  },
+  "secretKey": "secretKey",
+  "log": {
+    "format": "dev",
+    "dir": "../../logs"
+  },
+  "cors": {
+    "origin": true,
+    "credentials": true
+  }
 }

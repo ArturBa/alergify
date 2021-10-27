@@ -6,17 +6,29 @@ import { UserEntity } from '@entity/users.entity';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 
-const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+const authMiddleware = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const Authorization = req.cookies['Authorization'] || req.header('Authorization').split('Bearer ')[1] || null;
+    const Authorization =
+      req.cookies['Authorization'] ||
+      req.header('Authorization').split('Bearer ')[1] ||
+      null;
 
     if (Authorization) {
       const secretKey: string = config.get('secretKey');
-      const verificationResponse = (await jwt.verify(Authorization, secretKey)) as DataStoredInToken;
+      const verificationResponse = (await jwt.verify(
+        Authorization,
+        secretKey,
+      )) as DataStoredInToken;
       const userId = verificationResponse.id;
 
       const userRepository = getRepository(UserEntity);
-      const findUser = await userRepository.findOne(userId, { select: ['id', 'email', 'password'] });
+      const findUser = await userRepository.findOne(userId, {
+        select: ['id', 'email', 'password'],
+      });
 
       if (findUser) {
         req.user = findUser;
