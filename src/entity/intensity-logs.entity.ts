@@ -1,14 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToOne,
-  JoinColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Check,
-} from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn, Check } from 'typeorm';
 
 import { Symptom } from '@interfaces/symptoms.interface';
 import { IntensityLog } from '@interfaces/intensity-logs.interface';

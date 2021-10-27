@@ -4,43 +4,96 @@ import jwt from 'jsonwebtoken';
 import { getRepository } from 'typeorm';
 import { UserEntity } from '@entity/users.entity';
 import { HttpException } from '@exceptions/HttpException';
-import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
+import {
+  DataStoredInAccessToken,
+  DataStoredInRefreshToken,
+  DataTokenType,
+  RequestWithUser,
+} from '@interfaces/auth.interface';
+import HttpStatusCode from '../interfaces/http-codes.interface';
+
+const unauthorizedError = new HttpException(
+  HttpStatusCode.UNAUTHORIZED,
+  'Unauthorized',
+);
+
+const secretKey: string = config.get('jwtSecret') || 'secret';
 
 const authMiddleware = async (
   req: RequestWithUser,
   res: Response,
   next: NextFunction,
 ) => {
-  try {
-    const Authorization =
+  const Authorization = (req: RequestWithUser) => {
+    return (
       req.cookies['Authorization'] ||
       req.header('Authorization').split('Bearer ')[1] ||
-      null;
+      null
+    );
+  };
 
-    if (Authorization) {
-      const secretKey: string = config.get('secretKey');
+  try {
+    const authorization = Authorization(req);
+
+    if (authorization) {
       const verificationResponse = (await jwt.verify(
-        Authorization,
+        authorization,
         secretKey,
-      )) as DataStoredInToken;
-      const userId = verificationResponse.id;
+      )) as DataStoredInAccessToken;
 
+      if (verificationResponse.type !== DataTokenType.ACCESS) {
+        next(unauthorizedError);
+      }
+
+      const userId = verificationResponse.id;
       const userRepository = getRepository(UserEntity);
       const findUser = await userRepository.findOne(userId, {
-        select: ['id', 'email', 'password'],
+        select: ['id', 'email'],
       });
 
       if (findUser) {
         req.user = findUser;
         next();
-      } else {
-        next(new HttpException(401, 'Wrong authentication token'));
       }
-    } else {
-      next(new HttpException(404, 'Authentication token missing'));
     }
+    next(unauthorizedError);
   } catch (error) {
-    next(new HttpException(401, 'Wrong authentication token'));
+    next(unauthorizedError);
+  }
+};
+
+export const refreshTokenMiddleware = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const refreshToken =
+      req.cookies['refreshToken'] || req.body.refreshToken || null;
+
+    if (refreshToken) {
+      const verificationResponse = (await jwt.verify(
+        refreshToken,
+        secretKey,
+      )) as DataStoredInRefreshToken;
+
+      if (verificationResponse.type !== DataTokenType.REFRESH) {
+        next(unauthorizedError);
+      }
+      const userId = verificationResponse.id;
+      const userRepository = getRepository(UserEntity);
+      const findUser = await userRepository.findOne(userId, {
+        select: ['id', 'email'],
+      });
+
+      if (findUser) {
+        req.user = findUser;
+        next();
+      }
+    }
+    next(unauthorizedError);
+  } catch (error) {
+    next(unauthorizedError);
   }
 };
 

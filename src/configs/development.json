@@ -6,7 +6,7 @@
     "password": "password",
     "database": "./typeorm.sqlite3"
   },
-  "secretKey": "secretKey",
+  "jwtSecret": "secretKey",
   "log": {
     "format": "dev",
     "dir": "../../logs"

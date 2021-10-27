@@ -1,12 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  Unique,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, Column, Unique } from 'typeorm';
 
 import { Ingredient } from '@interfaces/ingredients.interface';
 import { BaseEntity } from './base.entity';
