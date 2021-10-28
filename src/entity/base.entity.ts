@@ -1,12 +1,7 @@
-import { IsNotEmpty } from 'class-validator';
 import {
-  Entity,
   PrimaryGeneratedColumn,
-  Column,
-  Unique,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
   BeforeUpdate,
   BeforeInsert,
 } from 'typeorm';

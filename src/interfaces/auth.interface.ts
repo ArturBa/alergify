@@ -1,12 +1,26 @@
 import { Request } from 'express';
 import { User } from '@interfaces/users.interface';
 
-export interface DataStoredInToken {
+export enum DataTokenType {
+  ACCESS = 'access',
+  REFRESH = 'refresh',
+}
+
+export interface DataStoredInAccessToken {
+  type: DataTokenType;
   id: number;
 }
 
+export interface DataStoredInRefreshToken {
+  type: DataTokenType;
+  id: number;
+  ip: string;
+  isRefresh: boolean;
+}
+
 export interface TokenData {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   expiresIn: number;
 }
 

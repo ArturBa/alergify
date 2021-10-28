@@ -4,10 +4,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   Unique,
-  CreateDateColumn,
-  UpdateDateColumn,
   OneToMany,
+  BeforeUpdate,
 } from 'typeorm';
+import bcrypt from 'bcrypt';
 
 import { User } from '@interfaces/users.interface';
 import { FoodLog } from '@interfaces/food-logs.interface';
@@ -29,6 +29,10 @@ export class UserEntity extends BaseEntity implements User {
 
   @Column()
   @IsNotEmpty()
+  @BeforeUpdate()
+  async hashPasswordBeforeUpdate() {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
   password: string;
 
   @OneToMany(() => FoodLogEntity, foodLog => foodLog.user)

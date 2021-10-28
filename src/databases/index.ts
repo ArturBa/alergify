@@ -3,7 +3,7 @@ import path from 'path';
 import { ConnectionOptions } from 'typeorm';
 import { dbConfig } from '@interfaces/db.interface';
 
-const { host, user, password, database }: dbConfig = config.get('dbConfig');
+const { database }: dbConfig = config.get('dbConfig');
 export const dbConnection: ConnectionOptions = {
   type: 'sqlite',
   database: database,

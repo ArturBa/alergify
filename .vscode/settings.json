@@ -2,5 +2,9 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "editor.formatOnSave": false
+  "editor.formatOnSave": true,
+  "files.autoSave": "afterDelay",
+  "editor.fontFamily": "'Anonymous Pro', monospace",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "conventionalCommits.scopes": ["authorization"]
 }
