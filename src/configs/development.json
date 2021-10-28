@@ -7,6 +7,8 @@
     "database": "./typeorm.sqlite3"
   },
   "jwtSecret": "secretKey",
+  "accessTokenTimeout": "3600",
+  "refreshTokenTimeout": "630000",
   "log": {
     "format": "dev",
     "dir": "../../logs"
