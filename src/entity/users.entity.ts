@@ -29,11 +29,10 @@ export class UserEntity extends BaseEntity implements User {
 
   @Column()
   @IsNotEmpty()
-  @BeforeUpdate()
-  async hashPasswordBeforeUpdate() {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
   password: string;
+
+  @Column()
+  username: string;
 
   @OneToMany(() => FoodLogEntity, foodLog => foodLog.user)
   foodLogs: FoodLog[];

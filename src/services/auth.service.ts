@@ -21,12 +21,15 @@ class AuthService {
     const findUser: User = await userRepository.findOne({
       where: { email: userData.email },
     });
+
+    //TODO: #security this should return a default value with 'check your email'
     if (findUser)
       throw new HttpException(
         HttpStatusCode.CONFLICT,
         'Email already registered',
       );
 
+    userData.password = await bcrypt.hash(userData.password, 10);
     await userRepository.save({ ...userData });
     return;
   }
