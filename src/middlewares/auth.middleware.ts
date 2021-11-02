@@ -31,23 +31,13 @@ const authMiddleware = async (
       null
     );
   };
-  next();
 
   try {
     const authorization = Authorization(req);
 
     if (authorization) {
-      console.trace('authorized', { s: secretKey, a: authorization });
-      console.trace('verify', {
-        s: JsonWebToken.verifyAccessToken(authorization),
-      });
       const verificationResponse =
         JsonWebToken.verifyAccessToken(authorization);
-      // const verificationResponse = (await jwt.verify(
-      //   authorization,
-      //   secretKey,
-      // )) as DataStoredInAccessToken;
-      console.log('verificationRespo: ', verificationResponse);
 
       const userId = verificationResponse.id;
       const userRepository = getRepository(UserEntity);
@@ -60,9 +50,7 @@ const authMiddleware = async (
         next();
       }
     }
-    next(unauthorizedError);
   } catch (error) {
-    console.error('error: ', error);
     next(unauthorizedError);
   }
 };

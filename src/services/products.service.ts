@@ -20,13 +20,22 @@ class ProductsService {
     return products;
   }
 
-  public async getProductById(productId: number): Promise<Product> {
+  public async getProductById(productId: number): Promise<Partial<Product>> {
     checkIfEmpty(productId);
 
     const productRepository = getRepository(this.products);
-    const product = await productRepository.findOne({
-      where: { id: productId },
-    });
+    const product = await productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.ingredients', 'ingredients')
+      .where('product.id = :id', { id: productId })
+      .select([
+        'product.id',
+        'product.barcode',
+        'product.name',
+        'ingredients.id',
+        'ingredients.name',
+      ])
+      .getOne();
     checkIfConflict(!product);
 
     return product;
@@ -46,7 +55,7 @@ class ProductsService {
     product.name = productData.name;
     product.ingredients = ingredients;
 
-    await productRepository.create(product);
+    await productRepository.save(product);
   }
 }
 

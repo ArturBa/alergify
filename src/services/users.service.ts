@@ -35,10 +35,10 @@ class UserService {
     });
     checkIfConflict(!findUser, 'Email already exist');
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    // const hashedPassword = await bcrypt.hash(userData.password, 10);
     const createUserData: User = await userRepository.save({
       ...userData,
-      password: hashedPassword,
+      // password: hashedPassword,
     });
 
     return createUserData;

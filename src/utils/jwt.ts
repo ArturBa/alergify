@@ -17,12 +17,12 @@ export class JsonWebToken {
     (config.get('jwtSecret') as string) || 'secret';
 
   protected static createAccessToken(user: User): string {
-    console.log(user);
     const data: DataStoredInAccessToken = {
       id: user.id,
     };
-    console.log(this.accessTokenTimeout);
-    return jwt.sign(data, this.secret, { expiresIn: this.accessTokenTimeout });
+    return jwt.sign(data, this.secret, {
+      expiresIn: `${this.accessTokenTimeout}s`,
+    });
   }
 
   protected static createRefreshToken(user: User): string {
@@ -31,13 +31,17 @@ export class JsonWebToken {
       isRefresh: true,
       ip: '',
     };
-    return jwt.sign(data, this.secret, { expiresIn: this.refreshTokenTimeout });
+    return jwt.sign(data, this.secret, {
+      expiresIn: `${this.refreshTokenTimeout}s`,
+    });
   }
 
   static verifyAccessToken(token: string): DataStoredInAccessToken {
-    console.trace('verify: ', jwt.verify(token, this.secret));
-    // console.trace('verify async: ', await jwt.verify(token, this.secret));
     return jwt.verify(token, this.secret) as DataStoredInAccessToken;
+  }
+
+  static verifyRefreshToken(token: string): DataStoredInRefreshToken {
+    return jwt.verify(token, this.secret) as DataStoredInRefreshToken;
   }
 
   static createToken(user: User): TokenData {

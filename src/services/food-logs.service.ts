@@ -17,12 +17,23 @@ class FoodLogsService {
   public ingredients = IngredientEntity;
 
   public async getUserFoodLogs(userId: number): Promise<FoodLog[]> {
-    const usersRepository = getRepository(this.users);
-    const user = await usersRepository.findOne({
-      where: { id: userId },
-      relations: ['foodLogs'],
-    });
-    return user.foodLogs;
+    const foodLogsRepository = getRepository(this.foodLogs);
+    const foodLogs = await foodLogsRepository
+      .createQueryBuilder('foodLog')
+      .where('foodLog.userId = :userId', { userId })
+      .leftJoinAndSelect('foodLog.products', 'product')
+      .leftJoinAndSelect('foodLog.ingredients', 'ingredient')
+      .select([
+        'foodLog.id',
+        'foodLog.date',
+        'product.id',
+        'product.name',
+        'ingredient.id',
+        'ingredient.name',
+      ])
+      .getMany();
+
+    return foodLogs;
   }
 
   public async createUserFoodLogs(

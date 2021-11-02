@@ -15,7 +15,7 @@ class ProductRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.put(
+    this.router.post(
       `${this.path}`,
       authMiddleware,
       validationMiddleware(CreateProductDto),

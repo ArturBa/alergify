@@ -18,12 +18,15 @@ class IngredientsService {
     return ingredients;
   }
 
-  public async getIngredientById(ingredientId: number): Promise<Ingredient> {
+  public async getIngredientById(
+    ingredientId: number,
+  ): Promise<Partial<Ingredient>> {
     checkIfEmpty(ingredientId);
 
     const ingredientsRepository = getRepository(this.ingredients);
     const ingredient = await ingredientsRepository.findOne({
       where: { id: ingredientId },
+      select: ['name'],
     });
     checkIfConflict(!ingredient);
 
@@ -40,7 +43,7 @@ class IngredientsService {
     const ingredient = new IngredientEntity();
     ingredient.name = ingredientData.name;
 
-    await ingredientsRepository.create(ingredient);
+    await ingredientsRepository.save(ingredient);
   }
 }
 

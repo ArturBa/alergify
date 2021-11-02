@@ -11,7 +11,7 @@ import { IngredientEntity } from './ingredients.entity';
 import { ProductEntity } from './products.entity';
 import { UserEntity } from './users.entity';
 
-@Entity()
+@Entity({ name: 'food_logs' })
 export class FoodLogEntity extends BaseEntity implements FoodLog {
   @Column()
   @IsNotEmpty()

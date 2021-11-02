@@ -9,7 +9,7 @@ import { IntensityLogEntity } from './intensity-logs.entity';
 import { UserEntity } from './users.entity';
 import { BaseEntity } from './base.entity';
 
-@Entity()
+@Entity({ name: 'symptom_logs' })
 export class SymptomLogEntity extends BaseEntity implements SymptomLog {
   @Column()
   @IsNotEmpty()

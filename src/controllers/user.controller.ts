@@ -14,7 +14,6 @@ class UserController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      console.dir(req.user);
       const userId = req.user.id;
       let userData: Partial<User> = await this.userService.findUserById(userId);
       userData = { username: userData.username, email: userData.email };
