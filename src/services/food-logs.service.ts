@@ -1,17 +1,20 @@
-import bcrypt from 'bcrypt';
 import { getRepository } from 'typeorm';
-import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
-import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
-import { FoodLogEntity } from '../entity/food-logs.entity';
-import { FoodLog } from '../interfaces/food-logs.interface';
-import { UserEntity } from '../entity/users.entity';
-import { CreateFoodLogDto } from '../dtos/food-logs.dto';
+import { FoodLogEntity } from '@entity/food-logs.entity';
+import { FoodLog } from '@interfaces/food-logs.interface';
+import { UserEntity } from '@entity/users.entity';
+import { CreateFoodLogDto } from '@dtos/food-logs.dto';
+import { ProductEntity } from '@entity/products.entity';
+import { IngredientEntity } from '@entity/ingredients.entity';
+import HttpStatusCode from '@interfaces/http-codes.interface';
+import { checkIfConflict } from './common.services';
 
 class FoodLogsService {
   public foodLogs = FoodLogEntity;
   public users = UserEntity;
+  public products = ProductEntity;
+  public ingredients = IngredientEntity;
 
   public async getUserFoodLogs(userId: number): Promise<FoodLog[]> {
     const usersRepository = getRepository(this.users);
@@ -26,6 +29,7 @@ class FoodLogsService {
     userId: number,
     foodLog: CreateFoodLogDto,
   ): Promise<void> {
+    checkIfConflict(isEmpty(foodLog) || isEmpty(userId));
     const foodLogsRepository = getRepository(this.foodLogs);
     const usersRepository = getRepository(this.users);
     const user = await usersRepository.findOne({ where: { id: userId } });
@@ -33,82 +37,65 @@ class FoodLogsService {
     const foodLogEntity = new FoodLogEntity();
     foodLogEntity.user = user;
     foodLogEntity.date = new Date(foodLog.date);
-    // const user = await usersRepository.findOne({
-    //   where: { id: userId },
-    //   relations: ['foodLogs'],
-    // });
+    const products = await getRepository(this.products).find({
+      where: { id: foodLog.products },
+    });
+    const ingredients = await getRepository(this.ingredients).find({
+      where: { id: foodLog.ingredients },
+    });
+    if (isEmpty(products) && isEmpty(ingredients)) {
+      throw new HttpException(
+        HttpStatusCode.BAD_REQUEST,
+        'No products or ingredients selected',
+      );
+    }
+    foodLogEntity.products = products;
+    foodLogEntity.ingredients = ingredients;
+    await foodLogsRepository.save(foodLogEntity);
   }
 
-  // public async findUserById(userId: number): Promise<User> {
-  //   if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
+  public async updateUserFoodLogs(
+    userId: number,
+    foodLog: Partial<FoodLog>,
+  ): Promise<void> {
+    checkIfConflict(isEmpty(foodLog) || isEmpty(userId));
+    const foodLogsRepository = getRepository(this.foodLogs);
+    const foodLogEntity = await foodLogsRepository.findOne({
+      where: { id: foodLog.id },
+    });
+    checkIfConflict(foodLogEntity.user.id !== userId, 'User id does not match');
+    await foodLogsRepository.update(foodLog.id, { ...foodLog });
+  }
 
-  //   const userRepository = getRepository(this.users);
-  //   const findUser: User = await userRepository.findOne({
-  //     where: { id: userId },
-  //   });
-  //   if (!findUser) throw new HttpException(409, "You're not user");
+  public async findUserFoodLogById(
+    userId: number,
+    foodLogId: number,
+  ): Promise<FoodLog> {
+    checkIfConflict(isEmpty(foodLogId) || isEmpty(userId));
 
-  //   return findUser;
-  // }
+    const foodLogsRepository = getRepository(this.foodLogs);
+    const foodLog = await foodLogsRepository.findOne({
+      where: { id: foodLogId },
+    });
+    checkIfConflict(foodLog.user.id !== userId, 'User id does not match');
 
-  // public async createUser(userData: CreateUserDto): Promise<User> {
-  //   if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
+    return foodLog;
+  }
 
-  //   const userRepository = getRepository(this.users);
-  //   const findUser: User = await userRepository.findOne({
-  //     where: { email: userData.email },
-  //   });
-  //   if (findUser)
-  //     throw new HttpException(
-  //       409,
-  //       `You're email ${userData.email} already exists`,
-  //     );
+  public async deleteFoodLogById(
+    userId: number,
+    foodLogId: number,
+  ): Promise<void> {
+    checkIfConflict(isEmpty(foodLogId) || isEmpty(userId));
 
-  //   const hashedPassword = await bcrypt.hash(userData.password, 10);
-  //   const createUserData: User = await userRepository.save({
-  //     ...userData,
-  //     password: hashedPassword,
-  //   });
+    const foodLogsRepository = getRepository(this.foodLogs);
+    const foodLog = await foodLogsRepository.findOne({
+      where: { id: foodLogId },
+    });
+    checkIfConflict(foodLog.user.id !== userId);
 
-  //   return createUserData;
-  // }
-
-  // public async updateUser(
-  //   userId: number,
-  //   userData: CreateUserDto,
-  // ): Promise<User> {
-  //   if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
-
-  //   const userRepository = getRepository(this.users);
-  //   const findUser: User = await userRepository.findOne({
-  //     where: { id: userId },
-  //   });
-  //   if (!findUser) throw new HttpException(409, "You're not user");
-
-  //   const hashedPassword = await bcrypt.hash(userData.password, 10);
-  //   await userRepository.update(userId, {
-  //     ...userData,
-  //     password: hashedPassword,
-  //   });
-
-  //   const updateUser: User = await userRepository.findOne({
-  //     where: { id: userId },
-  //   });
-  //   return updateUser;
-  // }
-
-  // public async deleteUser(userId: number): Promise<User> {
-  //   if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
-
-  //   const userRepository = getRepository(this.users);
-  //   const findUser: User = await userRepository.findOne({
-  //     where: { id: userId },
-  //   });
-  //   if (!findUser) throw new HttpException(409, "You're not user");
-
-  //   await userRepository.delete({ id: userId });
-  //   return findUser;
-  // }
+    await foodLogsRepository.delete(foodLogId);
+  }
 }
 
 export default FoodLogsService;
