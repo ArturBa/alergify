@@ -5,7 +5,7 @@ import { Routes } from '@interfaces/routes.interface';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
 
-class FoodRoute implements Routes {
+class FoodLogsRoute implements Routes {
   public path = '/food';
   public router = Router();
   public foodLogsController = new FoodLogsController();
@@ -28,3 +28,5 @@ class FoodRoute implements Routes {
     );
   }
 }
+
+export default FoodLogsRoute;

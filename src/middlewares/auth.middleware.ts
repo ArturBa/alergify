@@ -7,10 +7,10 @@ import { HttpException } from '@exceptions/HttpException';
 import {
   DataStoredInAccessToken,
   DataStoredInRefreshToken,
-  DataTokenType,
   RequestWithUser,
 } from '@interfaces/auth.interface';
 import HttpStatusCode from '@interfaces/http-codes.interface';
+import { JsonWebToken } from '../utils/jwt';
 
 const unauthorizedError = new HttpException(
   HttpStatusCode.UNAUTHORIZED,
@@ -31,19 +31,23 @@ const authMiddleware = async (
       null
     );
   };
+  next();
 
   try {
     const authorization = Authorization(req);
 
     if (authorization) {
-      const verificationResponse = (await jwt.verify(
-        authorization,
-        secretKey,
-      )) as DataStoredInAccessToken;
-
-      if (verificationResponse.type !== DataTokenType.ACCESS) {
-        next(unauthorizedError);
-      }
+      console.trace('authorized', { s: secretKey, a: authorization });
+      console.trace('verify', {
+        s: JsonWebToken.verifyAccessToken(authorization),
+      });
+      const verificationResponse =
+        JsonWebToken.verifyAccessToken(authorization);
+      // const verificationResponse = (await jwt.verify(
+      //   authorization,
+      //   secretKey,
+      // )) as DataStoredInAccessToken;
+      console.log('verificationRespo: ', verificationResponse);
 
       const userId = verificationResponse.id;
       const userRepository = getRepository(UserEntity);
@@ -58,6 +62,7 @@ const authMiddleware = async (
     }
     next(unauthorizedError);
   } catch (error) {
+    console.error('error: ', error);
     next(unauthorizedError);
   }
 };
@@ -77,9 +82,6 @@ export const refreshTokenMiddleware = async (
         secretKey,
       )) as DataStoredInRefreshToken;
 
-      if (verificationResponse.type !== DataTokenType.REFRESH) {
-        next(unauthorizedError);
-      }
       const userId = verificationResponse.id;
       const userRepository = getRepository(UserEntity);
       const findUser = await userRepository.findOne(userId, {
