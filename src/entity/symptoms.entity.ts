@@ -1,7 +1,7 @@
 import { IsNotEmpty } from 'class-validator';
 import { Entity, Column, Unique } from 'typeorm';
 
-import { Symptom } from '../interfaces/symptoms.interface';
+import { Symptom } from '@interfaces/symptoms.interface';
 import { BaseEntity } from './base.entity';
 
 @Entity()

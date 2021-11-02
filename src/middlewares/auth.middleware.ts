@@ -10,7 +10,7 @@ import {
   DataTokenType,
   RequestWithUser,
 } from '@interfaces/auth.interface';
-import HttpStatusCode from '../interfaces/http-codes.interface';
+import HttpStatusCode from '@interfaces/http-codes.interface';
 
 const unauthorizedError = new HttpException(
   HttpStatusCode.UNAUTHORIZED,

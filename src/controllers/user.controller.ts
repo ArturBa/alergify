@@ -3,7 +3,7 @@ import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import userService from '@services/users.service';
 import { RequestWithUser } from '@interfaces/auth.interface';
-import HttpStatusCode from '../interfaces/http-codes.interface';
+import HttpStatusCode from '@interfaces/http-codes.interface';
 
 class UserController {
   public userService = new userService();
