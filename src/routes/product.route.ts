@@ -27,9 +27,9 @@ class ProductRoute implements Routes {
       this.productsController.getProductById,
     );
     this.router.get(
-      `${this.path}/barcode/:barcode(\\d+)`,
+      `${this.path}`,
       authMiddleware,
-      this.productsController.getProductByBarcode,
+      this.productsController.findProductByQuery,
     );
   }
 }

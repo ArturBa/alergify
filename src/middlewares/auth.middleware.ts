@@ -50,6 +50,7 @@ const authMiddleware = async (
         next();
       }
     }
+    next(unauthorizedError);
   } catch (error) {
     next(unauthorizedError);
   }
