@@ -8,7 +8,7 @@ import { CreateFoodLogDto } from '@dtos/food-logs.dto';
 import { ProductEntity } from '@entity/products.entity';
 import { IngredientEntity } from '@entity/ingredients.entity';
 import HttpStatusCode from '@interfaces/http-codes.interface';
-import { checkIfConflict } from './common.services';
+import { checkIfConflict } from './common.service';
 
 class FoodLogsService {
   public foodLogs = FoodLogEntity;

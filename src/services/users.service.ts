@@ -3,7 +3,7 @@ import { getRepository } from 'typeorm';
 import { CreateUserDto } from '@dtos/users.dto';
 import { UserEntity } from '@entity/users.entity';
 import { User } from '@interfaces/users.interface';
-import { checkIfConflict, checkIfEmpty } from './common.services';
+import { checkIfConflict, checkIfEmpty } from './common.service';
 
 class UserService {
   public users = UserEntity;
@@ -14,12 +14,13 @@ class UserService {
     return users;
   }
 
-  public async findUserById(userId: number): Promise<User> {
+  public async findUserById(userId: number): Promise<Partial<User>> {
     checkIfEmpty(userId);
 
     const userRepository = getRepository(this.users);
-    const findUser: User = await userRepository.findOne({
+    const findUser = await userRepository.findOne({
       where: { id: userId },
+      select: ['id', 'username', 'email'],
     });
     checkIfConflict(!findUser);
 
@@ -35,10 +36,8 @@ class UserService {
     });
     checkIfConflict(!findUser, 'Email already exist');
 
-    // const hashedPassword = await bcrypt.hash(userData.password, 10);
     const createUserData: User = await userRepository.save({
       ...userData,
-      // password: hashedPassword,
     });
 
     return createUserData;

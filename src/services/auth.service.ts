@@ -2,14 +2,11 @@ import bcrypt from 'bcrypt';
 import { getRepository } from 'typeorm';
 import { CreateUserDto } from '@dtos/users.dto';
 import { UserEntity } from '@entity/users.entity';
-import { HttpException } from '@exceptions/HttpException';
-import { isEmpty } from '@utils/util';
 
 import { User } from '@interfaces/users.interface';
-import HttpStatusCode from '@interfaces/http-codes.interface';
 import { TokenData } from '@interfaces/auth.interface';
 import { JsonWebToken } from '@utils/jwt';
-import { checkIfConflict, checkIfEmpty } from './common.services';
+import { checkIfConflict, checkIfEmpty } from './common.service';
 
 class AuthService {
   public users = UserEntity;
@@ -22,12 +19,9 @@ class AuthService {
       where: { email: userData.email },
     });
 
-    //TODO: #security this should return a default value with 'check your email'
-    if (findUser)
-      throw new HttpException(
-        HttpStatusCode.CONFLICT,
-        'Email already registered',
-      );
+    if (findUser) {
+      return;
+    }
 
     userData.password = await bcrypt.hash(userData.password, 10);
     await userRepository.save({ ...userData });

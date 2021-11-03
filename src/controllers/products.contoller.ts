@@ -21,6 +21,23 @@ class ProductsController {
     }
   };
 
+  public getProductByBarcode = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const productBarcode = Number(req.params.barcode);
+      const product = await this.productService.getProductByBarcode(
+        productBarcode,
+      );
+
+      res.status(HttpStatusCode.OK).json({ ...product });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public createProduct = async (
     req: Request,
     res: Response,

@@ -1,6 +1,6 @@
 import { getRepository } from 'typeorm';
 import { IngredientEntity } from '@entity/ingredients.entity';
-import { checkIfConflict, checkIfEmpty } from './common.services';
+import { checkIfConflict, checkIfEmpty } from './common.service';
 import { Ingredient } from '@interfaces/ingredients.interface';
 import { CreateIngredientDto } from '@dtos/ingredients.dto';
 
@@ -13,6 +13,7 @@ class IngredientsService {
     const ingredientsRepository = getRepository(this.ingredients);
     const ingredients = await ingredientsRepository.find({
       where: { name: query },
+      select: ['id', 'name'],
     });
 
     return ingredients;
@@ -26,7 +27,7 @@ class IngredientsService {
     const ingredientsRepository = getRepository(this.ingredients);
     const ingredient = await ingredientsRepository.findOne({
       where: { id: ingredientId },
-      select: ['name'],
+      select: ['id', 'name'],
     });
     checkIfConflict(!ingredient);
 

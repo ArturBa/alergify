@@ -3,7 +3,7 @@ import { CreateProductDto } from '@dtos/products.dto';
 import { IngredientEntity } from '@entity/ingredients.entity';
 import { ProductEntity } from '@entity/products.entity';
 import { Product } from '@interfaces/products.interface';
-import { checkIfConflict, checkIfEmpty } from './common.services';
+import { checkIfConflict, checkIfEmpty } from './common.service';
 
 class ProductsService {
   public products = ProductEntity;
@@ -15,6 +15,19 @@ class ProductsService {
     const productRepository = getRepository(this.products);
     const products = await productRepository.find({
       where: { name: query },
+      select: ['id', 'name'],
+    });
+
+    return products;
+  }
+
+  public async getProductByBarcode(barcode: number): Promise<Product> {
+    checkIfEmpty(barcode);
+
+    const productRepository = getRepository(this.products);
+    const products = await productRepository.findOne({
+      where: { barcode: barcode },
+      select: ['id', 'name'],
     });
 
     return products;
