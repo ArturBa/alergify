@@ -7,11 +7,12 @@ import { IntensityLog } from '@interfaces/intensity-logs.interface';
 import { SymptomEntity } from './symptoms.entity';
 import { BaseEntity } from './base.entity';
 
-@Entity()
+@Entity({ name: 'intensity_logs' })
 @Check(`"value" > 0 AND "value" < 11`)
 export class IntensityLogEntity extends BaseEntity implements IntensityLog {
   @Column({
     default: 5,
+    type: 'integer',
   })
   @IsNotEmpty()
   value: number;

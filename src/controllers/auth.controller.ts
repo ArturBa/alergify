@@ -45,6 +45,7 @@ class AuthController {
     next: NextFunction,
   ): Promise<void> => {
     try {
+      //TODO: Implement logout
       const userData: User = req.user;
       await this.authService.logout(userData);
 

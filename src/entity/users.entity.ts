@@ -1,4 +1,3 @@
-import { IsNotEmpty } from 'class-validator';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -17,21 +16,27 @@ import { FoodLogEntity } from './food-logs.entity';
 import { SymptomLogEntity } from './symptom-logs.entity';
 import { BaseEntity } from './base.entity';
 
-@Entity()
+@Entity({
+  name: 'users',
+})
 @Unique(['email'])
 export class UserEntity extends BaseEntity implements User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  @IsNotEmpty()
+  @Column({
+    unique: true,
+  })
   email: string;
 
   @Column()
-  @IsNotEmpty()
   password: string;
 
-  @Column()
+  @BeforeUpdate()
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+
+  @Column({
+    nullable: true,
+  })
   username: string;
 
   @OneToMany(() => FoodLogEntity, foodLog => foodLog.user)

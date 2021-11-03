@@ -7,10 +7,10 @@ import { HttpException } from '@exceptions/HttpException';
 import {
   DataStoredInAccessToken,
   DataStoredInRefreshToken,
-  DataTokenType,
   RequestWithUser,
 } from '@interfaces/auth.interface';
-import HttpStatusCode from '../interfaces/http-codes.interface';
+import HttpStatusCode from '@interfaces/http-codes.interface';
+import { JsonWebToken } from '../utils/jwt';
 
 const unauthorizedError = new HttpException(
   HttpStatusCode.UNAUTHORIZED,
@@ -36,14 +36,8 @@ const authMiddleware = async (
     const authorization = Authorization(req);
 
     if (authorization) {
-      const verificationResponse = (await jwt.verify(
-        authorization,
-        secretKey,
-      )) as DataStoredInAccessToken;
-
-      if (verificationResponse.type !== DataTokenType.ACCESS) {
-        next(unauthorizedError);
-      }
+      const verificationResponse =
+        JsonWebToken.verifyAccessToken(authorization);
 
       const userId = verificationResponse.id;
       const userRepository = getRepository(UserEntity);
@@ -77,9 +71,6 @@ export const refreshTokenMiddleware = async (
         secretKey,
       )) as DataStoredInRefreshToken;
 
-      if (verificationResponse.type !== DataTokenType.REFRESH) {
-        next(unauthorizedError);
-      }
       const userId = verificationResponse.id;
       const userRepository = getRepository(UserEntity);
       const findUser = await userRepository.findOne(userId, {

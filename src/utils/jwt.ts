@@ -4,7 +4,6 @@ import jwt from 'jsonwebtoken';
 import {
   DataStoredInAccessToken,
   DataStoredInRefreshToken,
-  DataTokenType,
   TokenData,
 } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
@@ -19,20 +18,30 @@ export class JsonWebToken {
 
   protected static createAccessToken(user: User): string {
     const data: DataStoredInAccessToken = {
-      type: DataTokenType.ACCESS,
       id: user.id,
     };
-    return jwt.sign(data, this.secret, { expiresIn: this.accessTokenTimeout });
+    return jwt.sign(data, this.secret, {
+      expiresIn: `${this.accessTokenTimeout}s`,
+    });
   }
 
   protected static createRefreshToken(user: User): string {
     const data: DataStoredInRefreshToken = {
-      type: DataTokenType.REFRESH,
       id: user.id,
       isRefresh: true,
       ip: '',
     };
-    return jwt.sign(data, this.secret, { expiresIn: this.refreshTokenTimeout });
+    return jwt.sign(data, this.secret, {
+      expiresIn: `${this.refreshTokenTimeout}s`,
+    });
+  }
+
+  static verifyAccessToken(token: string): DataStoredInAccessToken {
+    return jwt.verify(token, this.secret) as DataStoredInAccessToken;
+  }
+
+  static verifyRefreshToken(token: string): DataStoredInRefreshToken {
+    return jwt.verify(token, this.secret) as DataStoredInRefreshToken;
   }
 
   static createToken(user: User): TokenData {

@@ -6,5 +6,5 @@
   "files.autoSave": "afterDelay",
   "editor.fontFamily": "'Anonymous Pro', monospace",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "conventionalCommits.scopes": ["authorization"]
+  "conventionalCommits.scopes": ["authorization", "food-logs", "products"]
 }
