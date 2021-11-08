@@ -1,16 +1,13 @@
 import config from 'config';
 import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { getRepository } from 'typeorm';
-import { UserEntity } from '@entity/users.entity';
 import { HttpException } from '@exceptions/HttpException';
 import {
-  DataStoredInAccessToken,
   DataStoredInRefreshToken,
   RequestWithUser,
 } from '@interfaces/auth.interface';
 import HttpStatusCode from '@interfaces/http-codes.interface';
-import { JsonWebToken } from '../utils/jwt';
+import { JsonWebToken } from '@utils/jwt';
 
 const unauthorizedError = new HttpException(
   HttpStatusCode.UNAUTHORIZED,
@@ -40,13 +37,8 @@ const authMiddleware = async (
         JsonWebToken.verifyAccessToken(authorization);
 
       const userId = verificationResponse.id;
-      const userRepository = getRepository(UserEntity);
-      const findUser = await userRepository.findOne(userId, {
-        select: ['id', 'email'],
-      });
-
-      if (findUser) {
-        req.user = findUser;
+      if (userId) {
+        req.userId = userId;
         next();
       }
     }
@@ -72,15 +64,9 @@ export const refreshTokenMiddleware = async (
       )) as DataStoredInRefreshToken;
 
       const userId = verificationResponse.id;
-      const userRepository = getRepository(UserEntity);
-      const findUser = await userRepository.findOne(userId, {
-        select: ['id', 'email'],
-      });
 
-      if (findUser) {
-        req.user = findUser;
-        next();
-      }
+      req.userId = userId;
+      next();
     }
     next(unauthorizedError);
   } catch (error) {

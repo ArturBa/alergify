@@ -26,6 +26,17 @@ class FoodLogsRoute implements Routes {
       validationMiddleware(CreateFoodLogDto),
       this.foodLogsController.createUserFoodLogs,
     );
+    this.router.put(
+      `${this.path}`,
+      authMiddleware,
+      validationMiddleware(CreateFoodLogDto, 'body', true),
+      this.foodLogsController.updateUserFoodLogs,
+    );
+    this.router.delete(
+      `${this.path}/:id(\\d+)`,
+      authMiddleware,
+      this.foodLogsController.deleteUserFoodLogById,
+    );
   }
 }
 

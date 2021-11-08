@@ -46,8 +46,8 @@ class AuthController {
   ): Promise<void> => {
     try {
       //TODO: Implement logout
-      const userData: User = req.user;
-      await this.authService.logout(userData);
+      const userId = req.userId;
+      await this.authService.logout(userId);
 
       res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
@@ -61,7 +61,7 @@ class AuthController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userData: User = req.user;
+      const userData: number = req.userId;
       const tokenData = JsonWebToken.createToken(userData);
 
       res.status(HttpStatusCode.OK).json(tokenData);

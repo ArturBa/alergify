@@ -13,7 +13,7 @@ export class FoodLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userId = req.user.id;
+      const userId = req.userId;
       const foodLogs = await this.foodLogsService.getUserFoodLogs(userId);
       res.status(HttpStatusCode.OK).json(foodLogs);
     } catch (err) {
@@ -27,7 +27,7 @@ export class FoodLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userId = req.user.id;
+      const userId = req.userId;
       await this.foodLogsService.createUserFoodLogs(userId, req.body);
       res.sendStatus(HttpStatusCode.CREATED);
     } catch (err) {
@@ -41,7 +41,7 @@ export class FoodLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userId = req.user.id;
+      const userId = req.userId;
       await this.foodLogsService.updateUserFoodLogs(userId, req.body);
       res.sendStatus(HttpStatusCode.OK);
     } catch (err) {
@@ -55,7 +55,7 @@ export class FoodLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userId = req.user.id;
+      const userId = req.userId;
       const foodId = Number(req.params.id);
       const foodLog = await this.foodLogsService.findUserFoodLogById(
         userId,
@@ -73,7 +73,7 @@ export class FoodLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userId = req.user.id;
+      const userId = req.userId;
       const foodId = Number(req.params.id);
       await this.foodLogsService.deleteFoodLogById(userId, foodId);
       res.sendStatus(HttpStatusCode.OK);

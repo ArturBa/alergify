@@ -1,0 +1,88 @@
+import { NextFunction, Request, Response } from 'express';
+
+import SymptomLogService from '@services/symptom-logs.service';
+import { RequestWithUser } from '@interfaces/auth.interface';
+import HttpStatusCode from '../interfaces/http-codes.interface';
+
+class SymptomLogsController {
+  public symptomLogService = new SymptomLogService();
+
+  public getSymptomLogs = async (
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const symptomLogs = await this.symptomLogService.getAllSymptomLogs(
+        req.userId,
+      );
+
+      res.status(200).json({ data: symptomLogs });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getSymptomLogById = async (
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const symptomId = Number(req.params.id);
+      const findOneUserData = await this.symptomLogService.findSymptomLogById(
+        symptomId,
+        req.userId,
+      );
+
+      res.status(200).json(findOneUserData);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public createSymptomLog = async (
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      await this.symptomLogService.createSymptom(req.body, req.userId);
+
+      res.status(HttpStatusCode.CREATED);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public updateSymptomLog = async (
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      await this.symptomLogService.updateSymptom(req.body, req.userId);
+
+      res.sendStatus(HttpStatusCode.OK);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteSymptomLog = async (
+    req: RequestWithUser,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const symptomId = Number(req.params.id);
+      await this.symptomLogService.deleteSymptomLog(symptomId, req.userId);
+
+      res.sendStatus(HttpStatusCode.OK);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+export default SymptomLogsController;

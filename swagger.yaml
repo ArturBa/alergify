@@ -1,126 +1,342 @@
+# https://editor.swagger.io/
+openapi: 3.0.1
+info:
+  title: Alergetic RestApi
+  version: 0.1.0
 tags:
-  - name: users
-    description: users API
+  - name: auth
+    description: auth API
+  - name: food
+    description: food API
+  - name: ingredient
+    description: ingredient API
+  - name: product
+    description: product API
 
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    auth-jwt:
+      type: object
+      properties:
+        expiresIn:
+          type: integer
+          description: vality time of access token in seconds
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+    user:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        username:
+          type: integer
+          description: user Id
+        email:
+          type: string
+          format: email
+          description: user Email
+        password:
+          type: string
+          description: user Password
+security:
+  - bearerAuth: []
+  
 paths:
-  # [GET] users
-  /users:
-    get:
-      tags:
-        - users
-      summary: Find All Users
-      responses:
-        200:
-          description: 'OK'
-        500:
-          description: 'Server Error'
-
-    # [POST] users
+  /signup:
     post:
       tags:
-        - users
-      summary: Add User
-      parameters:
-        - name: body
-          in: body
-          description: user Data
-          required: true
-          schema:
-            $ref: '#/definitions/users'
+        - auth
+      summary: Sign up user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
       responses:
-        201:
-          description: 'Created'
-        400:
-          description: 'Bad Request'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/auth-jwt'
 
-  # [GET] users/id
-  /users/{id}:
+
+  /login:
+    post:
+      tags:
+        - auth
+      summary: Login user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+      responses:
+        '200':
+          description: A list of users
+          
+  /logout:
+    post:
+      tags:
+        - auth
+      summary: Logout user
+      responses:
+        '200':
+          description: OK
+          
+  /refresh-token:
+    post:
+      tags:
+        - auth
+      summary: Refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/auth-jwt'
+
+
+  /food:
+    post:
+      tags:
+        - food
+      summary: Add a food log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: One of the arrays needs to be not empty
+              type: object
+              required:
+                - date
+                - ingredients
+                - products
+              properties:
+                date:
+                  type: string
+                  format: date-time
+                  description: iso8601 string
+                ingredients:
+                  type: array
+                  items: 
+                    type: integer
+                products:
+                  type: array
+                  items: 
+                    type: integer
+      responses:
+        '201':
+          description: 'Created'
     get:
       tags:
-        - users
-      summary: Find User By Id
-      parameters:
-        - name: id
-          in: path
-          description: User Id
-          required: true
-          type: integer
+        - food
+      summary: Get user's food logs
+      description: Pagination will be added
       responses:
-        200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+        '200':
+          description: User's food logs
+          content:
+            application/json:
+              schema:
+                description: One of the arrays needs to be not empty
+                type: array
+                items:
+                  properties:
+                    date:
+                      type: string
+                      format: date-time
+                      description: iso8601 string
+                    ingredients:
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          id: 
+                            type: integer
+                          name: 
+                            type: string
+                    products:
+                      type: array
+                      items: 
+                        type: object
+                        properties:
+                          id: 
+                            type: integer
+                          name: 
+                            type: string
 
-    # [PUT] users/id
-    put:
+  /ingredient:
+    post: 
       tags:
-        - users
-      summary: Update User By Id
+        - ingredient
+      summary: Add an ingredient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: 'Created'
+  /ingredient/{id}:
+    get: 
+      tags:
+        - ingredient
+      summary: Get an ingredient
       parameters:
         - name: id
           in: path
-          description: user Id
-          required: true
-          type: integer
-        - name: body
-          in: body
-          description: user Data
+          description: ingredient ID
           required: true
           schema:
-            $ref: '#/definitions/users'
+            type: integer
+            format: int64
       responses:
         200:
-          description: 'OK'
-        400:
-          description: 'Bad Request'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
-
-    # [DELETE] users/id
-    delete:
+          description: Ingredient
+          content:
+            application/json:
+              schema:
+                description: One of the arrays needs to be not empty
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name: 
+                    type: string
+  
+  
+  /product:
+    post: 
       tags:
-        - users
-      summary: Delete User By Id
+        - product
+      summary: Add an product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - ingredients
+              properties:
+                name:
+                  type: string
+                ingredients:
+                  type: array
+                  items: 
+                    type: integer
+                barcode:
+                  type: integer
+      responses:
+        '201':
+          description: 'Created'
+  /product/{id}:
+    get: 
+      tags:
+        - product
+      summary: Get an product
       parameters:
         - name: id
           in: path
-          description: user Id
+          description: product ID
           required: true
-          type: integer
+          schema:
+            type: integer
+            format: int64
       responses:
         200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
-
-# definitions
-definitions:
-  users:
-    type: object
-    required:
-      - email
-      - password
-    properties:
-      id:
-        type: integer
-        description: user Id
-      email:
-        type: string
-        description: user Email
-      password:
-        type: string
-        description: user Password
-
-schemes:
-  - https
-  - http
+          description: product
+          content:
+            application/json:
+              schema:
+                description: One of the arrays needs to be not empty
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  barcode:
+                    type: integer
+                  name: 
+                    type: string
+                  ingredients:
+                    type: array
+                    items: 
+                      type: object
+                      properties:
+                        id: 
+                          type: integer
+                        name: 
+                          type: string
+                          
+  /me:
+    get: 
+      tags:
+        - user
+      summary: Get user info
+      responses:
+        200:
+          description: User info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    format: email
+                  username: 
+                    type: string
+    put:
+      tags:
+        - user
+      summary: Update user info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+      responses:
+        200:
+          description: Ok
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      responses:
+        200:
+          description: Ok
