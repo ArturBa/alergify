@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
 
-import { RequestWithUser } from '@interfaces/auth.interface';
-import HttpStatusCode from '@interfaces/http-codes.interface';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
+import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import IntensityLogService from '@services/intensity-logs.service';
 
 class IntensityLogsController {

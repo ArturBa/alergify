@@ -1,8 +1,8 @@
 import { Response, NextFunction } from 'express';
 
 import FoodLogsService from '@services/food-logs.service';
-import { RequestWithUser } from '@interfaces/auth.interface';
-import HttpStatusCode from '@interfaces/http-codes.interface';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
+import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 
 export class FoodLogsController {
   public foodLogsService = new FoodLogsService();

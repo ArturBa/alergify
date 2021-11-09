@@ -1,11 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  Unique,
-  OneToMany,
-  BeforeUpdate,
-} from 'typeorm';
+import { Entity, Column, Unique, OneToMany, BeforeUpdate } from 'typeorm';
 import bcrypt from 'bcrypt';
 
 import { User } from '@interfaces/users.interface';

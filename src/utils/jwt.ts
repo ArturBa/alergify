@@ -5,8 +5,7 @@ import {
   DataStoredInAccessToken,
   DataStoredInRefreshToken,
   TokenData,
-} from '@interfaces/auth.interface';
-import { User } from '@interfaces/users.interface';
+} from '@interfaces/internal/auth.interface';
 
 export class JsonWebToken {
   protected static readonly accessTokenTimeout =

@@ -5,8 +5,8 @@ import { HttpException } from '@exceptions/HttpException';
 import {
   DataStoredInRefreshToken,
   RequestWithUser,
-} from '@interfaces/auth.interface';
-import HttpStatusCode from '@interfaces/http-codes.interface';
+} from '@interfaces/internal/auth.interface';
+import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import { JsonWebToken } from '@utils/jwt';
 
 const unauthorizedError = new HttpException(
@@ -40,9 +40,12 @@ const authMiddleware = async (
       if (userId) {
         req.userId = userId;
         next();
+      } else {
+        next(unauthorizedError);
       }
+    } else {
+      next(unauthorizedError);
     }
-    next(unauthorizedError);
   } catch (error) {
     next(unauthorizedError);
   }

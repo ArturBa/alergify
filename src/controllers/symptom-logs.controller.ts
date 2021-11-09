@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 
 import SymptomLogService from '@services/symptom-logs.service';
-import { RequestWithUser } from '@interfaces/auth.interface';
-import HttpStatusCode from '../interfaces/http-codes.interface';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
+import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 
 class SymptomLogsController {
   public symptomLogService = new SymptomLogService();
@@ -17,7 +17,7 @@ class SymptomLogsController {
         req.userId,
       );
 
-      res.status(200).json({ data: symptomLogs });
+      res.status(HttpStatusCode.OK).json({ data: symptomLogs });
     } catch (error) {
       next(error);
     }
@@ -35,7 +35,7 @@ class SymptomLogsController {
         req.userId,
       );
 
-      res.status(200).json(findOneUserData);
+      res.status(HttpStatusCode.OK).json(findOneUserData);
     } catch (error) {
       next(error);
     }

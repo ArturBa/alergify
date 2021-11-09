@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import userService from '@services/users.service';
-import { RequestWithUser } from '@interfaces/auth.interface';
-import HttpStatusCode from '@interfaces/http-codes.interface';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
+import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 
 class UserController {
   public userService = new userService();
@@ -37,7 +37,9 @@ class UserController {
         userData,
       );
 
-      res.status(200).json({ data: updateUserData, message: 'updated' });
+      res
+        .status(HttpStatusCode.OK)
+        .json({ data: updateUserData, message: 'updated' });
     } catch (error) {
       next(error);
     }
@@ -52,7 +54,9 @@ class UserController {
       const userId = Number(req.params.id);
       const deleteUserData: User = await this.userService.deleteUser(userId);
 
-      res.status(200).json({ data: deleteUserData, message: 'deleted' });
+      res
+        .status(HttpStatusCode.OK)
+        .json({ data: deleteUserData, message: 'deleted' });
     } catch (error) {
       next(error);
     }

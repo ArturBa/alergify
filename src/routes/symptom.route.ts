@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { Routes } from '@interfaces/routes.interface';
+import { Routes } from '@interfaces/internal/routes.interface';
 import SymptomsController from '@controllers/symptoms.controller';
 import authMiddleware from '@middlewares/auth.middleware';
 

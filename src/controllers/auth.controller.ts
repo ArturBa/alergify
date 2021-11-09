@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
-import { RequestWithUser } from '@interfaces/auth.interface';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import { User } from '@interfaces/users.interface';
 import AuthService from '@services/auth.service';
-import HttpStatusCode from '@interfaces/http-codes.interface';
+import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import { JsonWebToken } from '@utils/jwt';
 
 class AuthController {

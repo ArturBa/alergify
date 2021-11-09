@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { FoodLogsController } from '@controllers/food-logs.controller';
-import { CreateFoodLogDto } from '@dtos/food-logs.dto';
-import { Routes } from '@interfaces/routes.interface';
+import { CreateFoodLogDto, UpdateFoodLogDto } from '@dtos/food-logs.dto';
+import { Routes } from '@interfaces/internal/routes.interface';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
 
@@ -29,7 +29,7 @@ class FoodLogsRoute implements Routes {
     this.router.put(
       `${this.path}`,
       authMiddleware,
-      validationMiddleware(CreateFoodLogDto, 'body', true),
+      validationMiddleware(UpdateFoodLogDto),
       this.foodLogsController.updateUserFoodLogs,
     );
     this.router.delete(

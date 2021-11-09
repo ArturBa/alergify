@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import SymptomService from '@services/symptoms.service';
+import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 
 class SymptomsController {
   public symptomService = new SymptomService();
@@ -12,7 +13,7 @@ class SymptomsController {
     try {
       const symptoms = await this.symptomService.getAllSymptoms();
 
-      res.status(200).json({ data: symptoms });
+      res.status(HttpStatusCode.OK).json({ data: symptoms });
     } catch (error) {
       next(error);
     }
@@ -29,7 +30,7 @@ class SymptomsController {
         symptomId,
       );
 
-      res.status(200).json(findOneUserData);
+      res.status(HttpStatusCode.OK).json(findOneUserData);
     } catch (error) {
       next(error);
     }

@@ -4,7 +4,7 @@ import { CreateUserDto } from '@dtos/users.dto';
 import { UserEntity } from '@entity/users.entity';
 
 import { User } from '@interfaces/users.interface';
-import { TokenData } from '@interfaces/auth.interface';
+import { TokenData } from '@interfaces/internal/auth.interface';
 import { JsonWebToken } from '@utils/jwt';
 import { checkIfConflict, checkIfEmpty } from './common.service';
 

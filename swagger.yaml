@@ -19,36 +19,162 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  parameters:
+    id:
+      name: id
+      in: path
+      description: id of the object
+      required: true
+      schema:
+        type: integer
+        format: int64
   schemas:
     auth-jwt:
       type: object
       properties:
         expiresIn:
           type: integer
-          description: vality time of access token in seconds
+          description: validity time of access token in seconds
         accessToken:
           type: string
         refreshToken:
           type: string
     user:
       type: object
-      required:
-        - email
-        - password
       properties:
         username:
-          type: integer
-          description: user Id
+          type: string
+          description: user name
         email:
           type: string
           format: email
           description: user Email
-        password:
+    user-create:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/user'
+        - type: object
+          properties:
+            password:
+              type: string
+              description: user Password
+    id:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          format: int64
+    paginate-response:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+    food-log:
+      type: object
+      properties:
+        date:
           type: string
-          description: user Password
+          format: date-time
+          description: iso8601 string
+    food-log-create:
+      type: object
+      required:
+        - date
+        - ingredients
+        - products
+      allOf:
+        - $ref: '#/components/schemas/food-log'
+        - type: object
+          properties:
+            ingredients:
+              type: array
+              items:
+                type: integer
+            products:
+              type: array
+              items:
+                type: integer
+    food-log-get:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/food-log'
+        - type: object
+          properties:
+            ingredients:
+              type: array
+              items:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/id'
+                  - $ref: '#/components/schemas/ingredient'
+            products:
+              type: array
+              items:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/id'
+                  - $ref: '#/components/schemas/product'
+    food-log-update:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/food-log-create'
+        - $ref: '#/components/schemas/id'
+    ingredient:
+      type: object
+      properties:
+        name:
+          type: string
+          description: ingredient name
+    ingredient-create:
+      type: object
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/ingredient'
+    product:
+      type: object
+      properties:
+        name:
+          type: string
+          description: product name
+        barcode:
+          type: number
+          description: product barcode
+    product-create:
+      type: object
+      required:
+        - name
+        - barcode
+        - ingredients
+      allOf:
+        - $ref: '#/components/schemas/product'
+        - type: object
+          properties:
+            ingredients:
+              type: array
+              items:
+                type: integer
+    product-get:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/product'
+        - $ref: '#/components/schemas/id'
+        - type: object
+          properties:
+            ingredients:
+              type: array
+              items:
+                allOf:
+                - $ref: '#/components/schemas/id'
+                - $ref: '#/components/schemas/ingredient'
+
+
 security:
   - bearerAuth: []
-  
+
 paths:
   /signup:
     post:
@@ -61,16 +187,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/user'
+              $ref: '#/components/schemas/user-create'
       responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/auth-jwt'
-
-
+        200:
+          description: OK
   /login:
     post:
       tags:
@@ -82,22 +202,28 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/user'
+              $ref: '#/components/schemas/user-create'
       responses:
-        '200':
-          description: A list of users
-          
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/auth-jwt'
   /logout:
     post:
+      security:
+        - bearerAuth: []
       tags:
         - auth
       summary: Logout user
       responses:
         '200':
           description: OK
-          
   /refresh-token:
     post:
+      security:
+        - bearerAuth: []
       tags:
         - auth
       summary: Refresh token
@@ -120,9 +246,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/auth-jwt'
 
-
   /food:
     post:
+      security:
+        - bearerAuth: []
       tags:
         - food
       summary: Add a food log
@@ -131,31 +258,16 @@ paths:
         content:
           application/json:
             schema:
-              description: One of the arrays needs to be not empty
-              type: object
-              required:
-                - date
-                - ingredients
-                - products
-              properties:
-                date:
-                  type: string
-                  format: date-time
-                  description: iso8601 string
-                ingredients:
-                  type: array
-                  items: 
-                    type: integer
-                products:
-                  type: array
-                  items: 
-                    type: integer
+              description: One of the arrays needs to be filled
+              $ref: '#/components/schemas/food-log-create'
       responses:
         '201':
           description: 'Created'
     get:
       tags:
         - food
+      security:
+       - bearerAuth: []
       summary: Get user's food logs
       description: Pagination will be added
       responses:
@@ -164,35 +276,51 @@ paths:
           content:
             application/json:
               schema:
-                description: One of the arrays needs to be not empty
-                type: array
-                items:
+                allOf:
+                - $ref: '#/components/schemas/paginate-response'
+                - type: object
                   properties:
-                    date:
-                      type: string
-                      format: date-time
-                      description: iso8601 string
-                    ingredients:
+                    data:
                       type: array
-                      items: 
-                        type: object
-                        properties:
-                          id: 
-                            type: integer
-                          name: 
-                            type: string
-                    products:
-                      type: array
-                      items: 
-                        type: object
-                        properties:
-                          id: 
-                            type: integer
-                          name: 
-                            type: string
+                      items:
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/food-log-get'
+                            - $ref: '#/components/schemas/id'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - food
+      summary: Update a food log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: One of the arrays needs to be not empty
+              $ref: '#/components/schemas/food-log-update'
+      responses:
+        '200':
+          description: 'OK'
+  /food/{id}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - food
+      summary: Delete food log by id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 'OK'
+
 
   /ingredient:
-    post: 
+    post:
+      security:
+        - bearerAuth: []
       tags:
         - ingredient
       summary: Add an ingredient
@@ -201,17 +329,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - name
-              properties:
-                name:
-                  type: string
+              $ref: '#/components/schemas/ingredient-create'
       responses:
         '201':
           description: 'Created'
   /ingredient/{id}:
-    get: 
+    get:
+      security:
+        - bearerAuth: []
       tags:
         - ingredient
       summary: Get an ingredient
@@ -229,17 +354,14 @@ paths:
           content:
             application/json:
               schema:
-                description: One of the arrays needs to be not empty
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name: 
-                    type: string
-  
-  
+                allOf:
+                  - $ref: '#/components/schemas/ingredient'
+                  - $ref: '#/components/schemas/id'
+
   /product:
-    post: 
+    post:
+      security:
+        - bearerAuth: []
       tags:
         - product
       summary: Add an product
@@ -248,62 +370,32 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - name
-                - ingredients
-              properties:
-                name:
-                  type: string
-                ingredients:
-                  type: array
-                  items: 
-                    type: integer
-                barcode:
-                  type: integer
+              $ref: '#/components/schemas/product-create'
       responses:
         '201':
           description: 'Created'
   /product/{id}:
-    get: 
+    get:
+      security:
+        - bearerAuth: []
       tags:
         - product
       summary: Get an product
       parameters:
-        - name: id
-          in: path
-          description: product ID
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/id'
       responses:
         200:
           description: product
           content:
             application/json:
               schema:
-                description: One of the arrays needs to be not empty
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  barcode:
-                    type: integer
-                  name: 
-                    type: string
-                  ingredients:
-                    type: array
-                    items: 
-                      type: object
-                      properties:
-                        id: 
-                          type: integer
-                        name: 
-                          type: string
-                          
+                allOf:
+                  - $ref: '#/components/schemas/product-get'
+
   /me:
-    get: 
+    get:
+      security:
+        - bearerAuth: []
       tags:
         - user
       summary: Get user info
@@ -313,14 +405,10 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  email:
-                    type: string
-                    format: email
-                  username: 
-                    type: string
+                $ref: '#/components/schemas/user'
     put:
+      security:
+        - bearerAuth: []
       tags:
         - user
       summary: Update user info
@@ -329,14 +417,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/user'
+              $ref: '#/components/schemas/user-create'
       responses:
         200:
-          description: Ok
+          description: OK
     delete:
+      security:
+        - bearerAuth: []
       tags:
         - user
       summary: Delete user
       responses:
         200:
-          description: Ok
+          description: OK
