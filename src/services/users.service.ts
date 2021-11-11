@@ -53,12 +53,12 @@ class UserService {
     const findUser: User = await userRepository.findOne({
       where: { id: userId },
     });
+    console.log(userId, userData);
+    console.log(findUser);
     checkIfConflict(!findUser);
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
     await userRepository.update(userId, {
       ...userData,
-      password: hashedPassword,
     });
 
     const updateUser: User = await userRepository.findOne({

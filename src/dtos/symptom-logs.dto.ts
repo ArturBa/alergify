@@ -1,4 +1,14 @@
-import { IsArray, IsISO8601, IsNotEmpty } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsISO8601,
+  IsNotEmpty,
+  ValidateNested,
+} from 'class-validator';
+import {
+  CreateIntensityLogDto,
+  UpdateIntensityLogDto,
+} from './intensity-logs.dto';
 
 export class CreateSymptomLogDto {
   @IsISO8601()
@@ -6,5 +16,13 @@ export class CreateSymptomLogDto {
 
   @IsArray()
   @IsNotEmpty()
-  public intensityLogs: number[];
+  // @ValidateNested()
+  public intensityLogs: CreateIntensityLogDto[];
+}
+
+export class UpdateSymptomLogDto extends CreateSymptomLogDto {
+  @IsInt()
+  public id: number;
+
+  public intensityLogs: UpdateIntensityLogDto[];
 }

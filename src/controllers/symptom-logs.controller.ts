@@ -17,7 +17,7 @@ class SymptomLogsController {
         req.userId,
       );
 
-      res.status(HttpStatusCode.OK).json({ data: symptomLogs });
+      res.status(HttpStatusCode.OK).json(symptomLogs);
     } catch (error) {
       next(error);
     }
@@ -49,7 +49,7 @@ class SymptomLogsController {
     try {
       await this.symptomLogService.createSymptom(req.body, req.userId);
 
-      res.status(HttpStatusCode.CREATED);
+      res.sendStatus(HttpStatusCode.CREATED);
     } catch (error) {
       next(error);
     }

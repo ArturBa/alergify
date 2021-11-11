@@ -1,7 +1,10 @@
 import { getRepository } from 'typeorm';
 import { checkIfConflict, checkIfEmpty } from './common.service';
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
-import { CreateIntensityLogDto } from '@dtos/intensity-logs.dto';
+import {
+  CreateIntensityLogDto,
+  UpdateIntensityLogDto,
+} from '@dtos/intensity-logs.dto';
 import { SymptomEntity } from '@entity/symptoms.entity';
 import { Symptom } from '@interfaces/symptoms.interface';
 
@@ -10,35 +13,33 @@ class IntensityLogService {
 
   public async createIntensityLog(
     intensityData: CreateIntensityLogDto,
-    userId: number,
-  ): Promise<void> {
+  ): Promise<IntensityLogEntity> {
     checkIfEmpty(intensityData);
-    checkIfEmpty(userId);
     const intensity = new IntensityLogEntity();
-    const symptom = await this.getSymptomById(intensityData.symptomId);
+    const symptom = await this.getSymptomById(intensityData.symptom);
     checkIfConflict(!symptom);
+    console.log(symptom);
     intensity.symptom = symptom;
     intensity.value = intensityData.value;
+    console.log(intensityData);
     const intensityLogRepository = getRepository(this.intensityLog);
     await intensityLogRepository.save(intensity);
+    return intensity;
   }
 
   public async updateIntensityLog(
-    intensityData: Partial<CreateIntensityLogDto> & { id: number },
-  ): Promise<void> {
+    intensityData: UpdateIntensityLogDto,
+  ): Promise<IntensityLogEntity> {
     checkIfEmpty(intensityData);
     checkIfEmpty(intensityData.id);
     const intensityLogRepository = getRepository(this.intensityLog);
     const intensity = await intensityLogRepository.findOne(intensityData.id);
     checkIfConflict(!intensity);
-    if (intensityData.symptomId) {
-      const symptom = await this.getSymptomById(intensityData.symptomId);
-      intensity.symptom = symptom;
-    }
-    if (intensityData.value) {
-      intensity.value = intensityData.value;
-    }
-    intensityLogRepository.update(intensity.id, intensity);
+    const symptom = await this.getSymptomById(intensityData.symptom);
+    intensity.symptom = symptom;
+    intensity.value = intensityData.value;
+    intensityLogRepository.save(intensity);
+    return intensity;
   }
 
   public async deleteIntensityLog(intensityId: number): Promise<void> {

@@ -1,5 +1,12 @@
 import { IsNotEmpty } from 'class-validator';
-import { Entity, Column, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 import { FoodLog } from '@interfaces/food-logs.interface';
 import { Ingredient } from '@interfaces/ingredients.interface';
@@ -25,6 +32,11 @@ export class FoodLogEntity extends BaseEntity implements FoodLog {
   @JoinTable()
   products: Product[];
 
+  @Column()
+  @IsNotEmpty()
+  userId: number;
+
   @ManyToOne(() => UserEntity, user => user.foodLogs)
+  @JoinTable({ name: 'userId' })
   user: User;
 }

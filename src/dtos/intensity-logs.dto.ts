@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, IsNumber, Max, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
 
 export class CreateIntensityLogDto {
   @IsInt()
@@ -7,5 +7,11 @@ export class CreateIntensityLogDto {
   public value: number;
 
   @IsNotEmpty()
-  public symptomId: number;
+  public symptom: number;
+}
+
+export class UpdateIntensityLogDto extends CreateIntensityLogDto {
+  @IsInt()
+  @IsOptional()
+  public id: number;
 }

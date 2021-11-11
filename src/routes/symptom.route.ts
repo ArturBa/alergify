@@ -18,11 +18,6 @@ class SymptomsRoute implements Routes {
       authMiddleware,
       this.symptomsController.getSymptoms,
     );
-    this.router.get(
-      `${this.path}/:id(\\d+)`,
-      authMiddleware,
-      this.symptomsController.getSymptomById,
-    );
   }
 }
 

@@ -3,7 +3,10 @@ import { Routes } from '@interfaces/internal/routes.interface';
 import SymptomLogsController from '@controllers/symptom-logs.controller';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
-import { CreateSymptomLogDto } from '@dtos/symptom-logs.dto';
+import {
+  CreateSymptomLogDto,
+  UpdateSymptomLogDto,
+} from '@dtos/symptom-logs.dto';
 
 class SymptomLogsRoute implements Routes {
   public path = '/symptom-log';
@@ -29,7 +32,7 @@ class SymptomLogsRoute implements Routes {
     this.router.put(
       `${this.path}`,
       authMiddleware,
-      validationMiddleware(CreateSymptomLogDto, 'body', true),
+      validationMiddleware(UpdateSymptomLogDto),
       this.symptomLogsController.updateSymptomLog,
     );
     this.router.delete(

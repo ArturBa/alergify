@@ -18,7 +18,7 @@ class AuthController {
       const userData: CreateUserDto = req.body;
       await this.authService.signup(userData);
 
-      res.sendStatus(HttpStatusCode.CREATED);
+      res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
       next(error);
     }

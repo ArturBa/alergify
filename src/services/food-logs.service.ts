@@ -32,10 +32,7 @@ class FoodLogsService {
         'ingredient.name',
       ])
       .getMany();
-    const total = await foodLogsRepository
-      .createQueryBuilder('foodLog')
-      .where('foodLog.userId = :userId', { userId })
-      .getCount();
+    const total = await foodLogsRepository.count({ where: { userId } });
 
     return { data, total };
   }
@@ -61,10 +58,9 @@ class FoodLogsService {
     checkIfConflict(isEmpty(foodLog) || isEmpty(userId));
     const foodLogsRepository = getRepository(this.foodLogs);
     const foodLogEntity = await foodLogsRepository.findOne({
-      where: { id: foodLog.id },
-      relations: ['user'],
+      where: { id: foodLog.id, userId },
     });
-    checkIfConflict(foodLogEntity.user.id !== userId, 'User id does not match');
+    checkIfConflict(foodLogEntity);
     const foodLogEntityCreated = await this.getFoodLogEntityFromCreateDto(
       foodLog,
     );
@@ -81,10 +77,9 @@ class FoodLogsService {
 
     const foodLogsRepository = getRepository(this.foodLogs);
     const foodLog = await foodLogsRepository.findOne({
-      where: { id: foodLogId },
-      relations: ['user'],
+      where: { id: foodLogId, userId },
     });
-    checkIfConflict(foodLog.user.id !== userId, 'User id does not match');
+    checkIfConflict(foodLog);
 
     return foodLog;
   }
@@ -97,10 +92,9 @@ class FoodLogsService {
 
     const foodLogsRepository = getRepository(this.foodLogs);
     const foodLog = await foodLogsRepository.findOne({
-      where: { id: foodLogId },
-      relations: ['user'],
+      where: { id: foodLogId, userId },
     });
-    checkIfConflict(foodLog.user.id !== userId);
+    checkIfConflict(foodLog);
 
     await foodLogsRepository.delete(foodLogId);
   }
@@ -113,7 +107,6 @@ class FoodLogsService {
     const products = await getRepository(this.products).find({
       where: { id: In(foodLogData.products) },
     });
-    console.log(products);
     const ingredients = await getRepository(this.ingredients).find({
       where: { id: In(foodLogData.ingredients) },
     });

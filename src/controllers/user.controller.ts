@@ -25,38 +25,32 @@ class UserController {
   };
 
   public updateUser = async (
-    req: Request,
+    req: RequestWithUser,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
       const userData: CreateUserDto = req.body;
       const updateUserData: User = await this.userService.updateUser(
-        userId,
+        req.userId,
         userData,
       );
 
-      res
-        .status(HttpStatusCode.OK)
-        .json({ data: updateUserData, message: 'updated' });
+      res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
       next(error);
     }
   };
 
   public deleteUser = async (
-    req: Request,
+    req: RequestWithUser,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
-      const deleteUserData: User = await this.userService.deleteUser(userId);
+      await this.userService.deleteUser(req.userId);
 
-      res
-        .status(HttpStatusCode.OK)
-        .json({ data: deleteUserData, message: 'deleted' });
+      res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
       next(error);
     }

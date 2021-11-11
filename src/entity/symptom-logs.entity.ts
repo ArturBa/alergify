@@ -1,5 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
-import { Entity, Column, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
+import { Entity, Column, JoinTable, ManyToOne, OneToMany } from 'typeorm';
 
 import { SymptomLog } from '@interfaces/symptom-logs.interface';
 import { IntensityLog } from '@interfaces/intensity-logs.interface';
@@ -15,10 +15,17 @@ export class SymptomLogEntity extends BaseEntity implements SymptomLog {
   @IsNotEmpty()
   date: Date;
 
-  @ManyToMany(() => IntensityLogEntity)
-  @JoinTable()
+  @OneToMany(
+    () => IntensityLogEntity,
+    intensityLog => intensityLog.symptomLog,
+    { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' },
+  )
   intensityLogs: IntensityLog[];
 
+  @Column()
+  userId: number;
+
   @ManyToOne(() => UserEntity, user => user.symptomLogs)
+  @JoinTable({ name: 'userId' })
   user: User;
 }

@@ -6,12 +6,16 @@ info:
 tags:
   - name: auth
     description: auth API
+  - name: user
+    description: user API
   - name: food
     description: food API
   - name: ingredient
     description: ingredient API
   - name: product
     description: product API
+  - name: symptom
+    description: symptom API
 
 components:
   securitySchemes:
@@ -168,9 +172,59 @@ components:
               type: array
               items:
                 allOf:
-                - $ref: '#/components/schemas/id'
-                - $ref: '#/components/schemas/ingredient'
-
+                  - $ref: '#/components/schemas/id'
+                  - $ref: '#/components/schemas/ingredient'
+    symptom:
+      type: object
+      properties:
+        name:
+          type: string
+          description: symptom name
+    symptom-get:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/id'
+        - $ref: '#/components/schemas/symptom'
+    intensity-log:
+      type: object
+      properties:
+        symptomId:
+          type: integer
+          format: int64
+        value:
+          description: intensity of the symptom in range [1, 10]
+          type: integer
+          format: int64
+    symptom-log:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: iso8601 string
+    symptom-log-get:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/id'
+        - $ref: '#/components/schemas/symptom-log'
+        - type: object
+          properties:
+            intensityLogs:
+              type: array
+              items:
+                allOf:
+                  - $ref: '#/components/schemas/id'
+                  - $ref: '#/components/schemas/intensity-log'
+    symptom-log-create:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/symptom-log'
+        - type: object
+          properties:
+            intensityLogs:
+              type: array
+              items:
+                $ref: '#/components/schemas/intensity-log'
 
 security:
   - bearerAuth: []
@@ -246,6 +300,45 @@ paths:
               schema:
                 $ref: '#/components/schemas/auth-jwt'
 
+  /me:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Get user info
+      responses:
+        200:
+          description: User info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Update user info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user-create'
+      responses:
+        200:
+          description: OK
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Delete user
+      responses:
+        200:
+          description: OK
+
   /food:
     post:
       security:
@@ -267,7 +360,7 @@ paths:
       tags:
         - food
       security:
-       - bearerAuth: []
+        - bearerAuth: []
       summary: Get user's food logs
       description: Pagination will be added
       responses:
@@ -277,16 +370,16 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: '#/components/schemas/paginate-response'
-                - type: object
-                  properties:
-                    data:
-                      type: array
-                      items:
+                  - $ref: '#/components/schemas/paginate-response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
                         items:
-                          allOf:
-                            - $ref: '#/components/schemas/food-log-get'
-                            - $ref: '#/components/schemas/id'
+                          items:
+                            allOf:
+                              - $ref: '#/components/schemas/food-log-get'
+                              - $ref: '#/components/schemas/id'
     put:
       security:
         - bearerAuth: []
@@ -315,7 +408,6 @@ paths:
       responses:
         '200':
           description: 'OK'
-
 
   /ingredient:
     post:
@@ -392,41 +484,82 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/product-get'
 
-  /me:
+  /symptoms:
     get:
       security:
         - bearerAuth: []
       tags:
-        - user
-      summary: Get user info
+        - symptom
       responses:
         200:
-          description: User info
+          description: Symptoms
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user'
-    put:
+                type: array
+                items:
+                  $ref: '#/components/schemas/symptom-get'
+
+  /symptom-log:
+    get:
       security:
         - bearerAuth: []
       tags:
-        - user
-      summary: Update user info
+        - symptom
+      responses:
+        200:
+          description: Symptoms
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/paginate-response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/symptom-log-get'
+                            - $ref: '#/components/schemas/id'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - symptom
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/user-create'
+              $ref: '#/components/schemas/symptom-log-create'
+      responses:
+        201:
+          description: Created
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - symptom
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/symptom-log-create'
+                - $ref: '#/components/schemas/id'
       responses:
         200:
           description: OK
+  /symptom-log/{id}:
     delete:
       security:
         - bearerAuth: []
       tags:
-        - user
-      summary: Delete user
+        - symptom
+      parameters:
+        - $ref: '#/components/parameters/id'
       responses:
         200:
           description: OK
