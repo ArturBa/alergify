@@ -24,7 +24,6 @@ class SymptomLogService {
     userId: number,
     paginate: PaginateRequest,
   ): Promise<PaginateResponse<Partial<SymptomLog>>> {
-    console.log('get all', { p: paginate, u: userId });
     const symptomLogRepository = getRepository(this.symptomLogs);
     const symptoms: SymptomLog[] = await symptomLogRepository.find({
       select: ['id', 'date'],
