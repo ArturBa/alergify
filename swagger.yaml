@@ -97,10 +97,12 @@ components:
               type: array
               items:
                 type: integer
+                description: id of the ingredient
             products:
               type: array
               items:
                 type: integer
+                description: id of the product
     food-log-get:
       type: object
       allOf:
@@ -161,6 +163,7 @@ components:
               type: array
               items:
                 type: integer
+                description: id of the ingredient
     product-get:
       type: object
       allOf:
@@ -376,10 +379,9 @@ paths:
                       data:
                         type: array
                         items:
-                          items:
-                            allOf:
-                              - $ref: '#/components/schemas/food-log-get'
-                              - $ref: '#/components/schemas/id'
+                          allOf:
+                            - $ref: '#/components/schemas/food-log-get'
+                            - $ref: '#/components/schemas/id'
     put:
       security:
         - bearerAuth: []

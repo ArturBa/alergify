@@ -53,8 +53,6 @@ class UserService {
     const findUser: User = await userRepository.findOne({
       where: { id: userId },
     });
-    console.log(userId, userData);
-    console.log(findUser);
     checkIfConflict(!findUser);
 
     await userRepository.update(userId, {

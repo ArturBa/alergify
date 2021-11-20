@@ -57,7 +57,6 @@ class ProductsService {
   public async createProduct(productData: CreateProductDto): Promise<void> {
     checkIfEmpty(productData);
 
-    console.log(productData);
     const productRepository = getRepository(this.products);
     const ingredients = await getRepository(this.ingredients).find({
       where: { id: In(productData.ingredients) },

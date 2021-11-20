@@ -24,11 +24,15 @@ export class FoodLogEntity extends BaseEntity implements FoodLog {
   @IsNotEmpty()
   date: Date;
 
-  @ManyToMany(() => IngredientEntity)
+  @ManyToMany(() => IngredientEntity, {
+    onDelete: 'RESTRICT',
+  })
   @JoinTable()
   ingredients: Ingredient[];
 
-  @ManyToMany(() => ProductEntity)
+  @ManyToMany(() => ProductEntity, {
+    onDelete: 'RESTRICT',
+  })
   @JoinTable()
   products: Product[];
 
@@ -36,7 +40,9 @@ export class FoodLogEntity extends BaseEntity implements FoodLog {
   @IsNotEmpty()
   userId: number;
 
-  @ManyToOne(() => UserEntity, user => user.foodLogs)
+  @ManyToOne(() => UserEntity, user => user.foodLogs, {
+    onDelete: 'CASCADE',
+  })
   @JoinTable({ name: 'userId' })
   user: User;
 }

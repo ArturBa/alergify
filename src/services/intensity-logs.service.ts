@@ -16,12 +16,10 @@ class IntensityLogService {
   ): Promise<IntensityLogEntity> {
     checkIfEmpty(intensityData);
     const intensity = new IntensityLogEntity();
-    const symptom = await this.getSymptomById(intensityData.symptom);
+    const symptom = await this.getSymptomById(intensityData.symptomId);
     checkIfConflict(!symptom);
-    console.log(symptom);
     intensity.symptom = symptom;
     intensity.value = intensityData.value;
-    console.log(intensityData);
     const intensityLogRepository = getRepository(this.intensityLog);
     await intensityLogRepository.save(intensity);
     return intensity;
@@ -35,7 +33,7 @@ class IntensityLogService {
     const intensityLogRepository = getRepository(this.intensityLog);
     const intensity = await intensityLogRepository.findOne(intensityData.id);
     checkIfConflict(!intensity);
-    const symptom = await this.getSymptomById(intensityData.symptom);
+    const symptom = await this.getSymptomById(intensityData.symptomId);
     intensity.symptom = symptom;
     intensity.value = intensityData.value;
     intensityLogRepository.save(intensity);

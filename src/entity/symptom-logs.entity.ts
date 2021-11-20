@@ -18,14 +18,16 @@ export class SymptomLogEntity extends BaseEntity implements SymptomLog {
   @OneToMany(
     () => IntensityLogEntity,
     intensityLog => intensityLog.symptomLog,
-    { cascade: true, onDelete: 'CASCADE', onUpdate: 'CASCADE' },
+    { cascade: true, onDelete: 'NO ACTION' },
   )
   intensityLogs: IntensityLog[];
 
   @Column()
   userId: number;
 
-  @ManyToOne(() => UserEntity, user => user.symptomLogs)
+  @ManyToOne(() => UserEntity, user => user.symptomLogs, {
+    onDelete: 'CASCADE',
+  })
   @JoinTable({ name: 'userId' })
   user: User;
 }

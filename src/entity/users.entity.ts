@@ -32,9 +32,15 @@ export class UserEntity extends BaseEntity implements User {
   })
   username: string;
 
-  @OneToMany(() => FoodLogEntity, foodLog => foodLog.user)
+  @OneToMany(() => FoodLogEntity, foodLog => foodLog.user, {
+    cascade: true,
+    onDelete: 'SET NULL',
+  })
   foodLogs: FoodLog[];
 
-  @OneToMany(() => SymptomLogEntity, symptomLog => symptomLog.user)
+  @OneToMany(() => SymptomLogEntity, symptomLog => symptomLog.user, {
+    cascade: true,
+    onDelete: 'SET NULL',
+  })
   symptomLogs: SymptomLog[];
 }

@@ -18,13 +18,17 @@ export class IntensityLogEntity extends BaseEntity implements IntensityLog {
   @IsNotEmpty()
   value: number;
 
-  @ManyToOne(() => SymptomLogEntity)
+  @ManyToOne(() => SymptomLogEntity, {
+    onDelete: 'CASCADE',
+  })
   symptomLog: SymptomLogEntity;
 
   @Column()
   symptomId: number;
 
-  @ManyToOne(() => SymptomEntity)
+  @ManyToOne(() => SymptomEntity, {
+    onDelete: 'RESTRICT',
+  })
   @JoinColumn({ name: 'symptomId' })
   @IsNotEmpty()
   symptom: Symptom;

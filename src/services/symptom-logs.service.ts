@@ -10,7 +10,6 @@ import {
 import { UserEntity } from '@entity/users.entity';
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
 import { Paginate } from '../interfaces/internal/paginate.interface';
-import { SymptomEntity } from '../entity/symptoms.entity';
 import { CreateIntensityLogDto } from '../dtos/intensity-logs.dto';
 import IntensityLogService from './intensity-logs.service';
 

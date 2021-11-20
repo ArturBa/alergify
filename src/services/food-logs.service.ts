@@ -60,7 +60,7 @@ class FoodLogsService {
     const foodLogEntity = await foodLogsRepository.findOne({
       where: { id: foodLog.id, userId },
     });
-    checkIfConflict(foodLogEntity);
+    checkIfConflict(!foodLogEntity);
     const foodLogEntityCreated = await this.getFoodLogEntityFromCreateDto(
       foodLog,
     );
@@ -79,7 +79,7 @@ class FoodLogsService {
     const foodLog = await foodLogsRepository.findOne({
       where: { id: foodLogId, userId },
     });
-    checkIfConflict(foodLog);
+    checkIfConflict(!foodLog);
 
     return foodLog;
   }
@@ -94,7 +94,7 @@ class FoodLogsService {
     const foodLog = await foodLogsRepository.findOne({
       where: { id: foodLogId, userId },
     });
-    checkIfConflict(foodLog);
+    checkIfConflict(!foodLog);
 
     await foodLogsRepository.delete(foodLogId);
   }

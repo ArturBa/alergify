@@ -7,7 +7,7 @@ export class CreateIntensityLogDto {
   public value: number;
 
   @IsNotEmpty()
-  public symptom: number;
+  public symptomId: number;
 }
 
 export class UpdateIntensityLogDto extends CreateIntensityLogDto {
