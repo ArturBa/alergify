@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import userService from '@services/users.service';
+import HttpStatusCode from '../interfaces/internal/http-codes.interface';
 
 class UsersController {
   public userService = new userService();
@@ -14,7 +15,9 @@ class UsersController {
     try {
       const findAllUsersData: User[] = await this.userService.findAllUser();
 
-      res.status(200).json({ data: findAllUsersData, message: 'findAll' });
+      res
+        .status(HttpStatusCode.OK)
+        .json({ data: findAllUsersData, message: 'findAll' });
     } catch (error) {
       next(error);
     }
@@ -29,7 +32,9 @@ class UsersController {
       const userId = Number(req.params.id);
       const findOneUserData = await this.userService.findUserById(userId);
 
-      res.status(200).json({ data: findOneUserData, message: 'findOne' });
+      res
+        .status(HttpStatusCode.OK)
+        .json({ data: findOneUserData, message: 'findOne' });
     } catch (error) {
       next(error);
     }
@@ -42,9 +47,9 @@ class UsersController {
   ): Promise<void> => {
     try {
       const userData: CreateUserDto = req.body;
-      const createUserData: User = await this.userService.createUser(userData);
+      await this.userService.createUser(userData);
 
-      res.status(201).json({ data: createUserData, message: 'created' });
+      res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
       next(error);
     }
@@ -63,7 +68,9 @@ class UsersController {
         userData,
       );
 
-      res.status(200).json({ data: updateUserData, message: 'updated' });
+      res
+        .status(HttpStatusCode.OK)
+        .json({ data: updateUserData, message: 'updated' });
     } catch (error) {
       next(error);
     }
@@ -78,7 +85,9 @@ class UsersController {
       const userId = Number(req.params.id);
       const deleteUserData: User = await this.userService.deleteUser(userId);
 
-      res.status(200).json({ data: deleteUserData, message: 'deleted' });
+      res
+        .status(HttpStatusCode.OK)
+        .json({ data: deleteUserData, message: 'deleted' });
     } catch (error) {
       next(error);
     }

@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
-import { RequestWithUser } from '@interfaces/auth.interface';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import { User } from '@interfaces/users.interface';
 import AuthService from '@services/auth.service';
-import HttpStatusCode from '@interfaces/http-codes.interface';
+import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import { JsonWebToken } from '@utils/jwt';
 
 class AuthController {
@@ -18,7 +18,7 @@ class AuthController {
       const userData: CreateUserDto = req.body;
       await this.authService.signup(userData);
 
-      res.sendStatus(HttpStatusCode.CREATED);
+      res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
       next(error);
     }
@@ -46,8 +46,8 @@ class AuthController {
   ): Promise<void> => {
     try {
       //TODO: Implement logout
-      const userData: User = req.user;
-      await this.authService.logout(userData);
+      const userId = req.userId;
+      await this.authService.logout(userId);
 
       res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
@@ -61,7 +61,7 @@ class AuthController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userData: User = req.user;
+      const userData: number = req.userId;
       const tokenData = JsonWebToken.createToken(userData);
 
       res.status(HttpStatusCode.OK).json(tokenData);

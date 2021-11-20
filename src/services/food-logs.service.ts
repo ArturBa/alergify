@@ -1,14 +1,13 @@
-import { getRepository } from 'typeorm';
-import { HttpException } from '@exceptions/HttpException';
+import { getRepository, In } from 'typeorm';
 import { isEmpty } from '@utils/util';
 import { FoodLogEntity } from '@entity/food-logs.entity';
 import { FoodLog } from '@interfaces/food-logs.interface';
 import { UserEntity } from '@entity/users.entity';
-import { CreateFoodLogDto } from '@dtos/food-logs.dto';
+import { CreateFoodLogDto, UpdateFoodLogDto } from '@dtos/food-logs.dto';
 import { ProductEntity } from '@entity/products.entity';
 import { IngredientEntity } from '@entity/ingredients.entity';
-import HttpStatusCode from '@interfaces/http-codes.interface';
 import { checkIfConflict } from './common.service';
+import { Paginate } from '@interfaces/internal/paginate.interface';
 
 class FoodLogsService {
   public foodLogs = FoodLogEntity;
@@ -16,9 +15,9 @@ class FoodLogsService {
   public products = ProductEntity;
   public ingredients = IngredientEntity;
 
-  public async getUserFoodLogs(userId: number): Promise<FoodLog[]> {
+  public async getUserFoodLogs(userId: number): Promise<Paginate<FoodLog>> {
     const foodLogsRepository = getRepository(this.foodLogs);
-    const foodLogs = await foodLogsRepository
+    const data = await foodLogsRepository
       .createQueryBuilder('foodLog')
       .where('foodLog.userId = :userId', { userId })
       .leftJoinAndSelect('foodLog.products', 'product')
@@ -28,12 +27,14 @@ class FoodLogsService {
         'foodLog.date',
         'product.id',
         'product.name',
+        'product.barcode',
         'ingredient.id',
         'ingredient.name',
       ])
       .getMany();
+    const total = await foodLogsRepository.count({ where: { userId } });
 
-    return foodLogs;
+    return { data, total };
   }
 
   public async createUserFoodLogs(
@@ -42,40 +43,30 @@ class FoodLogsService {
   ): Promise<void> {
     checkIfConflict(isEmpty(foodLog) || isEmpty(userId));
     const foodLogsRepository = getRepository(this.foodLogs);
+    const foodLogEntity = await this.getFoodLogEntityFromCreateDto(foodLog);
     const usersRepository = getRepository(this.users);
     const user = await usersRepository.findOne({ where: { id: userId } });
-
-    const foodLogEntity = new FoodLogEntity();
     foodLogEntity.user = user;
-    foodLogEntity.date = new Date(foodLog.date);
-    const products = await getRepository(this.products).find({
-      where: { id: foodLog.products },
-    });
-    const ingredients = await getRepository(this.ingredients).find({
-      where: { id: foodLog.ingredients },
-    });
-    if (isEmpty(products) && isEmpty(ingredients)) {
-      throw new HttpException(
-        HttpStatusCode.BAD_REQUEST,
-        'No products or ingredients selected',
-      );
-    }
-    foodLogEntity.products = products;
-    foodLogEntity.ingredients = ingredients;
+
     await foodLogsRepository.save(foodLogEntity);
   }
 
   public async updateUserFoodLogs(
     userId: number,
-    foodLog: Partial<FoodLog>,
+    foodLog: UpdateFoodLogDto,
   ): Promise<void> {
     checkIfConflict(isEmpty(foodLog) || isEmpty(userId));
     const foodLogsRepository = getRepository(this.foodLogs);
     const foodLogEntity = await foodLogsRepository.findOne({
-      where: { id: foodLog.id },
+      where: { id: foodLog.id, userId },
     });
-    checkIfConflict(foodLogEntity.user.id !== userId, 'User id does not match');
-    await foodLogsRepository.update(foodLog.id, { ...foodLog });
+    checkIfConflict(!foodLogEntity);
+    const foodLogEntityCreated = await this.getFoodLogEntityFromCreateDto(
+      foodLog,
+    );
+    foodLogEntity.ingredients = foodLogEntityCreated.ingredients;
+    foodLogEntity.products = foodLogEntityCreated.products;
+    await foodLogsRepository.save(foodLogEntity);
   }
 
   public async findUserFoodLogById(
@@ -86,9 +77,9 @@ class FoodLogsService {
 
     const foodLogsRepository = getRepository(this.foodLogs);
     const foodLog = await foodLogsRepository.findOne({
-      where: { id: foodLogId },
+      where: { id: foodLogId, userId },
     });
-    checkIfConflict(foodLog.user.id !== userId, 'User id does not match');
+    checkIfConflict(!foodLog);
 
     return foodLog;
   }
@@ -101,11 +92,32 @@ class FoodLogsService {
 
     const foodLogsRepository = getRepository(this.foodLogs);
     const foodLog = await foodLogsRepository.findOne({
-      where: { id: foodLogId },
+      where: { id: foodLogId, userId },
     });
-    checkIfConflict(foodLog.user.id !== userId);
+    checkIfConflict(!foodLog);
 
     await foodLogsRepository.delete(foodLogId);
+  }
+
+  protected async getFoodLogEntityFromCreateDto(
+    foodLogData: CreateFoodLogDto,
+  ): Promise<FoodLogEntity> {
+    const foodLogEntity = new FoodLogEntity();
+    foodLogEntity.date = new Date(foodLogData.date);
+    const products = await getRepository(this.products).find({
+      where: { id: In(foodLogData.products) },
+    });
+    const ingredients = await getRepository(this.ingredients).find({
+      where: { id: In(foodLogData.ingredients) },
+    });
+    checkIfConflict(
+      products.length !== foodLogData.products.length ||
+        ingredients.length !== foodLogData.ingredients.length,
+    );
+    foodLogEntity.products = products;
+    foodLogEntity.ingredients = ingredients;
+
+    return foodLogEntity;
   }
 }
 
