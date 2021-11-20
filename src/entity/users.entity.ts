@@ -1,4 +1,4 @@
-import { Entity, Column, Unique, OneToMany, BeforeUpdate } from 'typeorm';
+import { Entity, Column, OneToMany, BeforeUpdate } from 'typeorm';
 import bcrypt from 'bcrypt';
 
 import { User } from '@interfaces/users.interface';
@@ -12,7 +12,6 @@ import { BaseEntity } from './base.entity';
 @Entity({
   name: 'users',
 })
-@Unique(['email'])
 export class UserEntity extends BaseEntity implements User {
   @Column({
     unique: true,

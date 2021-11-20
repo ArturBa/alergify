@@ -4,7 +4,6 @@ import { RequestHandler } from 'express';
 import { HttpException } from '@exceptions/HttpException';
 
 const constrains = (error: ValidationError): any => {
-  console.log(error);
   return error.constraints || [...error.children.map(c => constrains(c))][0];
 };
 

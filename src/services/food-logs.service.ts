@@ -7,7 +7,7 @@ import { CreateFoodLogDto, UpdateFoodLogDto } from '@dtos/food-logs.dto';
 import { ProductEntity } from '@entity/products.entity';
 import { IngredientEntity } from '@entity/ingredients.entity';
 import { checkIfConflict } from './common.service';
-import { Paginate } from '@interfaces/internal/paginate.interface';
+import { PaginateResponse } from '@interfaces/internal/paginate.interface';
 
 class FoodLogsService {
   public foodLogs = FoodLogEntity;
@@ -15,7 +15,9 @@ class FoodLogsService {
   public products = ProductEntity;
   public ingredients = IngredientEntity;
 
-  public async getUserFoodLogs(userId: number): Promise<Paginate<FoodLog>> {
+  public async getUserFoodLogs(
+    userId: number,
+  ): Promise<PaginateResponse<FoodLog>> {
     const foodLogsRepository = getRepository(this.foodLogs);
     const data = await foodLogsRepository
       .createQueryBuilder('foodLog')

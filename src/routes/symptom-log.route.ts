@@ -2,7 +2,9 @@ import { Router } from 'express';
 import { Routes } from '@interfaces/internal/routes.interface';
 import SymptomLogsController from '@controllers/symptom-logs.controller';
 import authMiddleware from '@middlewares/auth.middleware';
+import paginateMiddleware from '@middlewares/paginate.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
+
 import {
   CreateSymptomLogDto,
   UpdateSymptomLogDto,
@@ -21,6 +23,7 @@ class SymptomLogsRoute implements Routes {
     this.router.get(
       `${this.path}`,
       authMiddleware,
+      paginateMiddleware,
       this.symptomLogsController.getSymptomLogs,
     );
     this.router.post(

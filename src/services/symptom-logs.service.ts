@@ -9,8 +9,11 @@ import {
 } from '@dtos/symptom-logs.dto';
 import { UserEntity } from '@entity/users.entity';
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
-import { Paginate } from '../interfaces/internal/paginate.interface';
-import { CreateIntensityLogDto } from '../dtos/intensity-logs.dto';
+import {
+  PaginateRequest,
+  PaginateResponse,
+} from '@interfaces/internal/paginate.interface';
+import { CreateIntensityLogDto } from '@dtos/intensity-logs.dto';
 import IntensityLogService from './intensity-logs.service';
 
 class SymptomLogService {
@@ -19,18 +22,16 @@ class SymptomLogService {
 
   public async getAllSymptomLogs(
     userId: number,
-  ): Promise<Paginate<Partial<SymptomLog>>> {
+    paginate: PaginateRequest,
+  ): Promise<PaginateResponse<Partial<SymptomLog>>> {
+    console.log('get all', { p: paginate, u: userId });
     const symptomLogRepository = getRepository(this.symptomLogs);
     const symptoms: SymptomLog[] = await symptomLogRepository.find({
       select: ['id', 'date'],
       where: { userId },
       relations: ['intensityLogs'],
-    });
-    const data = symptoms.map(symptom => {
-      symptom.intensityLogs.forEach(intensityLog => {
-        delete intensityLog.createdAt;
-        delete intensityLog.updatedAt;
-      });
+      skip: paginate.start,
+      take: paginate.limit,
     });
 
     const total = await symptomLogRepository.count({ where: { userId } });

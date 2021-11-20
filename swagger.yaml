@@ -33,6 +33,24 @@ components:
       schema:
         type: integer
         format: int64
+    paginate:
+      name: paginate
+      in: query
+      description: pagination parameters
+      required: false
+      schema:
+        type: object
+        properties:
+          start:
+            type: integer
+            format: int64
+            description: start pagination. Default to 0
+            default: 0
+          limit:
+            type: integer
+            format: int64
+            description: limit pagination. Default to 10
+            default: 10
   schemas:
     auth-jwt:
       type: object
@@ -509,6 +527,8 @@ paths:
         - bearerAuth: []
       tags:
         - symptom
+      parameters:
+        - $ref: '#/components/parameters/paginate'
       responses:
         200:
           description: Symptoms
