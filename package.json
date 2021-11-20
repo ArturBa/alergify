@@ -1,8 +1,8 @@
 {
-  "name": "alergetic_typeorm",
-  "version": "0.0.0",
-  "description": "TypeScript + TypeORM + PostgreSQL + Express API Server",
-  "author": "",
+  "name": "alergify",
+  "version": "0.1.0",
+  "description": "Alergify - find your allergies",
+  "author": "Artur Bauer",
   "license": "ISC",
   "scripts": {
     "start": "yarn build && cross-env NODE_ENV=production node dist/server.js",

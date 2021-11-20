@@ -1,7 +1,8 @@
 # https://editor.swagger.io/
 openapi: 3.0.1
 info:
-  title: Alergetic RestApi
+  title: Alergify API
+  description: Alergify - find your allergies
   version: 0.1.0
 tags:
   - name: auth
