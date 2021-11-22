@@ -7,10 +7,13 @@ APP_VERSION=$(cat package.json \
   | awk -F: '{ print $2 }' \
   | sed 's/[",]//g' \
   | tr -d '[[:space:]]')
-APP_NAME=alergetic
+APP_NAME=alergify
 
 APP_IMAGE=${APP_NAME}:${APP_VERSION}
 APP_REMOTE=${REGISTRY_HOST}/${APP_NAME}:${APP_VERSION}
+
+echo "Build current app"
+yarn build
 
 echo "Pulling current image"
 docker pull ${REGISTRY_HOST}/${APP_NAME}:latest
