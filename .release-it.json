@@ -14,7 +14,7 @@
     },
     "@release-it/bumper": {
       "out": {
-        "file": "swagger.yaml"
+        "file": ["swagger.yaml", "package.json"]
       }
     }
   }
