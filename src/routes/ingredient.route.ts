@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import IngredientsController from '@controllers/ingredients.contoller';
 import { CreateIngredientDto } from '@dtos/ingredients.dto';
-import { Routes } from '@interfaces/routes.interface';
+import { Routes } from '@interfaces/internal/routes.interface';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
 

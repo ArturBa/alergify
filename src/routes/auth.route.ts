@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import AuthController from '@controllers/auth.controller';
 import { CreateUserDto } from '@dtos/users.dto';
-import { Routes } from '@interfaces/routes.interface';
+import { Routes } from '@interfaces/internal/routes.interface';
 import authMiddleware, {
   refreshTokenMiddleware,
 } from '@middlewares/auth.middleware';

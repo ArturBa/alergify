@@ -4,7 +4,7 @@ import { CreateUserDto } from '@dtos/users.dto';
 import { UserEntity } from '@entity/users.entity';
 
 import { User } from '@interfaces/users.interface';
-import { TokenData } from '@interfaces/auth.interface';
+import { TokenData } from '@interfaces/internal/auth.interface';
 import { JsonWebToken } from '@utils/jwt';
 import { checkIfConflict, checkIfEmpty } from './common.service';
 
@@ -43,16 +43,16 @@ class AuthService {
     );
     checkIfConflict(!isPasswordMatching, 'Email and password mismatch');
 
-    const tokenData = JsonWebToken.createToken(findUser);
+    const tokenData = JsonWebToken.createToken(findUser.id);
     return tokenData;
   }
 
-  public async logout(userData: User): Promise<User> {
-    checkIfEmpty(userData);
+  public async logout(userId: number): Promise<User> {
+    checkIfEmpty(userId);
 
     const userRepository = getRepository(this.users);
     const findUser: User = await userRepository.findOne({
-      where: { email: userData.email, password: userData.password },
+      where: { id: userId },
     });
     checkIfConflict(!findUser);
 

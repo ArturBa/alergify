@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreateProductDto } from '@dtos/products.dto';
-import HttpStatusCode from '@interfaces/http-codes.interface';
+import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import ProductsService from '@services/products.service';
 
 class ProductsController {

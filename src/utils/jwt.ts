@@ -5,8 +5,7 @@ import {
   DataStoredInAccessToken,
   DataStoredInRefreshToken,
   TokenData,
-} from '@interfaces/auth.interface';
-import { User } from '@interfaces/users.interface';
+} from '@interfaces/internal/auth.interface';
 
 export class JsonWebToken {
   protected static readonly accessTokenTimeout =
@@ -16,18 +15,18 @@ export class JsonWebToken {
   protected static readonly secret =
     (config.get('jwtSecret') as string) || 'secret';
 
-  protected static createAccessToken(user: User): string {
+  protected static createAccessToken(userId: number): string {
     const data: DataStoredInAccessToken = {
-      id: user.id,
+      id: userId,
     };
     return jwt.sign(data, this.secret, {
       expiresIn: `${this.accessTokenTimeout}s`,
     });
   }
 
-  protected static createRefreshToken(user: User): string {
+  protected static createRefreshToken(userId: number): string {
     const data: DataStoredInRefreshToken = {
-      id: user.id,
+      id: userId,
       isRefresh: true,
       ip: '',
     };
@@ -44,9 +43,9 @@ export class JsonWebToken {
     return jwt.verify(token, this.secret) as DataStoredInRefreshToken;
   }
 
-  static createToken(user: User): TokenData {
-    const accessToken = this.createAccessToken(user);
-    const refreshToken = this.createRefreshToken(user);
+  static createToken(userId: number): TokenData {
+    const accessToken = this.createAccessToken(userId);
+    const refreshToken = this.createRefreshToken(userId);
 
     return {
       expiresIn: this.accessTokenTimeout,

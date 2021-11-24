@@ -1,8 +1,9 @@
 import {
   IsArray,
-  IsDate,
+  IsInt,
   IsISO8601,
   IsNotEmpty,
+  IsOptional,
   ValidateIf,
 } from 'class-validator';
 
@@ -19,4 +20,9 @@ export class CreateFoodLogDto {
   @IsArray()
   @IsNotEmpty()
   public products: number[];
+}
+
+export class UpdateFoodLogDto extends CreateFoodLogDto {
+  @IsInt()
+  public id: number;
 }

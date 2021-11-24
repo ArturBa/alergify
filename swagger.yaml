@@ -1,126 +1,568 @@
+# https://editor.swagger.io/
+openapi: 3.0.1
+info:
+  title: Alergify API
+  description: Alergify - find your allergies
+  version: 0.1.0
 tags:
-  - name: users
-    description: users API
+  - name: auth
+    description: auth API
+  - name: user
+    description: user API
+  - name: food
+    description: food API
+  - name: ingredient
+    description: ingredient API
+  - name: product
+    description: product API
+  - name: symptom
+    description: symptom API
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    id:
+      name: id
+      in: path
+      description: id of the object
+      required: true
+      schema:
+        type: integer
+        format: int64
+  schemas:
+    auth-jwt:
+      type: object
+      properties:
+        expiresIn:
+          type: integer
+          description: validity time of access token in seconds
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+    user:
+      type: object
+      properties:
+        username:
+          type: string
+          description: user name
+        email:
+          type: string
+          format: email
+          description: user Email
+    user-create:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/user'
+        - type: object
+          properties:
+            password:
+              type: string
+              description: user Password
+    id:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          format: int64
+    paginate-response:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+    food-log:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: iso8601 string
+    food-log-create:
+      type: object
+      required:
+        - date
+        - ingredients
+        - products
+      allOf:
+        - $ref: '#/components/schemas/food-log'
+        - type: object
+          properties:
+            ingredients:
+              type: array
+              items:
+                type: integer
+                description: id of the ingredient
+            products:
+              type: array
+              items:
+                type: integer
+                description: id of the product
+    food-log-get:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/food-log'
+        - type: object
+          properties:
+            ingredients:
+              type: array
+              items:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/id'
+                  - $ref: '#/components/schemas/ingredient'
+            products:
+              type: array
+              items:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/id'
+                  - $ref: '#/components/schemas/product'
+    food-log-update:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/food-log-create'
+        - $ref: '#/components/schemas/id'
+    ingredient:
+      type: object
+      properties:
+        name:
+          type: string
+          description: ingredient name
+    ingredient-create:
+      type: object
+      required:
+        - name
+      allOf:
+        - $ref: '#/components/schemas/ingredient'
+    product:
+      type: object
+      properties:
+        name:
+          type: string
+          description: product name
+        barcode:
+          type: number
+          description: product barcode
+    product-create:
+      type: object
+      required:
+        - name
+        - barcode
+        - ingredients
+      allOf:
+        - $ref: '#/components/schemas/product'
+        - type: object
+          properties:
+            ingredients:
+              type: array
+              items:
+                type: integer
+                description: id of the ingredient
+    product-get:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/product'
+        - $ref: '#/components/schemas/id'
+        - type: object
+          properties:
+            ingredients:
+              type: array
+              items:
+                allOf:
+                  - $ref: '#/components/schemas/id'
+                  - $ref: '#/components/schemas/ingredient'
+    symptom:
+      type: object
+      properties:
+        name:
+          type: string
+          description: symptom name
+    symptom-get:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/id'
+        - $ref: '#/components/schemas/symptom'
+    intensity-log:
+      type: object
+      properties:
+        symptomId:
+          type: integer
+          format: int64
+        value:
+          description: intensity of the symptom in range [1, 10]
+          type: integer
+          format: int64
+    symptom-log:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: iso8601 string
+    symptom-log-get:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/id'
+        - $ref: '#/components/schemas/symptom-log'
+        - type: object
+          properties:
+            intensityLogs:
+              type: array
+              items:
+                allOf:
+                  - $ref: '#/components/schemas/id'
+                  - $ref: '#/components/schemas/intensity-log'
+    symptom-log-create:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/symptom-log'
+        - type: object
+          properties:
+            intensityLogs:
+              type: array
+              items:
+                $ref: '#/components/schemas/intensity-log'
+
+security:
+  - bearerAuth: []
 
 paths:
-  # [GET] users
-  /users:
-    get:
-      tags:
-        - users
-      summary: Find All Users
-      responses:
-        200:
-          description: 'OK'
-        500:
-          description: 'Server Error'
-
-    # [POST] users
+  /signup:
     post:
       tags:
-        - users
-      summary: Add User
-      parameters:
-        - name: body
-          in: body
-          description: user Data
-          required: true
-          schema:
-            $ref: '#/definitions/users'
+        - auth
+      summary: Sign up user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user-create'
       responses:
-        201:
-          description: 'Created'
-        400:
-          description: 'Bad Request'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+        200:
+          description: OK
+  /login:
+    post:
+      tags:
+        - auth
+      summary: Login user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user-create'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/auth-jwt'
+  /logout:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - auth
+      summary: Logout user
+      responses:
+        '200':
+          description: OK
+  /refresh-token:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - auth
+      summary: Refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/auth-jwt'
 
-  # [GET] users/id
-  /users/{id}:
+  /me:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Get user info
+      responses:
+        200:
+          description: User info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Update user info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user-create'
+      responses:
+        200:
+          description: OK
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - user
+      summary: Delete user
+      responses:
+        200:
+          description: OK
+
+  /food:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - food
+      summary: Add a food log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: One of the arrays needs to be filled
+              $ref: '#/components/schemas/food-log-create'
+      responses:
+        '201':
+          description: 'Created'
     get:
       tags:
-        - users
-      summary: Find User By Id
-      parameters:
-        - name: id
-          in: path
-          description: User Id
-          required: true
-          type: integer
+        - food
+      security:
+        - bearerAuth: []
+      summary: Get user's food logs
+      description: Pagination will be added
       responses:
-        200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
-
-    # [PUT] users/id
+        '200':
+          description: User's food logs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/paginate-response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/food-log-get'
+                            - $ref: '#/components/schemas/id'
     put:
+      security:
+        - bearerAuth: []
       tags:
-        - users
-      summary: Update User By Id
+        - food
+      summary: Update a food log
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: One of the arrays needs to be not empty
+              $ref: '#/components/schemas/food-log-update'
+      responses:
+        '200':
+          description: 'OK'
+  /food/{id}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - food
+      summary: Delete food log by id
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          description: 'OK'
+
+  /ingredient:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - ingredient
+      summary: Add an ingredient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ingredient-create'
+      responses:
+        '201':
+          description: 'Created'
+  /ingredient/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - ingredient
+      summary: Get an ingredient
       parameters:
         - name: id
           in: path
-          description: user Id
-          required: true
-          type: integer
-        - name: body
-          in: body
-          description: user Data
+          description: ingredient ID
           required: true
           schema:
-            $ref: '#/definitions/users'
+            type: integer
+            format: int64
       responses:
         200:
-          description: 'OK'
-        400:
-          description: 'Bad Request'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+          description: Ingredient
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ingredient'
+                  - $ref: '#/components/schemas/id'
 
-    # [DELETE] users/id
-    delete:
+  /product:
+    post:
+      security:
+        - bearerAuth: []
       tags:
-        - users
-      summary: Delete User By Id
+        - product
+      summary: Add an product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/product-create'
+      responses:
+        '201':
+          description: 'Created'
+  /product/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - product
+      summary: Get an product
       parameters:
-        - name: id
-          in: path
-          description: user Id
-          required: true
-          type: integer
+        - $ref: '#/components/parameters/id'
       responses:
         200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
+          description: product
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/product-get'
 
-# definitions
-definitions:
-  users:
-    type: object
-    required:
-      - email
-      - password
-    properties:
-      id:
-        type: integer
-        description: user Id
-      email:
-        type: string
-        description: user Email
-      password:
-        type: string
-        description: user Password
+  /symptoms:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - symptom
+      responses:
+        200:
+          description: Symptoms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/symptom-get'
 
-schemes:
-  - https
-  - http
+  /symptom-log:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - symptom
+      responses:
+        200:
+          description: Symptoms
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/paginate-response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/symptom-log-get'
+                            - $ref: '#/components/schemas/id'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - symptom
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/symptom-log-create'
+      responses:
+        201:
+          description: Created
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - symptom
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/symptom-log-create'
+                - $ref: '#/components/schemas/id'
+      responses:
+        200:
+          description: OK
+  /symptom-log/{id}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - symptom
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          description: OK

@@ -1,5 +1,12 @@
 import { IsNotEmpty } from 'class-validator';
-import { Entity, Column, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 import { FoodLog } from '@interfaces/food-logs.interface';
 import { Ingredient } from '@interfaces/ingredients.interface';
@@ -17,14 +24,25 @@ export class FoodLogEntity extends BaseEntity implements FoodLog {
   @IsNotEmpty()
   date: Date;
 
-  @ManyToMany(() => IngredientEntity)
+  @ManyToMany(() => IngredientEntity, {
+    onDelete: 'RESTRICT',
+  })
   @JoinTable()
   ingredients: Ingredient[];
 
-  @ManyToMany(() => ProductEntity)
+  @ManyToMany(() => ProductEntity, {
+    onDelete: 'RESTRICT',
+  })
   @JoinTable()
   products: Product[];
 
-  @ManyToOne(() => UserEntity, user => user.foodLogs)
+  @Column()
+  @IsNotEmpty()
+  userId: number;
+
+  @ManyToOne(() => UserEntity, user => user.foodLogs, {
+    onDelete: 'CASCADE',
+  })
+  @JoinTable({ name: 'userId' })
   user: User;
 }

@@ -55,10 +55,8 @@ class UserService {
     });
     checkIfConflict(!findUser);
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
     await userRepository.update(userId, {
       ...userData,
-      password: hashedPassword,
     });
 
     const updateUser: User = await userRepository.findOne({

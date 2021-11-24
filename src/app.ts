@@ -13,7 +13,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import { createConnection } from 'typeorm';
 import { dbConnection } from '@databases';
-import { Routes } from '@interfaces/routes.interface';
+import { Routes } from '@interfaces/internal/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 
@@ -75,7 +75,8 @@ class App {
 
   private initializeSwagger() {
     const options = {
-      swaggerDefinition: {
+      definition: {
+        openapi: '3.0.0',
         info: {
           title: 'REST API',
           version: '1.0.0',

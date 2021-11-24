@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import userService from '@services/users.service';
-import { RequestWithUser } from '@interfaces/auth.interface';
-import HttpStatusCode from '@interfaces/http-codes.interface';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
+import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 
 class UserController {
   public userService = new userService();
@@ -14,7 +14,7 @@ class UserController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userId = req.user.id;
+      const userId = req.userId;
       let userData: Partial<User> = await this.userService.findUserById(userId);
       userData = { username: userData.username, email: userData.email };
 
@@ -25,34 +25,32 @@ class UserController {
   };
 
   public updateUser = async (
-    req: Request,
+    req: RequestWithUser,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
       const userData: CreateUserDto = req.body;
       const updateUserData: User = await this.userService.updateUser(
-        userId,
+        req.userId,
         userData,
       );
 
-      res.status(200).json({ data: updateUserData, message: 'updated' });
+      res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
       next(error);
     }
   };
 
   public deleteUser = async (
-    req: Request,
+    req: RequestWithUser,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userId = Number(req.params.id);
-      const deleteUserData: User = await this.userService.deleteUser(userId);
+      await this.userService.deleteUser(req.userId);
 
-      res.status(200).json({ data: deleteUserData, message: 'deleted' });
+      res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
       next(error);
     }

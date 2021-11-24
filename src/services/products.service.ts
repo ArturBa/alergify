@@ -1,4 +1,4 @@
-import { getRepository } from 'typeorm';
+import { getRepository, In } from 'typeorm';
 import { CreateProductDto } from '@dtos/products.dto';
 import { IngredientEntity } from '@entity/ingredients.entity';
 import { ProductEntity } from '@entity/products.entity';
@@ -59,9 +59,9 @@ class ProductsService {
 
     const productRepository = getRepository(this.products);
     const ingredients = await getRepository(this.ingredients).find({
-      where: { id: productData.ingredients },
+      where: { id: In(productData.ingredients) },
     });
-    checkIfConflict(!ingredients);
+    checkIfConflict(ingredients.length !== productData.ingredients.length);
 
     const product = new ProductEntity();
     product.barcode = productData.barcode;
