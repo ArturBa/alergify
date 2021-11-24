@@ -4,15 +4,17 @@
     "host": "localhost",
     "user": "root",
     "password": "password",
-    "database": "typeorm"
+    "database": "./db/db.sqlite3"
   },
-  "secretKey": "secretKey",
+  "jwtSecret": "secretKey",
+  "accessTokenTimeout": "3600",
+  "refreshTokenTimeout": "630000",
   "log": {
     "format": "combined",
     "dir": "../logs"
   },
   "cors": {
-    "origin": "your.domain.com",
+    "origin": true,
     "credentials": true
   }
 }

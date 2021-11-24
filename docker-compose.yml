@@ -25,21 +25,6 @@ services:
     restart: 'unless-stopped'
     networks:
       - backend
-    links:
-      - pg
-    depends_on:
-      - pg
-  pg:
-    image: bitnami/postgresql:11-debian-9
-    container_name: pg
-    environment:
-      POSTGRESQL_USERNAME: root
-      POSTGRESQL_PASSWORD: password
-      POSTGRESQL_DATABASE: typeorm
-    ports:
-      - '5432:5432'
-    networks:
-      - backend
 
 networks:
   backend:
