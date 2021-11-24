@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import { IsNotEmpty } from 'class-validator';
 import { Entity, Column, Unique } from 'typeorm';
 

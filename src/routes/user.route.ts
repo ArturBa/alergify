@@ -7,7 +7,9 @@ import authMiddleware from '@middlewares/auth.middleware';
 
 class UserRoute implements Routes {
   public path = '/me';
+
   public router = Router();
+
   public usersController = new UsersController();
 
   constructor() {

@@ -1,16 +1,18 @@
 import bcrypt from 'bcrypt';
 import request from 'supertest';
 import { createConnection, getRepository } from 'typeorm';
-import App from '@/app';
+
 import { dbConnection } from '@databases';
 import { CreateUserDto } from '@dtos/users.dto';
 import UserRoute from '@routes/users.route';
+import App from '@/app';
 
 beforeAll(async () => {
   await createConnection(dbConnection);
 });
 
 afterAll(async () => {
+  // eslint-disable-next-line no-promise-executor-return
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
 });
 
@@ -18,7 +20,7 @@ describe('Testing Users', () => {
   describe('[GET] /users', () => {
     it('response findAll users', async () => {
       const usersRoute = new UserRoute();
-      const users = usersRoute.usersController.userService.users;
+      const { users } = usersRoute.usersController.userService;
       const userRepository = getRepository(users);
 
       userRepository.find = jest.fn().mockReturnValue([
@@ -49,7 +51,7 @@ describe('Testing Users', () => {
       const userId = 1;
 
       const usersRoute = new UserRoute();
-      const users = usersRoute.usersController.userService.users;
+      const { users } = usersRoute.usersController.userService;
       const userRepository = getRepository(users);
 
       userRepository.findOne = jest.fn().mockReturnValue({
@@ -74,7 +76,7 @@ describe('Testing Users', () => {
       };
 
       const usersRoute = new UserRoute();
-      const users = usersRoute.usersController.userService.users;
+      const { users } = usersRoute.usersController.userService;
       const userRepository = getRepository(users);
 
       userRepository.findOne = jest.fn().mockReturnValue(null);
@@ -102,7 +104,7 @@ describe('Testing Users', () => {
       };
 
       const usersRoute = new UserRoute();
-      const users = usersRoute.usersController.userService.users;
+      const { users } = usersRoute.usersController.userService;
       const userRepository = getRepository(users);
 
       userRepository.findOne = jest.fn().mockReturnValue({
@@ -134,7 +136,7 @@ describe('Testing Users', () => {
       const userId = 1;
 
       const usersRoute = new UserRoute();
-      const users = usersRoute.usersController.userService.users;
+      const { users } = usersRoute.usersController.userService;
       const userRepository = getRepository(users);
 
       userRepository.findOne = jest.fn().mockReturnValue({

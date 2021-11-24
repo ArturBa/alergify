@@ -1,5 +1,4 @@
 import { getRepository } from 'typeorm';
-import { checkIfConflict, checkIfEmpty } from './common.service';
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
 import {
   CreateIntensityLogDto,
@@ -7,6 +6,7 @@ import {
 } from '@dtos/intensity-logs.dto';
 import { SymptomEntity } from '@entity/symptoms.entity';
 import { Symptom } from '@interfaces/symptoms.interface';
+import { checkIfConflict, checkIfEmpty } from './common.service';
 
 class IntensityLogService {
   intensityLog = IntensityLogEntity;

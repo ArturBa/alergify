@@ -1,12 +1,6 @@
+/* eslint-disable import/prefer-default-export */
 import { IsNotEmpty } from 'class-validator';
-import {
-  Entity,
-  Column,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
 import { FoodLog } from '@interfaces/food-logs.interface';
 import { Ingredient } from '@interfaces/ingredients.interface';

@@ -1,5 +1,3 @@
-process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
-
 import 'reflect-metadata';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -17,9 +15,13 @@ import { Routes } from '@interfaces/internal/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 
+process.env.NODE_CONFIG_DIR = `${__dirname}/configs`;
+
 class App {
   public app: express.Application;
+
   public port: string | number;
+
   public env: string;
 
   constructor(routes: Routes[]) {
@@ -47,7 +49,7 @@ class App {
     return this.app;
   }
 
-  private connectToDatabase() {
+  private connectToDatabase(): void {
     createConnection(dbConnection);
   }
 
@@ -80,7 +82,6 @@ class App {
         info: {
           title: 'REST API',
           version: '1.0.0',
-          description: 'Example docs',
         },
       },
       apis: ['swagger.yaml'],

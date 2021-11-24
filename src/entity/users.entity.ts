@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import { Entity, Column, Unique, OneToMany, BeforeUpdate } from 'typeorm';
 import bcrypt from 'bcrypt';
 

@@ -45,8 +45,8 @@ class AuthController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      //TODO: Implement logout
-      const userId = req.userId;
+      // TODO: Implement logout
+      const { userId } = req;
       await this.authService.logout(userId);
 
       res.sendStatus(HttpStatusCode.OK);

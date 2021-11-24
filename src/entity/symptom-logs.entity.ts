@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import { IsNotEmpty } from 'class-validator';
 import { Entity, Column, JoinTable, ManyToOne, OneToMany } from 'typeorm';
 

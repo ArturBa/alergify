@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { CreateProductDto } from '@dtos/products.dto';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import IngredientsService from '@services/ingredients.service';
-import { CreateIngredientDto } from '../dtos/ingredients.dto';
+import { CreateIngredientDto } from '@dtos/ingredients.dto';
 
 class IngredientsController {
   public ingredientService = new IngredientsService();
@@ -45,7 +45,7 @@ class IngredientsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const query = req.query;
+      const { query } = req;
       throw new Error('Not implemented yet');
       const products = await this.ingredientService.findIngredientByQuery('');
 

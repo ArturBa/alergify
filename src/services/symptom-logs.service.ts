@@ -1,6 +1,5 @@
 import { getRepository } from 'typeorm';
 import { User } from '@interfaces/users.interface';
-import { checkIfConflict, checkIfEmpty } from './common.service';
 import { SymptomLog } from '@interfaces/symptom-logs.interface';
 import { SymptomLogEntity } from '@entity/symptom-logs.entity';
 import {
@@ -9,12 +8,14 @@ import {
 } from '@dtos/symptom-logs.dto';
 import { UserEntity } from '@entity/users.entity';
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
-import { Paginate } from '../interfaces/internal/paginate.interface';
-import { CreateIntensityLogDto } from '../dtos/intensity-logs.dto';
+import { Paginate } from '@interfaces/internal/paginate.interface';
+import { CreateIntensityLogDto } from '@dtos/intensity-logs.dto';
+import { checkIfConflict, checkIfEmpty } from './common.service';
 import IntensityLogService from './intensity-logs.service';
 
 class SymptomLogService {
   public symptomLogs = SymptomLogEntity;
+
   public intensityLogsService = new IntensityLogService();
 
   public async getAllSymptomLogs(
@@ -92,8 +93,8 @@ class SymptomLogService {
     const intensityLogs = await Promise.all(
       symptomData.intensityLogs.map(async intensityLog => {
         return intensityLog.id
-          ? await this.intensityLogsService.updateIntensityLog(intensityLog)
-          : await this.intensityLogsService.createIntensityLog(intensityLog);
+          ? this.intensityLogsService.updateIntensityLog(intensityLog)
+          : this.intensityLogsService.createIntensityLog(intensityLog);
       }),
     );
     symptomLog.intensityLogs = intensityLogs;

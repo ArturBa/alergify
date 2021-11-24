@@ -1,16 +1,17 @@
 import bcrypt from 'bcrypt';
 import request from 'supertest';
 import { createConnection, getRepository } from 'typeorm';
-import App from '@/app';
 import { dbConnection } from '@databases';
 import { CreateUserDto } from '@dtos/users.dto';
 import AuthRoute from '@routes/auth.route';
+import App from '@/app';
 
 beforeAll(async () => {
   await createConnection(dbConnection);
 });
 
 afterAll(async () => {
+  // eslint-disable-next-line no-promise-executor-return
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
 });
 
@@ -24,7 +25,7 @@ describe('Testing Auth', () => {
       };
 
       const authRoute = new AuthRoute();
-      const users = authRoute.authController.authService.users;
+      const { users } = authRoute.authController.authService;
       const userRepository = getRepository(users);
 
       userRepository.findOne = jest.fn().mockReturnValue(null);
@@ -51,7 +52,7 @@ describe('Testing Auth', () => {
       };
 
       const authRoute = new AuthRoute();
-      const users = authRoute.authController.authService.users;
+      const { users } = authRoute.authController.authService;
       const userRepository = getRepository(users);
 
       userRepository.findOne = jest.fn().mockReturnValue({

@@ -5,7 +5,9 @@ import authMiddleware from '@middlewares/auth.middleware';
 
 class SymptomsRoute implements Routes {
   public path = '/symptoms';
+
   public router = Router();
+
   public symptomsController = new SymptomsController();
 
   constructor() {

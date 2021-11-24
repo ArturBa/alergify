@@ -10,7 +10,9 @@ import {
 
 class SymptomLogsRoute implements Routes {
   public path = '/symptom-log';
+
   public router = Router();
+
   public symptomLogsController = new SymptomLogsController();
 
   constructor() {

@@ -1,8 +1,8 @@
 import { getRepository } from 'typeorm';
 import { IngredientEntity } from '@entity/ingredients.entity';
-import { checkIfConflict, checkIfEmpty } from './common.service';
 import { Ingredient } from '@interfaces/ingredients.interface';
 import { CreateIngredientDto } from '@dtos/ingredients.dto';
+import { checkIfConflict, checkIfEmpty } from './common.service';
 
 class IngredientsService {
   public ingredients = IngredientEntity;
