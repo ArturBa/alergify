@@ -13,7 +13,7 @@ class IntensityLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      await this.intensityLogService.createIntensityLog(req.body, req.userId);
+      await this.intensityLogService.createIntensityLog(req.body);
 
       res.status(HttpStatusCode.CREATED);
     } catch (error) {
