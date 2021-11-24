@@ -1,8 +1,10 @@
 {
   "git": {
     "commitMessage": "chore: :bookmark: release v${version}",
-    "requireBranch": "feat/release-it",
-    "push": false
+    "requireBranch": "development"
+  },
+  "github": {
+    "release": true
   },
   "npm": {
     "publish": false
