@@ -14,7 +14,7 @@ jobs:
         with:
           node-version: '14'
           cache: 'yarn'
-      - run: yarn install --frozen-lockfile -non-interactive --silent
+      - run: yarn install --frozen-lockfile --non-interactive --silent
   build:
     runs-on: ubuntu-latest
     steps:
