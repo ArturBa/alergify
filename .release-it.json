@@ -1,0 +1,21 @@
+{
+  "git": {
+    "commitMessage": "chore: :bookmark: release v${version}",
+    "requireBranch": "feat/release-it",
+    "push": false
+  },
+  "npm": {
+    "publish": false
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md"
+    },
+    "@release-it/bumper": {
+      "out": {
+        "file": "swagger.yaml"
+      }
+    }
+  }
+}
