@@ -25,6 +25,7 @@ COPY --from=build /app/package.json /app/package.json
 COPY --from=build /app/node_modules /app/node_modules
 
 COPY --from=build /app/dist /app/dist
+COPY swagger.yaml /app/swagger.yaml
 EXPOSE 3000
 
 ENV NODE_ENV production
