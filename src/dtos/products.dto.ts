@@ -1,10 +1,11 @@
+/* eslint-disable import/prefer-default-export */
+/* eslint-disable max-classes-per-file */
 import {
   IsArray,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
-  ValidateIf,
 } from 'class-validator';
 
 export class CreateProductDto {

@@ -7,12 +7,12 @@ import {
   TokenData,
 } from '@interfaces/internal/auth.interface';
 
-export default class JsonWebToken {
+export class JsonWebToken {
   protected static readonly accessTokenTimeout =
     (config.get('accessTokenTimeout') as number) || 60 * 60; // 1 hour
 
   protected static readonly refreshTokenTimeout =
-    (config.get('refreshTokenTimeout') as number) || '7d';
+    (config.get('refreshTokenTimeout') as number) || 7 * 24 * 60 * 60; // 1 week
 
   protected static readonly secret =
     (config.get('jwtSecret') as string) || 'secret';
@@ -60,3 +60,5 @@ export default class JsonWebToken {
     return `Authorization=${tokenData.accessToken}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
   }
 }
+
+export default JsonWebToken;

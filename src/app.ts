@@ -1,3 +1,8 @@
+/* eslint-disable import/first */
+// process.env['NODE_CONFIG_DIR'] = `${__dirname}/configs`;
+export default App;
+process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
+
 import 'reflect-metadata';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -15,7 +20,6 @@ import { Routes } from '@interfaces/internal/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 
-process.env.NODE_CONFIG_DIR = `${__dirname}/configs`;
 
 class App {
   public app: express.Application;
@@ -29,6 +33,7 @@ class App {
     this.port = process.env.PORT || 3000;
     this.env = process.env.NODE_ENV || 'development';
 
+    console.log(process.env.NODE_CONFIG_DIR);
     this.env !== 'test' && this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
@@ -96,4 +101,3 @@ class App {
   }
 }
 
-export default App;

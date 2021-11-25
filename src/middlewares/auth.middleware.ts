@@ -7,7 +7,7 @@ import {
   RequestWithUser,
 } from '@interfaces/internal/auth.interface';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
-import JsonWebToken from '@utils/jwt';
+import { JsonWebToken } from '@utils/jwt';
 
 const unauthorizedError = new HttpException(
   HttpStatusCode.UNAUTHORIZED,

@@ -1,9 +1,9 @@
 import config from 'config';
 import path from 'path';
 import { ConnectionOptions } from 'typeorm';
-import { dbConfig } from '@interfaces/internal/db.interface';
+import { DbConfig } from '@interfaces/internal/db.interface';
 
-const { database }: dbConfig = config.get('dbConfig');
+const { database }: DbConfig = config.get('dbConfig');
 export const dbConnection: ConnectionOptions = {
   type: 'sqlite',
   database,
@@ -18,3 +18,5 @@ export const dbConnection: ConnectionOptions = {
     subscribersDir: 'src/subscriber',
   },
 };
+
+export default dbConnection;
