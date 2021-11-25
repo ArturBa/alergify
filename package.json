@@ -1,6 +1,6 @@
 {
   "name": "alergify",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Alergify - find your allergies",
   "author": "Artur Bauer",
   "license": "ISC",
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
-    "class-transformer": "^0.4.0",
+    "class-transformer": "^0.5.1",
     "class-validator": "^0.13.1",
     "compression": "^1.7.4",
     "config": "^3.3.6",
@@ -46,6 +46,8 @@
     "winston-daily-rotate-file": "^4.5.5"
   },
   "devDependencies": {
+    "@release-it/bumper": "^3.0.1",
+    "@release-it/conventional-changelog": "^3.3.0",
     "@types/bcrypt": "^5.0.0",
     "@types/compression": "^1.7.1",
     "@types/config": "^0.0.39",
@@ -79,6 +81,7 @@
     "nodemon": "^2.0.9",
     "prettier": "^2.3.2",
     "supertest": "^6.1.6",
+    "release-it": "^14.11.8",
     "tsconfig-paths": "^3.10.1"
   }
 }
