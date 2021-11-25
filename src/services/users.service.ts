@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import { getRepository } from 'typeorm';
 import { CreateUserDto } from '@dtos/users.dto';
 import { UserEntity } from '@entity/users.entity';

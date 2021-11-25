@@ -43,3 +43,5 @@ export class UserEntity extends BaseEntity implements User {
   })
   symptomLogs: SymptomLog[];
 }
+
+export default UserEntity;

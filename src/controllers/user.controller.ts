@@ -1,12 +1,12 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
-import userService from '@services/users.service';
+import UserService from '@services/users.service';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 
 class UserController {
-  public userService = new userService();
+  public userService = new UserService();
 
   public getUser = async (
     req: RequestWithUser,
@@ -14,7 +14,7 @@ class UserController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const userId = req.userId;
+      const { userId } = req;
       let userData: Partial<User> = await this.userService.findUserById(userId);
       userData = { username: userData.username, email: userData.email };
 
@@ -31,10 +31,7 @@ class UserController {
   ): Promise<void> => {
     try {
       const userData: CreateUserDto = req.body;
-      const updateUserData: User = await this.userService.updateUser(
-        req.userId,
-        userData,
-      );
+      await this.userService.updateUser(req.userId, userData);
 
       res.sendStatus(HttpStatusCode.OK);
     } catch (error) {

@@ -23,9 +23,11 @@ class AuthService {
       return;
     }
 
-    userData.password = await bcrypt.hash(userData.password, 10);
-    await userRepository.save({ ...userData });
-    return;
+    const user = {
+      ...userData,
+      password: await bcrypt.hash(userData.password, 10),
+    };
+    await userRepository.save({ ...user });
   }
 
   public async login(userData: CreateUserDto): Promise<TokenData> {

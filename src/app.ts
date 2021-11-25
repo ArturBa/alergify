@@ -1,4 +1,6 @@
-process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
+/* eslint-disable import/first */
+// process.env['NODE_CONFIG_DIR'] = `${__dirname}/configs`;
+process.env.NODE_CONFIG_DIR = `${__dirname}/configs`;
 
 import 'reflect-metadata';
 import cookieParser from 'cookie-parser';
@@ -16,10 +18,13 @@ import { dbConnection } from '@databases';
 import { Routes } from '@interfaces/internal/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import * as packageJson from './package.json';
 
 class App {
   public app: express.Application;
+
   public port: string | number;
+
   public env: string;
 
   constructor(routes: Routes[]) {
@@ -27,7 +32,9 @@ class App {
     this.port = process.env.PORT || 3000;
     this.env = process.env.NODE_ENV || 'development';
 
-    this.env !== 'test' && this.connectToDatabase();
+    if (this.env !== 'test') {
+      App.connectToDatabase();
+    }
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
@@ -47,7 +54,7 @@ class App {
     return this.app;
   }
 
-  private connectToDatabase() {
+  private static connectToDatabase(): void {
     createConnection(dbConnection);
   }
 
@@ -78,9 +85,10 @@ class App {
       definition: {
         openapi: '3.0.0',
         info: {
-          title: 'REST API',
-          version: '1.0.0',
-          description: 'Example docs',
+          title: packageJson.name,
+          version: packageJson.version,
+          description: packageJson.description,
+          author: packageJson.author,
         },
       },
       apis: ['swagger.yaml'],

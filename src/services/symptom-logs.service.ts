@@ -1,6 +1,5 @@
 import { getRepository } from 'typeorm';
 import { User } from '@interfaces/users.interface';
-import { checkIfConflict, checkIfEmpty } from './common.service';
 import { SymptomLog } from '@interfaces/symptom-logs.interface';
 import { SymptomLogEntity } from '@entity/symptom-logs.entity';
 import {
@@ -14,10 +13,12 @@ import {
   PaginateResponse,
 } from '@interfaces/internal/paginate.interface';
 import { CreateIntensityLogDto } from '@dtos/intensity-logs.dto';
+import { checkIfConflict, checkIfEmpty } from './common.service';
 import IntensityLogService from './intensity-logs.service';
 
 class SymptomLogService {
   public symptomLogs = SymptomLogEntity;
+
   public intensityLogsService = new IntensityLogService();
 
   public async getAllSymptomLogs(
@@ -33,8 +34,20 @@ class SymptomLogService {
       take: paginate.limit,
     });
 
+    const data = symptoms.map(symptom => {
+      return {
+        ...symptom,
+        intensityLogs: symptom.intensityLogs.map(intensityLog => {
+          const response = { ...intensityLog };
+          delete response.createdAt;
+          delete response.updatedAt;
+          return response;
+        }),
+      };
+    });
+
     const total = await symptomLogRepository.count({ where: { userId } });
-    return { data: symptoms, total };
+    return { data, total };
   }
 
   public async findSymptomLogById(
@@ -67,7 +80,7 @@ class SymptomLogService {
       symptomData.intensityLogs,
     );
     symptom.intensityLogs = intensityLogs;
-    const user = await this.getUserById(userId);
+    const user = await SymptomLogService.getUserById(userId);
     symptom.user = user;
 
     const symptomLogRepository = getRepository(this.symptomLogs);
@@ -92,8 +105,8 @@ class SymptomLogService {
     const intensityLogs = await Promise.all(
       symptomData.intensityLogs.map(async intensityLog => {
         return intensityLog.id
-          ? await this.intensityLogsService.updateIntensityLog(intensityLog)
-          : await this.intensityLogsService.createIntensityLog(intensityLog);
+          ? this.intensityLogsService.updateIntensityLog(intensityLog)
+          : this.intensityLogsService.createIntensityLog(intensityLog);
       }),
     );
     symptomLog.intensityLogs = intensityLogs;
@@ -116,7 +129,7 @@ class SymptomLogService {
     await symptomLogRepository.delete({ id: symptomLogId, userId });
   }
 
-  protected async getUserById(userId: number): Promise<User> {
+  protected static async getUserById(userId: number): Promise<User> {
     const users = UserEntity;
     const userRepository = getRepository(users);
     const user = await userRepository.findOne({
@@ -126,7 +139,7 @@ class SymptomLogService {
     return user;
   }
 
-  protected async getIntensityLogsByIds(
+  protected static async getIntensityLogsByIds(
     ingredientIds: number[],
   ): Promise<IntensityLogEntity[]> {
     const intensityLog = IntensityLogEntity;

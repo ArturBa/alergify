@@ -1,11 +1,7 @@
-import bcrypt from 'bcrypt';
 import { getRepository } from 'typeorm';
-import { CreateUserDto } from '@dtos/users.dto';
-import { UserEntity } from '@entity/users.entity';
-import { User } from '@interfaces/users.interface';
+import { SymptomEntity } from '@entity/symptoms.entity';
+import { Symptom } from '@interfaces/symptoms.interface';
 import { checkIfConflict, checkIfEmpty } from './common.service';
-import { SymptomEntity } from '../entity/symptoms.entity';
-import { Symptom } from '../interfaces/symptoms.interface';
 
 class SymptomService {
   public symptoms = SymptomEntity;

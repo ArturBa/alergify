@@ -1,5 +1,4 @@
 import { getRepository } from 'typeorm';
-import { checkIfConflict, checkIfEmpty } from './common.service';
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
 import {
   CreateIntensityLogDto,
@@ -7,6 +6,7 @@ import {
 } from '@dtos/intensity-logs.dto';
 import { SymptomEntity } from '@entity/symptoms.entity';
 import { Symptom } from '@interfaces/symptoms.interface';
+import { checkIfConflict, checkIfEmpty } from './common.service';
 
 class IntensityLogService {
   intensityLog = IntensityLogEntity;
@@ -16,7 +16,9 @@ class IntensityLogService {
   ): Promise<IntensityLogEntity> {
     checkIfEmpty(intensityData);
     const intensity = new IntensityLogEntity();
-    const symptom = await this.getSymptomById(intensityData.symptomId);
+    const symptom = await IntensityLogService.getSymptomById(
+      intensityData.symptomId,
+    );
     checkIfConflict(!symptom);
     intensity.symptom = symptom;
     intensity.value = intensityData.value;
@@ -33,7 +35,9 @@ class IntensityLogService {
     const intensityLogRepository = getRepository(this.intensityLog);
     const intensity = await intensityLogRepository.findOne(intensityData.id);
     checkIfConflict(!intensity);
-    const symptom = await this.getSymptomById(intensityData.symptomId);
+    const symptom = await IntensityLogService.getSymptomById(
+      intensityData.symptomId,
+    );
     intensity.symptom = symptom;
     intensity.value = intensityData.value;
     intensityLogRepository.save(intensity);
@@ -46,7 +50,7 @@ class IntensityLogService {
     intensityLogRepository.delete(intensityId);
   }
 
-  protected getSymptomById(id: number): Promise<Symptom> {
+  protected static getSymptomById(id: number): Promise<Symptom> {
     return getRepository(SymptomEntity).findOne(id);
   }
 }

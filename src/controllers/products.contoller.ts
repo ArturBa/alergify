@@ -59,7 +59,6 @@ class ProductsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const query = req.query;
       throw new Error('Not implemented yet');
       const products = await this.productService.findProductByQuery('');
 

@@ -34,3 +34,5 @@ export class IntensityLogEntity extends BaseEntity implements IntensityLog {
   @IsNotEmpty()
   symptom: Symptom;
 }
+
+export default IntensityLogEntity;
