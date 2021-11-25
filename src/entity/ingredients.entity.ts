@@ -11,3 +11,5 @@ export class IngredientEntity extends BaseEntity implements Ingredient {
   @IsNotEmpty()
   name: string;
 }
+
+export default IngredientEntity;

@@ -7,6 +7,7 @@ import { checkIfConflict, checkIfEmpty } from './common.service';
 
 class ProductsService {
   public products = ProductEntity;
+
   public ingredients = IngredientEntity;
 
   public async findProductByQuery(query: string): Promise<Product[]> {
@@ -26,7 +27,7 @@ class ProductsService {
 
     const productRepository = getRepository(this.products);
     const products = await productRepository.findOne({
-      where: { barcode: barcode },
+      where: { barcode },
       select: ['id', 'name'],
     });
 

@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
-import { User } from '@interfaces/users.interface';
 import AuthService from '@services/auth.service';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import { JsonWebToken } from '@utils/jwt';
@@ -45,8 +44,8 @@ class AuthController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      //TODO: Implement logout
-      const userId = req.userId;
+      // TODO: Implement logout
+      const { userId } = req;
       await this.authService.logout(userId);
 
       res.sendStatus(HttpStatusCode.OK);

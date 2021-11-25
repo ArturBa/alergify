@@ -1,3 +1,5 @@
+/* eslint-disable import/prefer-default-export */
+/* eslint-disable max-classes-per-file */
 import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserDto {

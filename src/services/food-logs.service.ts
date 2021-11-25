@@ -6,13 +6,16 @@ import { UserEntity } from '@entity/users.entity';
 import { CreateFoodLogDto, UpdateFoodLogDto } from '@dtos/food-logs.dto';
 import { ProductEntity } from '@entity/products.entity';
 import { IngredientEntity } from '@entity/ingredients.entity';
-import { checkIfConflict } from './common.service';
 import { Paginate } from '@interfaces/internal/paginate.interface';
+import { checkIfConflict } from './common.service';
 
 class FoodLogsService {
   public foodLogs = FoodLogEntity;
+
   public users = UserEntity;
+
   public products = ProductEntity;
+
   public ingredients = IngredientEntity;
 
   public async getUserFoodLogs(userId: number): Promise<Paginate<FoodLog>> {

@@ -1,4 +1,6 @@
-process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
+/* eslint-disable import/first */
+// process.env['NODE_CONFIG_DIR'] = `${__dirname}/configs`;
+process.env.NODE_CONFIG_DIR = `${__dirname}/configs`;
 
 import 'reflect-metadata';
 import cookieParser from 'cookie-parser';
@@ -19,7 +21,9 @@ import { logger, stream } from '@utils/logger';
 
 class App {
   public app: express.Application;
+
   public port: string | number;
+
   public env: string;
 
   constructor(routes: Routes[]) {
@@ -27,7 +31,9 @@ class App {
     this.port = process.env.PORT || 3000;
     this.env = process.env.NODE_ENV || 'development';
 
-    this.env !== 'test' && this.connectToDatabase();
+    if (this.env !== 'test') {
+      App.connectToDatabase();
+    }
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
@@ -47,7 +53,7 @@ class App {
     return this.app;
   }
 
-  private connectToDatabase() {
+  private static connectToDatabase(): void {
     createConnection(dbConnection);
   }
 
@@ -80,7 +86,6 @@ class App {
         info: {
           title: 'REST API',
           version: '1.0.0',
-          description: 'Example docs',
         },
       },
       apis: ['swagger.yaml'],

@@ -31,3 +31,5 @@ export class SymptomLogEntity extends BaseEntity implements SymptomLog {
   @JoinTable({ name: 'userId' })
   user: User;
 }
+
+export default SymptomLogEntity;

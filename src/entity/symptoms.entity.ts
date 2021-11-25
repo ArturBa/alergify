@@ -11,3 +11,5 @@ export class SymptomEntity extends BaseEntity implements Symptom {
   @IsNotEmpty()
   name: string;
 }
+
+export default SymptomEntity;

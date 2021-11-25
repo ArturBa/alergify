@@ -26,3 +26,5 @@ export class BaseEntity {
     this.createdAt = new Date();
   }
 }
+
+export default BaseEntity;

@@ -19,3 +19,5 @@ export class ProductEntity extends BaseEntity implements Product {
   @JoinTable()
   ingredients: Ingredient[];
 }
+
+export default ProductEntity;

@@ -1,7 +1,7 @@
 import config from 'config';
 import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { HttpException } from '@exceptions/HttpException';
+import HttpException from '@exceptions/HttpException';
 import {
   DataStoredInRefreshToken,
   RequestWithUser,
@@ -21,10 +21,10 @@ const authMiddleware = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const Authorization = (req: RequestWithUser) => {
+  const Authorization = (authReq: RequestWithUser) => {
     return (
-      req.cookies['Authorization'] ||
-      req.header('Authorization').split('Bearer ')[1] ||
+      authReq.cookies.Authorization ||
+      authReq.header('Authorization').split('Bearer ')[1] ||
       null
     );
   };
@@ -58,7 +58,7 @@ export const refreshTokenMiddleware = async (
 ) => {
   try {
     const refreshToken =
-      req.cookies['refreshToken'] || req.body.refreshToken || null;
+      req.cookies.refreshToken || req.body.refreshToken || null;
 
     if (refreshToken) {
       const verificationResponse = (await jwt.verify(

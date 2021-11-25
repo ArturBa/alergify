@@ -7,7 +7,9 @@ import validationMiddleware from '@middlewares/validation.middleware';
 
 class FoodLogsRoute implements Routes {
   public path = '/food';
+
   public router = Router();
+
   public foodLogsController = new FoodLogsController();
 
   constructor() {

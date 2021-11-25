@@ -7,7 +7,9 @@ import validationMiddleware from '@middlewares/validation.middleware';
 
 class IngredientRoute implements Routes {
   public path = '/ingredient';
+
   public router = Router();
+
   public ingredientsController = new IngredientsController();
 
   constructor() {

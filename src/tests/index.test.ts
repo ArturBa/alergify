@@ -1,8 +1,9 @@
 import request from 'supertest';
-import App from '@/app';
 import IndexRoute from '@routes/index.route';
+import App from '@/app';
 
 afterAll(async () => {
+  // eslint-disable-next-line no-promise-executor-return
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
 });
 
