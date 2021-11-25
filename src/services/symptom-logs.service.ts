@@ -27,12 +27,12 @@ class SymptomLogService {
       where: { userId },
       relations: ['intensityLogs'],
     });
-    const data = symptoms.map(symptom => {
-      symptom.intensityLogs.forEach(intensityLog => {
-        delete intensityLog.createdAt;
-        delete intensityLog.updatedAt;
-      });
-    });
+    // const data = symptoms.map(symptom => {
+    //   symptom.intensityLogs.forEach(intensityLog => {
+    //     delete intensityLog.createdAt;
+    //     delete intensityLog.updatedAt;
+    //   });
+    // });
 
     const total = await symptomLogRepository.count({ where: { userId } });
     return { data: symptoms, total };
@@ -68,7 +68,7 @@ class SymptomLogService {
       symptomData.intensityLogs,
     );
     symptom.intensityLogs = intensityLogs;
-    const user = await this.getUserById(userId);
+    const user = await SymptomLogService.getUserById(userId);
     symptom.user = user;
 
     const symptomLogRepository = getRepository(this.symptomLogs);
@@ -117,7 +117,7 @@ class SymptomLogService {
     await symptomLogRepository.delete({ id: symptomLogId, userId });
   }
 
-  protected async getUserById(userId: number): Promise<User> {
+  protected static async getUserById(userId: number): Promise<User> {
     const users = UserEntity;
     const userRepository = getRepository(users);
     const user = await userRepository.findOne({
@@ -127,7 +127,7 @@ class SymptomLogService {
     return user;
   }
 
-  protected async getIntensityLogsByIds(
+  protected static async getIntensityLogsByIds(
     ingredientIds: number[],
   ): Promise<IntensityLogEntity[]> {
     const intensityLog = IntensityLogEntity;

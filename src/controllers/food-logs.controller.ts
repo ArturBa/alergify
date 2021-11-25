@@ -82,3 +82,5 @@ export class FoodLogsController {
     }
   };
 }
+
+export default FoodLogsController;

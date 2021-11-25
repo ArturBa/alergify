@@ -33,7 +33,9 @@ class IntensityLogService {
     const intensityLogRepository = getRepository(this.intensityLog);
     const intensity = await intensityLogRepository.findOne(intensityData.id);
     checkIfConflict(!intensity);
-    const symptom = await this.getSymptomById(intensityData.symptomId);
+    const symptom = await IntensityLogService.getSymptomById(
+      intensityData.symptomId,
+    );
     intensity.symptom = symptom;
     intensity.value = intensityData.value;
     intensityLogRepository.save(intensity);
@@ -46,7 +48,7 @@ class IntensityLogService {
     intensityLogRepository.delete(intensityId);
   }
 
-  protected getSymptomById(id: number): Promise<Symptom> {
+  protected static getSymptomById(id: number): Promise<Symptom> {
     return getRepository(SymptomEntity).findOne(id);
   }
 }
