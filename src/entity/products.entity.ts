@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { Entity, Column, Unique, JoinTable, ManyToMany } from 'typeorm';
 import { Product } from '@interfaces/products.interface';
 import { Ingredient } from '@interfaces/ingredients.interface';
@@ -20,3 +19,5 @@ export class ProductEntity extends BaseEntity implements Product {
   @JoinTable()
   ingredients: Ingredient[];
 }
+
+export default ProductEntity;

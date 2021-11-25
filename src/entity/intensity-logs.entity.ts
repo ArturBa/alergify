@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { IsNotEmpty } from 'class-validator';
 import { Entity, Column, JoinColumn, Check, ManyToOne } from 'typeorm';
 
@@ -34,3 +33,5 @@ export class IntensityLogEntity extends BaseEntity implements IntensityLog {
   @IsNotEmpty()
   symptom: Symptom;
 }
+
+export default IntensityLogEntity;

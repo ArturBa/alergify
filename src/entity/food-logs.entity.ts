@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { IsNotEmpty } from 'class-validator';
 import { Entity, Column, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
@@ -40,3 +39,5 @@ export class FoodLogEntity extends BaseEntity implements FoodLog {
   @JoinTable({ name: 'userId' })
   user: User;
 }
+
+export default FoodLogEntity;

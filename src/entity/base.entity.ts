@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
@@ -27,3 +26,5 @@ export class BaseEntity {
     this.createdAt = new Date();
   }
 }
+
+export default BaseEntity;

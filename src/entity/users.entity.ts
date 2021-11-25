@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { Entity, Column, Unique, OneToMany, BeforeUpdate } from 'typeorm';
 import bcrypt from 'bcrypt';
 
@@ -45,3 +44,5 @@ export class UserEntity extends BaseEntity implements User {
   })
   symptomLogs: SymptomLog[];
 }
+
+export default UserEntity;

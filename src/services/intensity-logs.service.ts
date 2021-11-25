@@ -16,7 +16,9 @@ class IntensityLogService {
   ): Promise<IntensityLogEntity> {
     checkIfEmpty(intensityData);
     const intensity = new IntensityLogEntity();
-    const symptom = await this.getSymptomById(intensityData.symptomId);
+    const symptom = await IntensityLogService.getSymptomById(
+      intensityData.symptomId,
+    );
     checkIfConflict(!symptom);
     intensity.symptom = symptom;
     intensity.value = intensityData.value;

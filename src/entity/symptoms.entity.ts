@@ -1,4 +1,3 @@
-/* eslint-disable import/prefer-default-export */
 import { IsNotEmpty } from 'class-validator';
 import { Entity, Column, Unique } from 'typeorm';
 
@@ -12,3 +11,5 @@ export class SymptomEntity extends BaseEntity implements Symptom {
   @IsNotEmpty()
   name: string;
 }
+
+export default SymptomEntity;

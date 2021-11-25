@@ -12,6 +12,7 @@ import { Paginate } from '@interfaces/internal/paginate.interface';
 import { CreateIntensityLogDto } from '@dtos/intensity-logs.dto';
 import { checkIfConflict, checkIfEmpty } from './common.service';
 import IntensityLogService from './intensity-logs.service';
+import { IntensityLog } from '../interfaces/intensity-logs.interface';
 
 class SymptomLogService {
   public symptomLogs = SymptomLogEntity;
@@ -27,15 +28,20 @@ class SymptomLogService {
       where: { userId },
       relations: ['intensityLogs'],
     });
-    // const data = symptoms.map(symptom => {
-    //   symptom.intensityLogs.forEach(intensityLog => {
-    //     delete intensityLog.createdAt;
-    //     delete intensityLog.updatedAt;
-    //   });
-    // });
+    const data = symptoms.map(symptom => {
+      return {
+        ...symptom,
+        intensityLogs: symptom.intensityLogs.map(intensityLog => {
+          const response = { ...intensityLog };
+          delete response.createdAt;
+          delete response.updatedAt;
+          return response;
+        }),
+      };
+    });
 
     const total = await symptomLogRepository.count({ where: { userId } });
-    return { data: symptoms, total };
+    return { data, total };
   }
 
   public async findSymptomLogById(
