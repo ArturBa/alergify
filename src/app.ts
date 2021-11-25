@@ -18,6 +18,7 @@ import { dbConnection } from '@databases';
 import { Routes } from '@interfaces/internal/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import * as packageJson from './package.json';
 
 class App {
   public app: express.Application;
@@ -84,8 +85,10 @@ class App {
       definition: {
         openapi: '3.0.0',
         info: {
-          title: 'REST API',
-          version: '1.0.0',
+          title: packageJson.name,
+          version: packageJson.version,
+          description: packageJson.description,
+          author: packageJson.author,
         },
       },
       apis: ['swagger.yaml'],
