@@ -1,14 +1,9 @@
 import { NextFunction, Response } from 'express';
 
-
 const defaultStart = 0;
 const defaultLimit = 10;
 
-const paginateMiddleware = (
-  req: any,
-  res: Response,
-  next: NextFunction,
-) => {
+const paginateMiddleware = (req: any, res: Response, next: NextFunction) => {
   try {
     const start = req.query.start as string;
     req.start = parseInt(start, 10) || defaultStart;

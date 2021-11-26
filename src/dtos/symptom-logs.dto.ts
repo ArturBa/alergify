@@ -1,5 +1,4 @@
 /* eslint-disable import/prefer-default-export */
-/* eslint-disable max-classes-per-file */
 import {
   IsArray,
   IsInt,
@@ -29,6 +28,4 @@ export class UpdateSymptomLogDto extends CreateSymptomLogDto {
   public intensityLogs: UpdateIntensityLogDto[];
 }
 
-export class PaginateSymptomLogDto {
-
-}
+export class PaginateSymptomLogDto {}

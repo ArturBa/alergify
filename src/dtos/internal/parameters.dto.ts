@@ -1,8 +1,10 @@
 /* eslint-disable import/prefer-default-export */
-/* eslint-disable max-classes-per-file */
 
-import { DateParameters, PaginateParameters } from "@interfaces/internal/parameters.interface";
-import { IsInt, IsISO8601, IsOptional, IsString, Min } from "class-validator";
+import {
+  DateParameters,
+  PaginateParameters,
+} from '@interfaces/internal/parameters.interface';
+import { IsInt, IsISO8601, IsOptional, IsString, Min } from 'class-validator';
 
 export class PaginateDto implements PaginateParameters {
   @IsOptional()

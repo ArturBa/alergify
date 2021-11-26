@@ -1,6 +1,9 @@
 import { FindManyOptions, getRepository } from 'typeorm';
 import { User } from '@interfaces/users.interface';
-import { SymptomLog, SymptomLogGetRequest } from '@interfaces/symptom-logs.interface';
+import {
+  SymptomLog,
+  SymptomLogGetRequest,
+} from '@interfaces/symptom-logs.interface';
 import { SymptomLogEntity } from '@entity/symptom-logs.entity';
 import {
   CreateSymptomLogDto,
@@ -10,12 +13,20 @@ import { UserEntity } from '@entity/users.entity';
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
 import { PaginateResponse } from '@interfaces/internal/response.interface';
 import { CreateIntensityLogDto } from '@dtos/intensity-logs.dto';
+import { isEmpty } from '@utils/util';
 import { checkIfConflict, checkIfEmpty } from './common.service';
 import IntensityLogService from './intensity-logs.service';
-import { afterDate, beforeDate, betweenDates, GetParamsBuilder } from './internal/get-params-builder';
-import { isEmpty } from '@utils/util';
+import {
+  afterDate,
+  beforeDate,
+  betweenDates,
+  GetParamsBuilder,
+} from './internal/get-params-builder';
 
-class GetSymptomLogsParamsBuilder extends GetParamsBuilder<SymptomLogEntity, SymptomLogGetRequest> {
+class GetSymptomLogsParamsBuilder extends GetParamsBuilder<
+  SymptomLogEntity,
+  SymptomLogGetRequest
+> {
   protected query: FindManyOptions<SymptomLogEntity> = {};
 
   constructor() {
@@ -24,13 +35,13 @@ class GetSymptomLogsParamsBuilder extends GetParamsBuilder<SymptomLogEntity, Sym
       ...this.query,
       select: ['id', 'date'],
       relations: ['intensityLogs'],
-    }
+    };
   }
 
   build(request: SymptomLogGetRequest): void {
-    this.addUserId(request)
-    this.addPaginate(request)
-    this.addDate(request)
+    this.addUserId(request);
+    this.addPaginate(request);
+    this.addDate(request);
   }
 
   get(): FindManyOptions<SymptomLogEntity> {
@@ -38,7 +49,7 @@ class GetSymptomLogsParamsBuilder extends GetParamsBuilder<SymptomLogEntity, Sym
   }
 
   protected addUserId({ userId }: SymptomLogGetRequest): void {
-    this.appendWhere({ userId })
+    this.appendWhere({ userId });
   }
 
   protected addPaginate({ start, limit }: SymptomLogGetRequest) {
@@ -46,7 +57,7 @@ class GetSymptomLogsParamsBuilder extends GetParamsBuilder<SymptomLogEntity, Sym
       ...this.query,
       skip: start,
       take: limit,
-    }
+    };
   }
 
   protected addDate({ startDate, endDate }: SymptomLogGetRequest) {
@@ -56,7 +67,7 @@ class GetSymptomLogsParamsBuilder extends GetParamsBuilder<SymptomLogEntity, Sym
     } else if (isEmpty(startDate)) {
       date = afterDate(new Date(startDate));
     } else if (endDate) {
-      date = beforeDate(new Date(endDate))
+      date = beforeDate(new Date(endDate));
     } else {
       return;
     }
@@ -74,8 +85,10 @@ class SymptomLogService {
   ): Promise<PaginateResponse<Partial<SymptomLog>>> {
     const symptomLogRepository = getRepository(this.symptomLogs);
     const paramsBuilder = new GetSymptomLogsParamsBuilder();
-    paramsBuilder.build(request)
-    const symptoms: SymptomLog[] = await symptomLogRepository.find(paramsBuilder.get());
+    paramsBuilder.build(request);
+    const symptoms: SymptomLog[] = await symptomLogRepository.find(
+      paramsBuilder.get(),
+    );
 
     const data = symptoms.map(symptom => {
       return {
@@ -89,7 +102,9 @@ class SymptomLogService {
       };
     });
 
-    const total = await symptomLogRepository.count({ where: { userId: request.userId } });
+    const total = await symptomLogRepository.count({
+      where: { userId: request.userId },
+    });
     return { data, total };
   }
 

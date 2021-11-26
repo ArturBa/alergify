@@ -1,11 +1,12 @@
-import { Between, FindManyOptions } from "typeorm";
+import { Between, FindManyOptions } from 'typeorm';
 import { addYears, subYears } from 'date-fns';
 
 export abstract class GetParamsBuilder<Entity, Request> {
-
   protected query: FindManyOptions<Entity> = {};
 
-  constructor() { this.query = {} }
+  constructor() {
+    this.query = {};
+  }
 
   abstract build(request: Request): void;
 
@@ -21,9 +22,9 @@ export abstract class GetParamsBuilder<Entity, Request> {
       ...this.query,
       where: {
         ...this.query.where,
-        ...where
-      }
-    }
+        ...where,
+      },
+    };
   }
 }
 
