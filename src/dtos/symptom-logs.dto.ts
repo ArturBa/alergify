@@ -28,3 +28,7 @@ export class UpdateSymptomLogDto extends CreateSymptomLogDto {
 
   public intensityLogs: UpdateIntensityLogDto[];
 }
+
+export class PaginateSymptomLogDto {
+
+}

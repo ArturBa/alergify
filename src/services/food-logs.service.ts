@@ -6,7 +6,7 @@ import { UserEntity } from '@entity/users.entity';
 import { CreateFoodLogDto, UpdateFoodLogDto } from '@dtos/food-logs.dto';
 import { ProductEntity } from '@entity/products.entity';
 import { IngredientEntity } from '@entity/ingredients.entity';
-import { PaginateResponse } from '@interfaces/internal/paginate.interface';
+import { PaginateResponse } from '@interfaces/internal/response.interface';
 import { checkIfConflict } from './common.service';
 
 class FoodLogsService {
