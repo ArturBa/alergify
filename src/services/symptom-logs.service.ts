@@ -63,11 +63,11 @@ class GetSymptomLogsParamsBuilder extends GetParamsBuilder<
   protected addDate({ startDate, endDate }: SymptomLogGetRequest) {
     let date = null;
     if (!isEmpty(startDate) && !isEmpty(endDate)) {
-      date = betweenDates(new Date(startDate), new Date(endDate));
+      date = betweenDates(startDate, endDate);
     } else if (isEmpty(startDate)) {
-      date = afterDate(new Date(startDate));
+      date = afterDate(startDate);
     } else if (endDate) {
-      date = beforeDate(new Date(endDate));
+      date = beforeDate(endDate);
     } else {
       return;
     }
