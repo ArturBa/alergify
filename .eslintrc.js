@@ -25,7 +25,7 @@ module.exports = {
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     'import/no-cycle': 'off',
-    'max-classes-per-file': 'warn',
+    'max-classes-per-file': 'off',
   },
   settings: {
     'import/parsers': {
