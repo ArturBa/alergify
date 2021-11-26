@@ -91,7 +91,10 @@ class App {
           author: packageJson.author,
         },
       },
-      apis: ['swagger.yaml'],
+      apis: [
+        './src/routes/*.ts',
+        'swagger.yaml'
+      ],
     };
 
     const specs = swaggerJSDoc(options);
