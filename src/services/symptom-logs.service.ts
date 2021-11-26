@@ -70,7 +70,6 @@ class SymptomLogService {
   public intensityLogsService = new IntensityLogService();
 
   public async getAllSymptomLogs(
-    userId: number,
     request: SymptomLogGetRequest,
   ): Promise<PaginateResponse<Partial<SymptomLog>>> {
     const symptomLogRepository = getRepository(this.symptomLogs);
@@ -90,7 +89,7 @@ class SymptomLogService {
       };
     });
 
-    const total = await symptomLogRepository.count({ where: { userId } });
+    const total = await symptomLogRepository.count({ where: { userId: request.userId } });
     return { data, total };
   }
 

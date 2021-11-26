@@ -3,21 +3,18 @@ import { NextFunction, Response } from 'express';
 import SymptomLogService from '@services/symptom-logs.service';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
-import { RequestWithPagination } from '../interfaces/internal/paginate.interface';
+import { SymptomLogGetRequest } from '@interfaces/symptom-logs.interface';
 
 class SymptomLogsController {
   public symptomLogService = new SymptomLogService();
 
   public getSymptomLogs = async (
-    req: RequestWithPagination,
+    req: SymptomLogGetRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const symptomLogs = await this.symptomLogService.getAllSymptomLogs(
-        req.userId,
-        { start: req.start, limit: req.limit },
-      );
+      const symptomLogs = await this.symptomLogService.getAllSymptomLogs(req);
 
       res.status(HttpStatusCode.OK).json(symptomLogs);
     } catch (error) {

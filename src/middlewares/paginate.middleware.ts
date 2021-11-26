@@ -1,12 +1,11 @@
 import { NextFunction, Response } from 'express';
 
-import { RequestWithPagination } from '@interfaces/internal/paginate.interface';
 
 const defaultStart = 0;
 const defaultLimit = 10;
 
 const paginateMiddleware = (
-  req: RequestWithPagination,
+  req: any,
   res: Response,
   next: NextFunction,
 ) => {
