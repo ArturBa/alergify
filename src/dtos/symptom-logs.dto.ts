@@ -11,7 +11,8 @@ import {
   CreateIntensityLogDto,
   UpdateIntensityLogDto,
 } from './intensity-logs.dto';
-import { PaginateDto, DateDto } from './internal/parameters.dto';
+import { DateDto } from './internal/parameters/date.dto';
+import { PaginateDto } from './internal/parameters/paginate.dto';
 
 export class CreateSymptomLogDto {
   @IsISO8601()

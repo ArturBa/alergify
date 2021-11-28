@@ -1,10 +1,7 @@
-import { PaginateParameters } from '@interfaces/internal/parameters.interface';
 import {
-  IsInt,
   IsISO8601,
   IsOptional,
   IsString,
-  Min,
   Validate,
   ValidationArguments,
   ValidatorConstraint,
@@ -12,19 +9,7 @@ import {
 } from 'class-validator';
 import { decorate } from 'ts-mixer';
 
-export class PaginateDto implements PaginateParameters {
-  @decorate(IsOptional())
-  @decorate(IsInt())
-  @decorate(Min(0))
-  start: number;
-
-  @decorate(IsOptional())
-  @decorate(IsInt())
-  @decorate(Min(0))
-  limit: number;
-}
-
-@ValidatorConstraint({ name: 'date before', async: false })
+@ValidatorConstraint({ name: 'start end date succession', async: false })
 class StartEndDateSuccessionValidator implements ValidatorConstraintInterface {
   static readonly startDate = 'startDate';
 
@@ -62,3 +47,5 @@ export class DateDto {
   @decorate(Validate(StartEndDateSuccessionValidator))
   endDate: string;
 }
+
+export default DateDto;
