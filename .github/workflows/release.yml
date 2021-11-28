@@ -8,7 +8,7 @@ on:
 #       - ''
 
 env:
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ secret.IMAGE_NAME }}
   VERSION: 0.0.0
 
 jobs:
