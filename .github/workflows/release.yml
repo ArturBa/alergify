@@ -28,6 +28,9 @@ jobs:
 
       - name: Docker login
         run: docker login -u ArturBa -p ${{ env.GITLAB }} ${{ env.DOCKER_REGISTRY }} 
+      
+      - name: Pull latests image
+        run: docker pull ${{ env.IMAGE_NAME }}:latest
 
       - name: Build docker image 
         run: | 
