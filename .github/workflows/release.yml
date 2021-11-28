@@ -2,10 +2,8 @@ name: Create and publish a Docker image
 
 on:
   push:
-    branches:
-      - 'ci/release_test'
-#     tags:
-#       - ''
+    tags:
+      - '*'
 
 env:
   IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
