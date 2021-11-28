@@ -59,4 +59,4 @@ jobs:
 
       - name: Mirror the repository
         run: |
-          git push https://ArturBa:${{secrets.GILTAB}}@gitlab.com/ArturBa/alergify.git ${{github.ref_name}}
+          git push https://${{secrets.GILTAB}}@gitlab.com/ArturBa/alergify.git ${{github.ref_name}}
