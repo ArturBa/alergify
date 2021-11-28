@@ -2,7 +2,8 @@ import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import { DateParameters } from '@interfaces/internal/parameters.interface';
 import { NextFunction, Response } from 'express';
 
-interface RequestDate extends RequestWithUser, DateParameters {}
+export interface RequestDate extends RequestWithUser, DateParameters {}
+
 export const dateParamsMiddleware = (
   req: RequestDate,
   res: Response,

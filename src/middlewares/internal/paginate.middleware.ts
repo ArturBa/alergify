@@ -5,7 +5,7 @@ import { NextFunction, Response } from 'express';
 const defaultStart = 0;
 const defaultLimit = 10;
 
-interface RequestPaginate extends RequestWithUser, PaginateParameters {}
+export interface RequestPaginate extends RequestWithUser, PaginateParameters {}
 
 export const paginateParamsMiddleware = (
   req: RequestPaginate,
