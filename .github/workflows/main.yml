@@ -56,8 +56,7 @@ jobs:
     steps:
       - name: Clone the repository
         uses: actions/checkout@v2
-      - uses: spyoungtech/mirror-action@master
-        with:
-          REMOTE: 'https://gitlab.com/ArturBa/alergify'
-          GIT_USERNAME: ArturBa
-          GIT_PASSWORD: ${{ secrets.GITLAB }}
+
+      - name: Mirror the repository
+        run: |
+          git push https://gitlab-ci-token:${{secrets.GILTAB}}@gitlab.com/ArturBa/alergify.git ${{GITHUB_REF_NAME}}
