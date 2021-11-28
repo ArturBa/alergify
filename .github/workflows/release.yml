@@ -3,10 +3,13 @@ name: Create and publish a Docker image
 on:
   push:
     tags:
-      - 'v*'
+      - '*'
 
 env:
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+  GITLAB: ${{ secrets.GITLAB }}
+  DOCKER_REGISTRY: registry.gitlab.com 
+  VERSION: $(node -pe "require('./package.json').version" )
 
 jobs:
   build-and-push-image:
@@ -18,6 +21,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Get package version 
+        run: echo ${{env.VERSION}}
 
-      - name: Build docker image
-        run: docker build -t ${{ env.IMAGE_NAME }} .
+      - name: Docker login
+        run: echo ${{ env.GITLAB }} | docker login -u ArturBa --password-stdin ${{ env.DOCKER_REGISTRY }} 
+      
+      - name: Pull latests image
+        run: docker pull ${{ env.IMAGE_NAME }}:latest
+
+      - name: Build docker image 
+        run: | 
+          docker build -t ${{ env.IMAGE_NAME }}:${{ env.VERSION }} .
+          docker build -t ${{ env.IMAGE_NAME }}:latest .
+      - name: Push images
+        run: | 
+          docker push ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          docker push ${{ env.IMAGE_NAME }}:latest
+      
+      - name: Docker logout
+        run: docker logout ${{ env.DOCKER_REGISTRY }} 
