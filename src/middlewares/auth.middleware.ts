@@ -1,34 +1,79 @@
 import config from 'config';
 import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { getRepository } from 'typeorm';
-import { UserEntity } from '@entity/users.entity';
-import { HttpException } from '@exceptions/HttpException';
-import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
+import HttpException from '@exceptions/HttpException';
+import {
+  DataStoredInRefreshToken,
+  RequestWithUser,
+} from '@interfaces/internal/auth.interface';
+import HttpStatusCode from '@interfaces/internal/http-codes.interface';
+import { JsonWebToken } from '@utils/jwt';
 
-const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+const unauthorizedError = new HttpException(
+  HttpStatusCode.UNAUTHORIZED,
+  'Unauthorized',
+);
+
+const secretKey: string = config.get('jwtSecret') || 'secret';
+
+const authMiddleware = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction,
+) => {
+  const Authorization = (authReq: RequestWithUser) => {
+    return (
+      authReq.cookies.Authorization ||
+      authReq.header('Authorization').split('Bearer ')[1] ||
+      null
+    );
+  };
+
   try {
-    const Authorization = req.cookies['Authorization'] || req.header('Authorization').split('Bearer ')[1] || null;
+    const authorization = Authorization(req);
 
-    if (Authorization) {
-      const secretKey: string = config.get('secretKey');
-      const verificationResponse = (await jwt.verify(Authorization, secretKey)) as DataStoredInToken;
+    if (authorization) {
+      const verificationResponse =
+        JsonWebToken.verifyAccessToken(authorization);
+
       const userId = verificationResponse.id;
-
-      const userRepository = getRepository(UserEntity);
-      const findUser = await userRepository.findOne(userId, { select: ['id', 'email', 'password'] });
-
-      if (findUser) {
-        req.user = findUser;
+      if (userId) {
+        req.userId = userId;
         next();
       } else {
-        next(new HttpException(401, 'Wrong authentication token'));
+        next(unauthorizedError);
       }
     } else {
-      next(new HttpException(404, 'Authentication token missing'));
+      next(unauthorizedError);
     }
   } catch (error) {
-    next(new HttpException(401, 'Wrong authentication token'));
+    next(unauthorizedError);
+  }
+};
+
+export const refreshTokenMiddleware = async (
+  req: RequestWithUser,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const refreshToken =
+      req.cookies.refreshToken || req.body.refreshToken || null;
+
+    if (refreshToken) {
+      const verificationResponse = (await jwt.verify(
+        refreshToken,
+        secretKey,
+      )) as DataStoredInRefreshToken;
+
+      const userId = verificationResponse.id;
+
+      req.userId = userId;
+      next();
+    }
+    next(unauthorizedError);
+  } catch (error) {
+    next(unauthorizedError);
   }
 };
 

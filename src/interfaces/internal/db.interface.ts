@@ -1,4 +1,4 @@
-export interface dbConfig {
+export interface DbConfig {
   host: string;
   user: string;
   password: string;

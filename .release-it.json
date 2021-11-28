@@ -1,0 +1,18 @@
+{
+  "git": {
+    "commitMessage": "chore: :bookmark: release v${version}",
+    "requireBranch": "development"
+  },
+  "github": {
+    "release": true
+  },
+  "npm": {
+    "publish": false
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md"
+    }
+  }
+}

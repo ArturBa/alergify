@@ -1,16 +1,18 @@
 import bcrypt from 'bcrypt';
 import request from 'supertest';
 import { createConnection, getRepository } from 'typeorm';
-import App from '@/app';
+
 import { dbConnection } from '@databases';
 import { CreateUserDto } from '@dtos/users.dto';
 import UserRoute from '@routes/users.route';
+import App from '@/app';
 
 beforeAll(async () => {
   await createConnection(dbConnection);
 });
 
 afterAll(async () => {
+  // eslint-disable-next-line no-promise-executor-return
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
 });
 
@@ -18,7 +20,7 @@ describe('Testing Users', () => {
   describe('[GET] /users', () => {
     it('response findAll users', async () => {
       const usersRoute = new UserRoute();
-      const users = usersRoute.usersController.userService.users;
+      const { users } = usersRoute.usersController.userService;
       const userRepository = getRepository(users);
 
       userRepository.find = jest.fn().mockReturnValue([
@@ -49,7 +51,7 @@ describe('Testing Users', () => {
       const userId = 1;
 
       const usersRoute = new UserRoute();
-      const users = usersRoute.usersController.userService.users;
+      const { users } = usersRoute.usersController.userService;
       const userRepository = getRepository(users);
 
       userRepository.findOne = jest.fn().mockReturnValue({
@@ -59,7 +61,9 @@ describe('Testing Users', () => {
       });
 
       const app = new App([usersRoute]);
-      return request(app.getServer()).get(`${usersRoute.path}/${userId}`).expect(200);
+      return request(app.getServer())
+        .get(`${usersRoute.path}/${userId}`)
+        .expect(200);
     });
   });
 
@@ -68,10 +72,11 @@ describe('Testing Users', () => {
       const userData: CreateUserDto = {
         email: 'test@email.com',
         password: 'q1w2e3r4!',
+        username: 'testUser',
       };
 
       const usersRoute = new UserRoute();
-      const users = usersRoute.usersController.userService.users;
+      const { users } = usersRoute.usersController.userService;
       const userRepository = getRepository(users);
 
       userRepository.findOne = jest.fn().mockReturnValue(null);
@@ -82,7 +87,10 @@ describe('Testing Users', () => {
       });
 
       const app = new App([usersRoute]);
-      return request(app.getServer()).post(`${usersRoute.path}`).send(userData).expect(201);
+      return request(app.getServer())
+        .post(`${usersRoute.path}`)
+        .send(userData)
+        .expect(201);
     });
   });
 
@@ -92,10 +100,11 @@ describe('Testing Users', () => {
       const userData: CreateUserDto = {
         email: 'test@email.com',
         password: '1q2w3e4r!',
+        username: 'testUser',
       };
 
       const usersRoute = new UserRoute();
-      const users = usersRoute.usersController.userService.users;
+      const { users } = usersRoute.usersController.userService;
       const userRepository = getRepository(users);
 
       userRepository.findOne = jest.fn().mockReturnValue({
@@ -115,7 +124,10 @@ describe('Testing Users', () => {
       });
 
       const app = new App([usersRoute]);
-      return request(app.getServer()).put(`${usersRoute.path}/${userId}`).send(userData).expect(200);
+      return request(app.getServer())
+        .put(`${usersRoute.path}/${userId}`)
+        .send(userData)
+        .expect(200);
     });
   });
 
@@ -124,7 +136,7 @@ describe('Testing Users', () => {
       const userId = 1;
 
       const usersRoute = new UserRoute();
-      const users = usersRoute.usersController.userService.users;
+      const { users } = usersRoute.usersController.userService;
       const userRepository = getRepository(users);
 
       userRepository.findOne = jest.fn().mockReturnValue({
@@ -134,7 +146,9 @@ describe('Testing Users', () => {
       });
 
       const app = new App([usersRoute]);
-      return request(app.getServer()).delete(`${usersRoute.path}/${userId}`).expect(200);
+      return request(app.getServer())
+        .delete(`${usersRoute.path}/${userId}`)
+        .expect(200);
     });
   });
 });

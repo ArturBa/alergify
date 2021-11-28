@@ -1,5 +1,4 @@
 {
-  "*.ts": [
-    "npm run lint"
-  ]
+  "*.ts": ["yarn lint --fix"],
+  "*.ts,*.json,*.yaml": ["yarn prettier --write"]
 }

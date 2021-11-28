@@ -1,4 +1,5 @@
-import { IsEmail, IsString } from 'class-validator';
+/* eslint-disable import/prefer-default-export */
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @IsEmail()
@@ -6,4 +7,8 @@ export class CreateUserDto {
 
   @IsString()
   public password: string;
+
+  @IsString()
+  @IsOptional()
+  public username: string;
 }
