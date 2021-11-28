@@ -2,7 +2,7 @@ name: Keep the main branches up-to-date and running
 
 on:
   push:
-    branches: [development, master]
+    branches: [development, master, ci/development]
 
 jobs:
   install:
