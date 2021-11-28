@@ -9,6 +9,7 @@ on:
 
 env:
   IMAGE_NAME: ${{ github.repository }}
+  VERSION: 0.0.0
 
 jobs:
   build-and-push-image:
@@ -21,9 +22,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Get package version 
-        run: VERSION = node -pe "require('./package.json').version"
+        run: node -pe "require('./package.json').version" >> ${{ env.VERSION }}
 
       - name: Build docker image
         run: | 
-          docker build -t ${{ env.IMAGE_NAME }}:${{ version }} .
+          docker build -t ${{ env.IMAGE_NAME }}:${{ env.VERSION }} .
           docker build -t ${{ env.IMAGE_NAME }}:latest .
