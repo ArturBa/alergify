@@ -6,10 +6,12 @@ import {
   IsNotEmpty,
   ValidateNested,
 } from 'class-validator';
+import { Mixin } from 'ts-mixer';
 import {
   CreateIntensityLogDto,
   UpdateIntensityLogDto,
 } from './intensity-logs.dto';
+import { PaginateDto, DateDto } from './internal/parameters.dto';
 
 export class CreateSymptomLogDto {
   @IsISO8601()
@@ -28,4 +30,4 @@ export class UpdateSymptomLogDto extends CreateSymptomLogDto {
   public intensityLogs: UpdateIntensityLogDto[];
 }
 
-export class PaginateSymptomLogDto {}
+export class GetSymptomLogsDto extends Mixin(PaginateDto, DateDto) {}

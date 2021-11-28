@@ -1,5 +1,5 @@
 import { Between, FindManyOptions } from 'typeorm';
-import { addYears, subYears } from 'date-fns';
+import { addYears, format, subYears } from 'date-fns';
 
 export abstract class GetParamsBuilder<Entity, Request> {
   protected query: FindManyOptions<Entity> = {};
@@ -28,8 +28,17 @@ export abstract class GetParamsBuilder<Entity, Request> {
   }
 }
 
-export const afterDate = (date: Date) => Between(date, addYears(date, 100));
-export const beforeDate = (date: Date) => Between(subYears(date, 100), date);
-export const betweenDates = (start: Date, end: Date) => Between(start, end);
+enum DateFormatSQLITE {
+  DATE = 'yyyy-MM-dd',
+  DATE_TIME = 'yyyy-MM-dd HH:MM:ss',
+}
+
+const formatDate = (date: Date) => format(date, DateFormatSQLITE.DATE_TIME);
+export const afterDate = (date: Date) =>
+  Between(formatDate(date), formatDate(addYears(date, 100)));
+export const beforeDate = (date: Date) =>
+  Between(subYears(date, 100).toISOString(), date.toISOString());
+export const betweenDates = (start: Date, end: Date) =>
+  Between(start.toISOString(), end.toISOString());
 
 export default GetParamsBuilder;

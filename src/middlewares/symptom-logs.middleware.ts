@@ -1,19 +1,22 @@
-import { NextFunction, Response } from 'express';
-import { SymptomLogGetRequest } from '@interfaces/symptom-logs.interface';
 import {
   dateParamsMiddleware,
   paginateParamsMiddleware,
 } from './internal/parameters.middleware';
 
-export const getSymptomLogMiddleware = (
-  req: SymptomLogGetRequest,
-  res: Response,
-  next: NextFunction,
-) => {
-  return [
-    paginateParamsMiddleware(req, res, next),
-    dateParamsMiddleware(req, res, next),
-  ];
+export const getSymptomLogsMiddleware = {
+  paginate(req, res, next) {
+    paginateParamsMiddleware(req, res, next);
+    next();
+  },
+  date(req, res, next) {
+    dateParamsMiddleware(req, res, next);
+    next();
+  },
 };
+
+export const getSymptomLogMiddleware = [
+  getSymptomLogsMiddleware.paginate,
+  getSymptomLogsMiddleware.date,
+];
 
 export default getSymptomLogMiddleware;

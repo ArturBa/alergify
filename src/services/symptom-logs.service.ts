@@ -27,8 +27,6 @@ class GetSymptomLogsParamsBuilder extends GetParamsBuilder<
   SymptomLogEntity,
   SymptomLogGetRequest
 > {
-  protected query: FindManyOptions<SymptomLogEntity> = {};
-
   constructor() {
     super();
     this.query = {
@@ -44,8 +42,13 @@ class GetSymptomLogsParamsBuilder extends GetParamsBuilder<
     this.addDate(request);
   }
 
-  get(): FindManyOptions<SymptomLogEntity> {
-    return this.query;
+  getTotal(): FindManyOptions<SymptomLogEntity> {
+    const totalQuery = {
+      ...this.query,
+    };
+    delete totalQuery.skip;
+    delete totalQuery.take;
+    return totalQuery;
   }
 
   protected addUserId({ userId }: SymptomLogGetRequest): void {
@@ -64,14 +67,14 @@ class GetSymptomLogsParamsBuilder extends GetParamsBuilder<
     let date = null;
     if (!isEmpty(startDate) && !isEmpty(endDate)) {
       date = betweenDates(startDate, endDate);
-    } else if (isEmpty(startDate)) {
+    } else if (!isEmpty(startDate)) {
       date = afterDate(startDate);
-    } else if (endDate) {
+    } else if (!isEmpty(endDate)) {
       date = beforeDate(endDate);
     } else {
       return;
     }
-    this.appendWhere(date);
+    this.appendWhere({ date });
   }
 }
 
@@ -102,9 +105,7 @@ class SymptomLogService {
       };
     });
 
-    const total = await symptomLogRepository.count({
-      where: { userId: request.userId },
-    });
+    const total = await symptomLogRepository.count(paramsBuilder.getTotal());
     return { data, total };
   }
 

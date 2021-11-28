@@ -3,12 +3,17 @@ import { Routes } from '@interfaces/internal/routes.interface';
 import SymptomLogsController from '@controllers/symptom-logs.controller';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
-import { getSymptomLogMiddleware } from '@middlewares/symptom-logs.middleware';
+import { getSymptomLogsMiddleware } from '@middlewares/symptom-logs.middleware';
 
 import {
   CreateSymptomLogDto,
+  GetSymptomLogsDto,
   UpdateSymptomLogDto,
 } from '@dtos/symptom-logs.dto';
+import {
+  dateParamsMiddleware,
+  paginateParamsMiddleware,
+} from '../middlewares/internal/parameters.middleware';
 
 class SymptomLogsRoute implements Routes {
   public path = '/symptom-log';
@@ -25,7 +30,8 @@ class SymptomLogsRoute implements Routes {
     this.router.get(
       `${this.path}`,
       authMiddleware,
-      getSymptomLogMiddleware,
+      validationMiddleware(GetSymptomLogsDto, 'query'),
+      [paginateParamsMiddleware, dateParamsMiddleware],
       this.symptomLogsController.getSymptomLogs,
     );
     this.router.post(
