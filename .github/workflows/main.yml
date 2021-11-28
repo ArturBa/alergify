@@ -57,10 +57,13 @@ jobs:
       - name: Clone the repository
         uses: actions/checkout@v2
 
-      - name: Mirror the repository
-        run: |
-          git config user.name: "Alergify"
-          git config user.email "bot@users.noreply.github.com"
-          git remote add gitlab https://access:${{secrets.GITLAB}}@gitlab.com/ArturBa/alergify.git
-          git push gitlab ${{github.ref_name}}
-          git remote remove gitlab
+      - name: Mirror + trigger CI
+        uses: SvanBoxel/gitlab-mirror-and-ci-action@master
+        with:
+          args: "https://gitlab.com/ArturBa/alergify"
+        env:
+          GITLAB_HOSTNAME: "gitlab.com"
+          GITLAB_USERNAME: "ArturBa"
+          GITLAB_PASSWORD: ${{ secrets.GITLAB }}
+          GITLAB_PROJECT_ID: "31669132"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
