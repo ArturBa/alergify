@@ -27,7 +27,7 @@ jobs:
         run: node -pe "require('./package.json').version" >> ${{ env.VERSION }}
 
       - name: Docker login
-        run: docker login -u ArturBa -p ${{ env.GITLAB }} ${{ env.DOCKER_REGISTRY }} 
+        run: echo ${{ env.GITLAB }} | docker login -u ArturBa --password-stdin ${{ env.DOCKER_REGISTRY }} 
       
       - name: Pull latests image
         run: docker pull ${{ env.IMAGE_NAME }}:latest
