@@ -9,6 +9,8 @@ on:
 
 env:
   IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+  GITLAB: ${{ secrets.GITLAB }}
+  DOCKER_REGISTRY: registry.gitlab.com 
   VERSION: 0.0.0
 
 jobs:
@@ -24,7 +26,17 @@ jobs:
       - name: Get package version 
         run: node -pe "require('./package.json').version" >> ${{ env.VERSION }}
 
-      - name: Build docker image
+      - name: Docker login
+        run: docker login -u ArturBa -p ${{ env.GITLAB }} ${{ env.DOCKER_REGISTRY }} 
+
+      - name: Build docker image 
         run: | 
           docker build -t ${{ env.IMAGE_NAME }}:${{ env.VERSION }} .
           docker build -t ${{ env.IMAGE_NAME }}:latest .
+      - name: Push images
+        run: | 
+          docker push ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          docker push ${{ env.IMAGE_NAME }}:latest
+      
+      - name: Docker logout
+        run: docker logout ${{ env.DOCKER_REGISTRY }} 
