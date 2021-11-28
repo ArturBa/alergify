@@ -2,8 +2,10 @@ name: Create and publish a Docker image
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - 'ci/release_test'
+#     tags:
+#       - ''
 
 env:
   IMAGE_NAME: ${{ github.repository }}
@@ -18,6 +20,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Get package version 
+        run: VERSION = node -pe "require('./package.json').version"
 
       - name: Build docker image
-        run: docker build -t ${{ env.IMAGE_NAME }} .
+        run: | 
+          docker build -t ${{ env.IMAGE_NAME }}:${{ version }} .
+          docker build -t ${{ env.IMAGE_NAME }}:latest .
