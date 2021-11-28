@@ -10,7 +10,7 @@ export class PaginateDto implements PaginateParameters {
 
   @decorate(IsOptional())
   @decorate(IsInt())
-  @decorate(Min(0))
+  @decorate(Min(1))
   limit: number;
 }
 
