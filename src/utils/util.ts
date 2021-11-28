@@ -17,6 +17,7 @@ export const isEmpty = (value: string | number | object): boolean => {
   if (
     value !== null &&
     typeof value === 'object' &&
+    value.constructor === Object &&
     !Object.keys(value).length
   ) {
     return true;

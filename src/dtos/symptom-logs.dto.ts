@@ -1,5 +1,4 @@
 /* eslint-disable import/prefer-default-export */
-/* eslint-disable max-classes-per-file */
 import {
   IsArray,
   IsInt,
@@ -7,10 +6,13 @@ import {
   IsNotEmpty,
   ValidateNested,
 } from 'class-validator';
+import { Mixin } from 'ts-mixer';
 import {
   CreateIntensityLogDto,
   UpdateIntensityLogDto,
 } from './intensity-logs.dto';
+import { DateDto } from './internal/parameters/date.dto';
+import { PaginateDto } from './internal/parameters/paginate.dto';
 
 export class CreateSymptomLogDto {
   @IsISO8601()
@@ -28,3 +30,5 @@ export class UpdateSymptomLogDto extends CreateSymptomLogDto {
 
   public intensityLogs: UpdateIntensityLogDto[];
 }
+
+export class GetSymptomLogsDto extends Mixin(PaginateDto, DateDto) {}

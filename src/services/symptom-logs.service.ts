@@ -1,6 +1,9 @@
-import { getRepository } from 'typeorm';
+import { FindManyOptions, getRepository } from 'typeorm';
 import { User } from '@interfaces/users.interface';
-import { SymptomLog } from '@interfaces/symptom-logs.interface';
+import {
+  SymptomLog,
+  SymptomLogGetRequest,
+} from '@interfaces/symptom-logs.interface';
 import { SymptomLogEntity } from '@entity/symptom-logs.entity';
 import {
   CreateSymptomLogDto,
@@ -8,11 +11,72 @@ import {
 } from '@dtos/symptom-logs.dto';
 import { UserEntity } from '@entity/users.entity';
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
-import { Paginate } from '@interfaces/internal/paginate.interface';
+import { PaginateResponse } from '@interfaces/internal/response.interface';
 import { CreateIntensityLogDto } from '@dtos/intensity-logs.dto';
+import { isEmpty } from '@utils/util';
 import { checkIfConflict, checkIfEmpty } from './common.service';
 import IntensityLogService from './intensity-logs.service';
-import { IntensityLog } from '../interfaces/intensity-logs.interface';
+import {
+  afterDate,
+  beforeDate,
+  betweenDates,
+  GetParamsBuilder,
+} from './internal/get-params-builder';
+
+class GetSymptomLogsParamsBuilder extends GetParamsBuilder<
+  SymptomLogEntity,
+  SymptomLogGetRequest
+> {
+  constructor() {
+    super();
+    this.query = {
+      ...this.query,
+      select: ['id', 'date'],
+      relations: ['intensityLogs'],
+    };
+  }
+
+  build(request: SymptomLogGetRequest): void {
+    this.addUserId(request);
+    this.addPaginate(request);
+    this.addDate(request);
+  }
+
+  getTotal(): FindManyOptions<SymptomLogEntity> {
+    const totalQuery = {
+      ...this.query,
+    };
+    delete totalQuery.skip;
+    delete totalQuery.take;
+    return totalQuery;
+  }
+
+  protected addUserId({ userId }: SymptomLogGetRequest): void {
+    this.appendWhere({ userId });
+  }
+
+  protected addPaginate({ start, limit }: SymptomLogGetRequest) {
+    this.query = {
+      ...this.query,
+      skip: start,
+      take: limit,
+    };
+  }
+
+  protected addDate({ startDate, endDate }: SymptomLogGetRequest) {
+    let date = null;
+    if (!isEmpty(startDate) && !isEmpty(endDate)) {
+      date = betweenDates(startDate, endDate);
+    } else if (!isEmpty(startDate)) {
+      date = afterDate(startDate);
+    } else if (!isEmpty(endDate)) {
+      date = beforeDate(endDate);
+    } else {
+      return;
+    }
+    this.appendWhere({ date });
+  }
+}
 
 class SymptomLogService {
   public symptomLogs = SymptomLogEntity;
@@ -20,14 +84,15 @@ class SymptomLogService {
   public intensityLogsService = new IntensityLogService();
 
   public async getAllSymptomLogs(
-    userId: number,
-  ): Promise<Paginate<Partial<SymptomLog>>> {
+    request: SymptomLogGetRequest,
+  ): Promise<PaginateResponse<Partial<SymptomLog>>> {
     const symptomLogRepository = getRepository(this.symptomLogs);
-    const symptoms: SymptomLog[] = await symptomLogRepository.find({
-      select: ['id', 'date'],
-      where: { userId },
-      relations: ['intensityLogs'],
-    });
+    const paramsBuilder = new GetSymptomLogsParamsBuilder();
+    paramsBuilder.build(request);
+    const symptoms: SymptomLog[] = await symptomLogRepository.find(
+      paramsBuilder.get(),
+    );
+
     const data = symptoms.map(symptom => {
       return {
         ...symptom,
@@ -40,7 +105,7 @@ class SymptomLogService {
       };
     });
 
-    const total = await symptomLogRepository.count({ where: { userId } });
+    const total = await symptomLogRepository.count(paramsBuilder.getTotal());
     return { data, total };
   }
 

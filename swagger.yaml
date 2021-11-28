@@ -1,3 +1,10 @@
+# https://editor.swagger.io/
+# openapi: 3.0.0
+# info:
+#   title: Alergify API
+#   description: Alergify - find your allergies
+#   version: *.*.*
+
 tags:
   - name: auth
     description: auth API
@@ -27,6 +34,13 @@ components:
       schema:
         type: integer
         format: int64
+    paginate-symptom-log:
+      in: query
+      name: paginate symptom logs
+      schema:
+        allOf:
+          - $ref: '#/components/schemas/param-paginate'
+          - $ref: '#/components/schemas/param-date'
   schemas:
     auth-jwt:
       type: object
@@ -223,6 +237,30 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/intensity-log'
+    param-paginate:
+      type: object
+      properties:
+        start:
+          type: integer
+          format: int64
+          description: start pagination. Default to 0
+          default: 0
+        limit:
+          type: integer
+          format: int64
+          description: limit pagination. Default to 10
+          default: 10
+    param-date:
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date-time
+          description: start date iso8601 string
+        end_date:
+          type: string
+          format: date-time
+          description: start date iso8601 string
 
 security:
   - bearerAuth: []
@@ -503,6 +541,8 @@ paths:
         - bearerAuth: []
       tags:
         - symptom
+      parameters:
+        - $ref: '#/components/parameters/paginate-symptom-log'
       responses:
         200:
           description: Symptoms

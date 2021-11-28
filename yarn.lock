@@ -2720,6 +2720,11 @@ data-urls@^2.0.0:
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
 
+date-fns@^2.26.0:
+  version "2.26.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.26.0.tgz#fa45305543c392c4f914e50775fd2a4461e60fbd"
+  integrity sha512-VQI812dRi3cusdY/fhoBKvc6l2W8BPWU1FNVnFH9Nttjx4AFBRzfSVb/Eyc7jBT6e9sg1XtAGsYpBQ6c/jygbg==
+
 dateformat@^3.0.0:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/dateformat/-/dateformat-3.0.3.tgz#a6e37499a4d9a9cf85ef5872044d62901c9889ae"
@@ -8218,6 +8223,11 @@ ts-jest@^27.0.3:
     make-error "1.x"
     semver "7.x"
     yargs-parser "20.x"
+
+ts-mixer@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/ts-mixer/-/ts-mixer-6.0.0.tgz#4e631d3a36e3fa9521b973b132e8353bc7267f9f"
+  integrity sha512-nXIb1fvdY5CBSrDIblLn73NW0qRDk5yJ0Sk1qPBF560OdJfQp9jhl+0tzcY09OZ9U+6GpeoI9RjwoIKFIoB9MQ==
 
 ts-node@^10.0.0:
   version "10.4.0"

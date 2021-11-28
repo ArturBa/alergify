@@ -3,19 +3,18 @@ import { NextFunction, Response } from 'express';
 import SymptomLogService from '@services/symptom-logs.service';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
+import { SymptomLogGetRequest } from '@interfaces/symptom-logs.interface';
 
 class SymptomLogsController {
   public symptomLogService = new SymptomLogService();
 
   public getSymptomLogs = async (
-    req: RequestWithUser,
+    req: SymptomLogGetRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const symptomLogs = await this.symptomLogService.getAllSymptomLogs(
-        req.userId,
-      );
+      const symptomLogs = await this.symptomLogService.getAllSymptomLogs(req);
 
       res.status(HttpStatusCode.OK).json(symptomLogs);
     } catch (error) {
