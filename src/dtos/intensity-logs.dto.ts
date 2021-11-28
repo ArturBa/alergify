@@ -1,5 +1,4 @@
 /* eslint-disable import/prefer-default-export */
-/* eslint-disable max-classes-per-file */
 import { IsInt, IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
 
 export class CreateIntensityLogDto {
