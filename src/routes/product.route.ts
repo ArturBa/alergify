@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import ProductsController from '@controllers/products.contoller';
-import { CreateProductDto } from '@dtos/products.dto';
+import { CreateProductDto, GetProductDto } from '@dtos/products.dto';
 import { Routes } from '@interfaces/internal/routes.interface';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
+import { getProductsMiddleware } from '@middlewares/products.middleware';
 
 class ProductRoute implements Routes {
   public path = '/product';
@@ -31,7 +32,9 @@ class ProductRoute implements Routes {
     this.router.get(
       `${this.path}`,
       authMiddleware,
-      this.productsController.findProductByQuery,
+      validationMiddleware(GetProductDto, 'query'),
+      getProductsMiddleware,
+      this.productsController.findProduct,
     );
   }
 }
