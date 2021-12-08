@@ -34,13 +34,20 @@ components:
       schema:
         type: integer
         format: int64
-    paginate-symptom-log:
+    get-symptom-log:
       in: query
       name: paginate symptom logs
       schema:
         allOf:
           - $ref: '#/components/schemas/param-paginate'
           - $ref: '#/components/schemas/param-date'
+    get-products:
+      in: query
+      name: find product
+      schema:
+        allOf:
+          - $ref: '#/components/schemas/param-paginate'
+          - $ref: '#/components/schemas/product'
   schemas:
     auth-jwt:
       type: object
@@ -501,6 +508,30 @@ paths:
       responses:
         '201':
           description: 'Created'
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - product
+      summary: Get products
+      parameters:
+        - $ref: '#/components/parameters/get-products'
+      responses:
+        200:
+          description: Products
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/paginate-response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/product'
+                            - $ref: '#/components/schemas/id'
   /product/{id}:
     get:
       security:
@@ -542,7 +573,7 @@ paths:
       tags:
         - symptom
       parameters:
-        - $ref: '#/components/parameters/paginate-symptom-log'
+        - $ref: '#/components/parameters/get-symptom-log'
       responses:
         200:
           description: Symptoms
