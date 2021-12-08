@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import IngredientsService from '@services/ingredients.service';
 import { CreateIngredientDto } from '@dtos/ingredients.dto';
+import { IngredientGetRequest } from '../interfaces/ingredients.interface';
 
 class IngredientsController {
   public ingredientService = new IngredientsService();
@@ -38,14 +39,13 @@ class IngredientsController {
     }
   };
 
-  public findIngredientByQuery = async (
-    req: Request,
+  public findIngredients = async (
+    req: IngredientGetRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      throw new Error('Not implemented yet');
-      const products = await this.ingredientService.findIngredientByQuery('');
+      const products = await this.ingredientService.findIngredients(req);
 
       res.status(HttpStatusCode.OK).json({ ...products });
     } catch (error) {

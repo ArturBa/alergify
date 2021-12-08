@@ -1,4 +1,4 @@
-import { FindManyOptions, getRepository, In, Like } from 'typeorm';
+import { getRepository, In, Like } from 'typeorm';
 import { CreateProductDto } from '@dtos/products.dto';
 import { IngredientEntity } from '@entity/ingredients.entity';
 import { ProductEntity } from '@entity/products.entity';
@@ -23,13 +23,6 @@ class GetProductQueryBuilder extends GetParamsBuilder<
     this.addPaginate(request);
     this.addBarcode(request);
     this.addName(request);
-  }
-
-  getTotal(): FindManyOptions<ProductEntity> {
-    const totalQuery = { ...this.query };
-    delete totalQuery.skip;
-    delete totalQuery.take;
-    return totalQuery;
   }
 
   protected addPaginate({ start, limit }: ProductGetRequest) {

@@ -41,6 +41,13 @@ components:
         allOf:
           - $ref: '#/components/schemas/param-paginate'
           - $ref: '#/components/schemas/param-date'
+    get-ingredients:
+      in: query
+      name: find ingredient
+      schema:
+        allOf:
+          - $ref: '#/components/schemas/param-paginate'
+          - $ref: '#/components/schemas/ingredient'
     get-products:
       in: query
       name: find product
@@ -467,6 +474,30 @@ paths:
       responses:
         '201':
           description: 'Created'
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - ingredient
+      summary: Find ingredients
+      parameters:
+        - $ref: '#/components/parameters/get-ingredients'
+      responses:
+        200:
+          description: Ingredients
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/paginate-response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/ingredient'
+                            - $ref: '#/components/schemas/id'
   /ingredient/{id}:
     get:
       security:
