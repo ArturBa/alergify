@@ -274,11 +274,11 @@ components:
     param-date:
       type: object
       properties:
-        start_date:
+        startDate:
           type: string
           format: date-time
           description: start date iso8601 string
-        end_date:
+        endDate:
           type: string
           format: date-time
           description: start date iso8601 string
