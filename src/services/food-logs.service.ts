@@ -1,13 +1,92 @@
-import { getRepository, In } from 'typeorm';
+import { getRepository, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { isEmpty } from '@utils/util';
 import { FoodLogEntity } from '@entity/food-logs.entity';
-import { FoodLog } from '@interfaces/food-logs.interface';
+import { FoodLog, FoodLogGetRequest } from '@interfaces/food-logs.interface';
 import { UserEntity } from '@entity/users.entity';
 import { CreateFoodLogDto, UpdateFoodLogDto } from '@dtos/food-logs.dto';
 import { ProductEntity } from '@entity/products.entity';
 import { IngredientEntity } from '@entity/ingredients.entity';
 import { PaginateResponse } from '@interfaces/internal/response.interface';
+import { addYears, subYears } from 'date-fns';
 import { checkIfConflict } from './common.service';
+import { formatDate } from './internal/get-params-builder';
+
+class GetFoodLogQueryBuilder {
+  protected query: SelectQueryBuilder<FoodLogEntity>;
+
+  protected limit: number;
+
+  protected start: number;
+
+  constructor(repository: Repository<FoodLogEntity>) {
+    this.query = repository
+      .createQueryBuilder('foodLog')
+      .leftJoinAndSelect('foodLog.products', 'product')
+      .leftJoinAndSelect('foodLog.ingredients', 'ingredient');
+  }
+
+  build(request: FoodLogGetRequest): void {
+    this.addUser(request);
+    this.addDate(request);
+    this.savePagination(request);
+    this.addSelect();
+    this.orderByDate();
+  }
+
+  get(): SelectQueryBuilder<FoodLogEntity> {
+    return this.query.take(this.limit).skip(this.start);
+  }
+
+  getTotal(): SelectQueryBuilder<FoodLogEntity> {
+    return this.query;
+  }
+
+  protected addUser({ userId }: FoodLogGetRequest): void {
+    if (isEmpty(userId)) return;
+    this.query = this.query.andWhere('foodLog.userId = :userId', { userId });
+  }
+
+  protected addDate({ startDate, endDate }: FoodLogGetRequest): void {
+    let startDateInput = startDate;
+    let endDateInput = endDate;
+    if (isEmpty(startDate) && isEmpty(endDate)) {
+      return;
+    }
+    if (!isEmpty(startDate)) {
+      endDateInput = addYears(startDate, 100);
+    } else if (!isEmpty(endDate)) {
+      startDateInput = subYears(endDate, 100);
+    }
+    this.query = this.query.andWhere(
+      'foodLog.date BETWEEN :startDate AND :endDate',
+      {
+        startDate: formatDate(startDateInput),
+        endDate: formatDate(endDateInput),
+      },
+    );
+  }
+
+  protected savePagination({ limit, start }: FoodLogGetRequest): void {
+    this.limit = limit;
+    this.start = start;
+  }
+
+  protected addSelect(): void {
+    this.query = this.query.select([
+      'foodLog.id',
+      'foodLog.date',
+      'product.id',
+      'product.name',
+      'product.barcode',
+      'ingredient.id',
+      'ingredient.name',
+    ]);
+  }
+
+  protected orderByDate(): void {
+    this.query = this.query.orderBy('foodLog.date', 'DESC');
+  }
+}
 
 class FoodLogsService {
   public foodLogs = FoodLogEntity;
@@ -19,25 +98,33 @@ class FoodLogsService {
   public ingredients = IngredientEntity;
 
   public async getUserFoodLogs(
-    userId: number,
+    req: FoodLogGetRequest,
   ): Promise<PaginateResponse<FoodLog>> {
     const foodLogsRepository = getRepository(this.foodLogs);
-    const data = await foodLogsRepository
-      .createQueryBuilder('foodLog')
-      .where('foodLog.userId = :userId', { userId })
-      .leftJoinAndSelect('foodLog.products', 'product')
-      .leftJoinAndSelect('foodLog.ingredients', 'ingredient')
-      .select([
-        'foodLog.id',
-        'foodLog.date',
-        'product.id',
-        'product.name',
-        'product.barcode',
-        'ingredient.id',
-        'ingredient.name',
-      ])
-      .getMany();
-    const total = await foodLogsRepository.count({ where: { userId } });
+    const queryBuilder = new GetFoodLogQueryBuilder(foodLogsRepository);
+    queryBuilder.build(req);
+    const data = await queryBuilder.get().getMany();
+    const total = await queryBuilder.getTotal().getCount();
+    // const data = await foodLogsRepository
+    //   .createQueryBuilder('foodLog')
+    //   .where('foodLog.userId = :userId', { userId: req.userId })
+    //   .leftJoinAndSelect('foodLog.products', 'product')
+    //   .leftJoinAndSelect('foodLog.ingredients', 'ingredient')
+    //   .select([
+    //     'foodLog.id',
+    //     'foodLog.date',
+    //     'product.id',
+    //     'product.name',
+    //     'product.barcode',
+    //     'ingredient.id',
+    //     'ingredient.name',
+    //   ])
+    //   .skip(req.start)
+    //   .take(req.limit)
+    //   .getMany();
+    // const total = await foodLogsRepository.count({
+    //   where: { userId: req.userId },
+    // });
 
     return { data, total };
   }
@@ -47,6 +134,7 @@ class FoodLogsService {
     foodLog: CreateFoodLogDto,
   ): Promise<void> {
     checkIfConflict(isEmpty(foodLog) || isEmpty(userId));
+    console.log(foodLog);
     const foodLogsRepository = getRepository(this.foodLogs);
     const foodLogEntity = await this.getFoodLogEntityFromCreateDto(foodLog);
     const usersRepository = getRepository(this.users);
@@ -109,18 +197,21 @@ class FoodLogsService {
   ): Promise<FoodLogEntity> {
     const foodLogEntity = new FoodLogEntity();
     foodLogEntity.date = new Date(foodLogData.date);
-    const products = await getRepository(this.products).find({
-      where: { id: In(foodLogData.products) },
-    });
-    const ingredients = await getRepository(this.ingredients).find({
-      where: { id: In(foodLogData.ingredients) },
-    });
-    checkIfConflict(
-      products.length !== foodLogData.products.length ||
-        ingredients.length !== foodLogData.ingredients.length,
-    );
-    foodLogEntity.products = products;
-    foodLogEntity.ingredients = ingredients;
+    if (foodLogData.products) {
+      const products = await getRepository(this.products).find({
+        where: { id: In(foodLogData.products) },
+      });
+      checkIfConflict(products.length !== foodLogData.products.length);
+      foodLogEntity.products = products;
+    }
+
+    if (foodLogData.ingredients) {
+      const ingredients = await getRepository(this.ingredients).find({
+        where: { id: In(foodLogData.ingredients) },
+      });
+      checkIfConflict(ingredients.length !== foodLogData.ingredients.length);
+      foodLogEntity.ingredients = ingredients;
+    }
 
     return foodLogEntity;
   }

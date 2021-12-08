@@ -33,7 +33,8 @@ enum DateFormatSQLITE {
   DATE_TIME = 'yyyy-MM-dd HH:MM:ss',
 }
 
-const formatDate = (date: Date) => format(date, DateFormatSQLITE.DATE_TIME);
+export const formatDate = (date: Date) =>
+  format(date, DateFormatSQLITE.DATE_TIME);
 export const afterDate = (date: Date) =>
   Between(formatDate(date), formatDate(addYears(date, 100)));
 export const beforeDate = (date: Date) =>
