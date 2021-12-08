@@ -14,6 +14,13 @@ export abstract class GetParamsBuilder<Entity, Request> {
     return this.query;
   }
 
+  getTotal(): FindManyOptions<Entity> {
+    const totalQuery = { ...this.query };
+    delete totalQuery.skip;
+    delete totalQuery.take;
+    return totalQuery;
+  }
+
   protected appendWhere(where: object) {
     if (typeof this.query.where === 'string') {
       return;

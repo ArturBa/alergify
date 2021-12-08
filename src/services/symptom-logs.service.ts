@@ -1,4 +1,4 @@
-import { FindManyOptions, getRepository } from 'typeorm';
+import { getRepository } from 'typeorm';
 import { User } from '@interfaces/users.interface';
 import {
   SymptomLog,
@@ -40,15 +40,6 @@ class GetSymptomLogsParamsBuilder extends GetParamsBuilder<
     this.addUserId(request);
     this.addPaginate(request);
     this.addDate(request);
-  }
-
-  getTotal(): FindManyOptions<SymptomLogEntity> {
-    const totalQuery = {
-      ...this.query,
-    };
-    delete totalQuery.skip;
-    delete totalQuery.take;
-    return totalQuery;
   }
 
   protected addUserId({ userId }: SymptomLogGetRequest): void {

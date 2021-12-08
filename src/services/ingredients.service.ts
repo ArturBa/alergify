@@ -1,22 +1,60 @@
-import { getRepository } from 'typeorm';
+import { getRepository, Like } from 'typeorm';
 import { IngredientEntity } from '@entity/ingredients.entity';
-import { Ingredient } from '@interfaces/ingredients.interface';
+import {
+  Ingredient,
+  IngredientGetRequest,
+} from '@interfaces/ingredients.interface';
 import { CreateIngredientDto } from '@dtos/ingredients.dto';
 import { checkIfConflict, checkIfEmpty } from './common.service';
+import GetQueryBuilder from './internal/get-params-builder';
+import { PaginateResponse } from '../interfaces/internal/response.interface';
+
+class IngredientQueryBuilder extends GetQueryBuilder<
+  IngredientEntity,
+  IngredientGetRequest
+> {
+  constructor() {
+    super();
+    this.query = {
+      select: ['id', 'name'],
+    };
+  }
+
+  build(request: IngredientGetRequest): void {
+    this.addName(request);
+    this.addPagination(request);
+  }
+
+  protected addName({ name }: IngredientGetRequest): void {
+    if (name) {
+      this.appendWhere({ name: Like(`%${name}%`) });
+    }
+  }
+
+  protected addPagination({ start, limit }: IngredientGetRequest): void {
+    this.query = {
+      ...this.query,
+      take: limit,
+      skip: start,
+    };
+  }
+}
 
 class IngredientsService {
   public ingredients = IngredientEntity;
 
-  public async findIngredientByQuery(query: string): Promise<Ingredient[]> {
-    checkIfEmpty(query);
+  public async findIngredients(
+    req: IngredientGetRequest,
+  ): Promise<PaginateResponse<Partial<Ingredient>>> {
+    checkIfEmpty(req);
 
     const ingredientsRepository = getRepository(this.ingredients);
-    const ingredients = await ingredientsRepository.find({
-      where: { name: query },
-      select: ['id', 'name'],
-    });
+    const queryBuilder = new IngredientQueryBuilder();
+    queryBuilder.build(req);
+    const data = await ingredientsRepository.find(queryBuilder.get());
+    const total = await ingredientsRepository.count(queryBuilder.getTotal());
 
-    return ingredients;
+    return { data, total };
   }
 
   public async getIngredientById(
