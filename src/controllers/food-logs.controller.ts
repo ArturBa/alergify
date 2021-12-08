@@ -3,18 +3,18 @@ import { Response, NextFunction } from 'express';
 import FoodLogsService from '@services/food-logs.service';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
+import { FoodLogGetRequest } from '@interfaces/food-logs.interface';
 
 export class FoodLogsController {
   public foodLogsService = new FoodLogsService();
 
   public getUserFoodLogs = async (
-    req: RequestWithUser,
+    req: FoodLogGetRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const { userId } = req;
-      const foodLogs = await this.foodLogsService.getUserFoodLogs(userId);
+      const foodLogs = await this.foodLogsService.getUserFoodLogs(req);
       res.status(HttpStatusCode.OK).json(foodLogs);
     } catch (err) {
       next(err);
