@@ -22,6 +22,32 @@ class SymptomLogsRoute implements Routes {
   }
 
   private initializeRoutes() {
+    /**
+     * @openapi
+     * /symptom-log-infile:
+     *  get:
+     *    security:
+     *      - bearerAuth: []
+     *    description: Get symptoms
+     *    parameters:
+     *      - $ref: '#/components/parameters/paginate'
+     *    responses:
+     *      200:
+     *        description: Symptoms
+     *        content:
+     *          application/json:
+     *            schema:
+     *              allOf:
+     *                - $ref: '#/components/schemas/paginate-response'
+     *                - type: object
+     *                  properties:
+     *                    data:
+     *                      type: array
+     *                      items:
+     *                        allOf:
+     *                          - $ref: '#/components/schemas/symptom-log-get'
+     *                          - $ref: '#/components/schemas/id'
+     */
     this.router.get(
       `${this.path}`,
       authMiddleware,
