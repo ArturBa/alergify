@@ -11,7 +11,7 @@ import validationMiddleware from '@middlewares/validation.middleware';
 import { getFoodLogsMiddleware } from '@middlewares/food-logs.middleware';
 
 class FoodLogsRoute implements Routes {
-  public path = '/food';
+  public path = '/food-log';
 
   public router = Router();
 

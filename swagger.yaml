@@ -62,6 +62,13 @@ components:
         allOf:
           - $ref: '#/components/schemas/param-paginate'
           - $ref: '#/components/schemas/product'
+    get-foods:
+      in: query
+      name: find product
+      schema:
+        allOf:
+          - $ref: '#/components/schemas/param-paginate'
+          - $ref: '#/components/schemas/food'
   schemas:
     auth-jwt:
       type: object
@@ -106,6 +113,12 @@ components:
         total:
           type: integer
           format: int64
+    food:
+      type: object
+      properties:
+        name:
+          type: string
+          description: food name
     food-log:
       type: object
       properties:
@@ -396,7 +409,40 @@ paths:
         200:
           description: OK
 
-  /food:
+  /foods:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - food
+      summary: Find foods (products + ingredients) with favor of ingredients
+      parameters:
+        - $ref: '#/components/parameters/get-foods'
+      responses:
+        200:
+          description: Products
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/paginate-response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/food'
+                            - $ref: '#/components/schemas/id'
+                            - type: object
+                              properties:
+                                type:
+                                  type: string
+                                  description: type of the food
+                                  enum:
+                                    - product
+                                    - ingredient
+  /food-log:
     post:
       security:
         - bearerAuth: []
@@ -453,7 +499,7 @@ paths:
       responses:
         '200':
           description: 'OK'
-  /food/{id}:
+  /food-log/{id}:
     delete:
       security:
         - bearerAuth: []
