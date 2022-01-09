@@ -33,7 +33,13 @@ export abstract class GetParamsBuilder<Entity, Request> {
       | ObjectLiteral
       | string,
   ) {
-    if (typeof this.query.where === 'string' || typeof where === 'string') {
+    if (typeof where === 'string' || typeof this.query.where === 'string') {
+      if (
+        typeof where !== 'string' ||
+        (this.query.where && typeof this.query.where !== 'string')
+      ) {
+        throw new Error('Where is already string');
+      }
       this.query.where =
         this.query.where === undefined
           ? where
