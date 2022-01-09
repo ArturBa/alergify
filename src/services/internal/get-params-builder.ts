@@ -1,4 +1,9 @@
-import { Between, FindManyOptions } from 'typeorm';
+import {
+  Between,
+  FindConditions,
+  FindManyOptions,
+  ObjectLiteral,
+} from 'typeorm';
 import { addYears, format, subYears } from 'date-fns';
 
 export abstract class GetParamsBuilder<Entity, Request> {
@@ -21,8 +26,18 @@ export abstract class GetParamsBuilder<Entity, Request> {
     return totalQuery;
   }
 
-  protected appendWhere(where: object) {
-    if (typeof this.query.where === 'string') {
+  protected appendWhere(
+    where:
+      | FindConditions<Entity>[]
+      | FindConditions<Entity>
+      | ObjectLiteral
+      | string,
+  ) {
+    if (typeof this.query.where === 'string' || typeof where === 'string') {
+      this.query.where =
+        this.query.where === undefined
+          ? where
+          : (this.query.where += ` AND ${where}`);
       return;
     }
     this.query = {
