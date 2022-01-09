@@ -6,6 +6,8 @@ import 'dotenv/config';
 import App from '@/app';
 
 import AuthRoute from '@routes/auth.route';
+import FoodLogsRoute from '@routes/food-log.route';
+import FoodsRoute from '@routes/food.route';
 import IndexRoute from '@routes/index.route';
 import IngredientRoute from '@routes/ingredient.route';
 import ProductRoute from '@routes/product.route';
@@ -14,7 +16,6 @@ import SymptomsRoute from '@routes/symptom.route';
 import UserRoute from '@routes/user.route';
 import UsersRoute from '@routes/users.route';
 import validateEnv from '@utils/validateEnv';
-import FoodLogsRoute from '@/routes/food-log.route';
 
 validateEnv();
 
@@ -23,6 +24,7 @@ const app = new App([
   new UsersRoute(),
   new AuthRoute(),
   new FoodLogsRoute(),
+  new FoodsRoute(),
   new IngredientRoute(),
   new ProductRoute(),
   new UserRoute(),

@@ -105,27 +105,6 @@ class FoodLogsService {
     queryBuilder.build(req);
     const data = await queryBuilder.get().getMany();
     const total = await queryBuilder.getTotal().getCount();
-    // const data = await foodLogsRepository
-    //   .createQueryBuilder('foodLog')
-    //   .where('foodLog.userId = :userId', { userId: req.userId })
-    //   .leftJoinAndSelect('foodLog.products', 'product')
-    //   .leftJoinAndSelect('foodLog.ingredients', 'ingredient')
-    //   .select([
-    //     'foodLog.id',
-    //     'foodLog.date',
-    //     'product.id',
-    //     'product.name',
-    //     'product.barcode',
-    //     'ingredient.id',
-    //     'ingredient.name',
-    //   ])
-    //   .skip(req.start)
-    //   .take(req.limit)
-    //   .getMany();
-    // const total = await foodLogsRepository.count({
-    //   where: { userId: req.userId },
-    // });
-
     return { data, total };
   }
 
@@ -134,7 +113,6 @@ class FoodLogsService {
     foodLog: CreateFoodLogDto,
   ): Promise<void> {
     checkIfConflict(isEmpty(foodLog) || isEmpty(userId));
-    console.log(foodLog);
     const foodLogsRepository = getRepository(this.foodLogs);
     const foodLogEntity = await this.getFoodLogEntityFromCreateDto(foodLog);
     const usersRepository = getRepository(this.users);
