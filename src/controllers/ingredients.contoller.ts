@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import IngredientsService from '@services/ingredients.service';
 import { CreateIngredientDto } from '@dtos/ingredients.dto';
