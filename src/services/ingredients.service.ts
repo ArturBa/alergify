@@ -1,4 +1,4 @@
-import { getRepository, In, Like, IsNull } from 'typeorm';
+import { getRepository } from 'typeorm';
 import { IngredientEntity } from '@entity/ingredients.entity';
 import {
   Ingredient,
