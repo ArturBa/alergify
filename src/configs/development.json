@@ -6,7 +6,8 @@
     "password": "password",
     "database": "./typeorm.sqlite3"
   },
-  "jwtSecret": "secretKey",
+  "accessTokenJwtSecret": "secretKey",
+  "refreshTokenJwtSecret": "secretRefreshKey",
   "accessTokenTimeout": "36000",
   "refreshTokenTimeout": "630000",
   "log": {
