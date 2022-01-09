@@ -1,11 +1,6 @@
-import config from 'config';
 import { NextFunction, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import HttpException from '@exceptions/HttpException';
-import {
-  DataStoredInRefreshToken,
-  RequestWithUser,
-} from '@interfaces/internal/auth.interface';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import { JsonWebToken } from '@utils/jwt';
 
@@ -13,8 +8,6 @@ const unauthorizedError = new HttpException(
   HttpStatusCode.UNAUTHORIZED,
   'Unauthorized',
 );
-
-const secretKey: string = config.get('jwtSecret') || 'secret';
 
 const authMiddleware = async (
   req: RequestWithUser,
@@ -61,10 +54,8 @@ export const refreshTokenMiddleware = async (
       req.cookies.refreshToken || req.body.refreshToken || null;
 
     if (refreshToken) {
-      const verificationResponse = (await jwt.verify(
-        refreshToken,
-        secretKey,
-      )) as DataStoredInRefreshToken;
+      const verificationResponse =
+        JsonWebToken.verifyRefreshToken(refreshToken);
 
       const userId = verificationResponse.id;
 

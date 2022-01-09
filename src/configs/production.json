@@ -6,7 +6,8 @@
     "password": "password",
     "database": "./db/db.sqlite3"
   },
-  "jwtSecret": "secretKey",
+  "accessTokenJwtSecret": "secretKey",
+  "refreshTokenJwtSecret": "secretRefreshKey",
   "accessTokenTimeout": "3600",
   "refreshTokenTimeout": "630000",
   "log": {

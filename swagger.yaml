@@ -408,7 +408,6 @@ paths:
         content:
           application/json:
             schema:
-              description: One of the arrays needs to be filled
               $ref: '#/components/schemas/food-log-create'
       responses:
         '201':
@@ -448,7 +447,6 @@ paths:
         content:
           application/json:
             schema:
-              description: One of the arrays needs to be not empty
               $ref: '#/components/schemas/food-log-update'
       responses:
         '200':

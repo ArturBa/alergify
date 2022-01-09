@@ -14,14 +14,17 @@ export class JsonWebToken {
   protected static readonly refreshTokenTimeout =
     (config.get('refreshTokenTimeout') as number) || 7 * 24 * 60 * 60; // 1 week
 
-  protected static readonly secret =
-    (config.get('jwtSecret') as string) || 'secret';
+  protected static readonly accessTokenSecret =
+    (config.get('accessTokenJwtSecret') as string) || 'secret';
+
+  protected static readonly refreshTokenSecret =
+    (config.get('refreshTokenJwtSecret') as string) || 'secret';
 
   protected static createAccessToken(userId: number): string {
     const data: DataStoredInAccessToken = {
       id: userId,
     };
-    return jwt.sign(data, this.secret, {
+    return jwt.sign(data, this.accessTokenSecret, {
       expiresIn: `${this.accessTokenTimeout}s`,
     });
   }
@@ -32,17 +35,20 @@ export class JsonWebToken {
       isRefresh: true,
       ip: '',
     };
-    return jwt.sign(data, this.secret, {
+    return jwt.sign(data, this.refreshTokenSecret, {
       expiresIn: `${this.refreshTokenTimeout}s`,
     });
   }
 
   static verifyAccessToken(token: string): DataStoredInAccessToken {
-    return jwt.verify(token, this.secret) as DataStoredInAccessToken;
+    return jwt.verify(token, this.accessTokenSecret) as DataStoredInAccessToken;
   }
 
   static verifyRefreshToken(token: string): DataStoredInRefreshToken {
-    return jwt.verify(token, this.secret) as DataStoredInRefreshToken;
+    return jwt.verify(
+      token,
+      this.refreshTokenSecret,
+    ) as DataStoredInRefreshToken;
   }
 
   static createToken(userId: number): TokenData {
