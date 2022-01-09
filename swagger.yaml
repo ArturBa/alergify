@@ -635,6 +635,7 @@ paths:
 
   /symptoms:
     get:
+      summary: Get available symptoms
       security:
         - bearerAuth: []
       tags:
@@ -651,6 +652,7 @@ paths:
 
   /symptom-log:
     get:
+      summary: Get user's symptom logs
       security:
         - bearerAuth: []
       tags:
@@ -674,6 +676,7 @@ paths:
                             - $ref: '#/components/schemas/symptom-log-get'
                             - $ref: '#/components/schemas/id'
     post:
+      summary: Add a symptom log
       security:
         - bearerAuth: []
       tags:
@@ -688,6 +691,7 @@ paths:
         201:
           description: Created
     put:
+      summary: Update a symptom log
       security:
         - bearerAuth: []
       tags:
@@ -705,6 +709,7 @@ paths:
           description: OK
   /symptom-log/{id}:
     delete:
+      summary: Delete a symptom log
       security:
         - bearerAuth: []
       tags:
