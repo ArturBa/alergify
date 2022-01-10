@@ -1,14 +1,15 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import IngredientsService from '@services/ingredients.service';
 import { CreateIngredientDto } from '@dtos/ingredients.dto';
 import { IngredientGetRequest } from '../interfaces/ingredients.interface';
+import { RequestWithUser } from '../interfaces/internal/auth.interface';
 
 class IngredientsController {
   public ingredientService = new IngredientsService();
 
   public getIngredientById = async (
-    req: Request,
+    req: RequestWithUser,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
@@ -25,13 +26,14 @@ class IngredientsController {
   };
 
   public createIngredient = async (
-    req: Request,
+    req: RequestWithUser,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
+      const { userId } = req;
       const ingredientData: CreateIngredientDto = req.body;
-      await this.ingredientService.createIngredient(ingredientData);
+      await this.ingredientService.createIngredient(userId, ingredientData);
 
       res.sendStatus(HttpStatusCode.CREATED);
     } catch (error) {

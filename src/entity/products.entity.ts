@@ -1,11 +1,21 @@
-import { Entity, Column, Unique, JoinTable, ManyToMany } from 'typeorm';
-import { Product } from '@interfaces/products.interface';
+import {
+  Entity,
+  Column,
+  JoinTable,
+  ManyToMany,
+  JoinColumn,
+  ManyToOne,
+} from 'typeorm';
+
 import { Ingredient } from '@interfaces/ingredients.interface';
-import { IngredientEntity } from './ingredients.entity';
+import { Product } from '@interfaces/products.interface';
+import { User } from '@interfaces/users.interface';
+
 import { BaseEntity } from './base.entity';
+import { IngredientEntity } from './ingredients.entity';
+import { UserEntity } from './users.entity';
 
 @Entity({ name: 'products' })
-@Unique(['name', 'barcode'])
 export class ProductEntity extends BaseEntity implements Product {
   @Column({
     nullable: true,
@@ -18,6 +28,13 @@ export class ProductEntity extends BaseEntity implements Product {
   @ManyToMany(() => IngredientEntity)
   @JoinTable()
   ingredients: Ingredient[];
+
+  @Column({ nullable: true })
+  userId: number;
+
+  @ManyToOne(() => UserEntity)
+  @JoinColumn({ name: 'userId' })
+  user: User;
 }
 
 export default ProductEntity;

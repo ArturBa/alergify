@@ -3,6 +3,7 @@ import { CreateProductDto } from '@dtos/products.dto';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import ProductsService from '@services/products.service';
 import { ProductGetRequest } from '../interfaces/products.interface';
+import { RequestWithUser } from '../interfaces/internal/auth.interface';
 
 class ProductsController {
   public productService = new ProductsService();
@@ -23,13 +24,14 @@ class ProductsController {
   };
 
   public createProduct = async (
-    req: Request,
+    req: RequestWithUser,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
       const productData: CreateProductDto = req.body;
-      await this.productService.createProduct(productData);
+      const { userId } = req;
+      await this.productService.createProduct(userId, productData);
 
       res.sendStatus(HttpStatusCode.CREATED);
     } catch (error) {

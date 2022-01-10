@@ -7,6 +7,7 @@ export interface Product extends BaseInterface {
   barcode: number;
   name: string;
   ingredients?: Ingredient[];
+  userId?: number;
 }
 
 interface GetProductsParameters {

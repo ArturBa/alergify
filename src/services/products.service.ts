@@ -1,4 +1,4 @@
-import { getRepository, In, Like } from 'typeorm';
+import { getRepository, In } from 'typeorm';
 import { CreateProductDto } from '@dtos/products.dto';
 import { IngredientEntity } from '@entity/ingredients.entity';
 import { ProductEntity } from '@entity/products.entity';
@@ -23,6 +23,7 @@ class GetProductQueryBuilder extends GetParamsBuilder<
     this.addPaginate(request);
     this.addBarcode(request);
     this.addName(request);
+    this.addUser(request);
   }
 
   protected addPaginate({ start, limit }: ProductGetRequest) {
@@ -35,13 +36,19 @@ class GetProductQueryBuilder extends GetParamsBuilder<
 
   protected addName({ name }: ProductGetRequest): void {
     if (name) {
-      this.appendWhere({ name: Like(`%${name}%`) });
+      this.appendWhere(` name Like '%${name}%' `);
+    }
+  }
+
+  protected addUser({ userId }: ProductGetRequest): void {
+    if (userId) {
+      this.appendWhere(`(userId IS ${userId} or userId IS NULL)`);
     }
   }
 
   protected addBarcode({ barcode }: ProductGetRequest): void {
     if (barcode) {
-      this.appendWhere({ barcode });
+      this.appendWhere(` barcode Like '%${barcode}%' `);
     }
   }
 }
@@ -84,7 +91,10 @@ class ProductsService {
     return product;
   }
 
-  public async createProduct(productData: CreateProductDto): Promise<void> {
+  public async createProduct(
+    userId: number,
+    productData: CreateProductDto,
+  ): Promise<void> {
     checkIfEmpty(productData);
 
     const productRepository = getRepository(this.products);
@@ -97,6 +107,7 @@ class ProductsService {
     product.barcode = productData.barcode;
     product.name = productData.name;
     product.ingredients = ingredients;
+    product.userId = userId;
 
     await productRepository.save(product);
   }

@@ -1,4 +1,4 @@
-import { getRepository, Like } from 'typeorm';
+import { getRepository } from 'typeorm';
 import { IngredientEntity } from '@entity/ingredients.entity';
 import {
   Ingredient,
@@ -22,12 +22,19 @@ class IngredientQueryBuilder extends GetQueryBuilder<
 
   build(request: IngredientGetRequest): void {
     this.addName(request);
+    this.addUser(request);
     this.addPagination(request);
   }
 
   protected addName({ name }: IngredientGetRequest): void {
     if (name) {
-      this.appendWhere({ name: Like(`%${name}%`) });
+      this.appendWhere(` name Like '%${name}%' `);
+    }
+  }
+
+  protected addUser({ userId }: IngredientGetRequest): void {
+    if (userId) {
+      this.appendWhere(`(userId IS ${userId} or userId IS NULL)`);
     }
   }
 
@@ -73,6 +80,7 @@ class IngredientsService {
   }
 
   public async createIngredient(
+    userId: number,
     ingredientData: CreateIngredientDto,
   ): Promise<void> {
     checkIfEmpty(ingredientData);
@@ -81,6 +89,7 @@ class IngredientsService {
 
     const ingredient = new IngredientEntity();
     ingredient.name = ingredientData.name;
+    ingredient.userId = userId;
 
     await ingredientsRepository.save(ingredient);
   }
