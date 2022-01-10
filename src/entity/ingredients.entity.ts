@@ -1,4 +1,3 @@
-import { IsNotEmpty } from 'class-validator';
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 
 import { Ingredient } from '@interfaces/ingredients.interface';
@@ -10,7 +9,6 @@ import { UserEntity } from './users.entity';
 @Entity({ name: 'ingredients' })
 export class IngredientEntity extends BaseEntity implements Ingredient {
   @Column()
-  @IsNotEmpty()
   name: string;
 
   @Column({ nullable: true })

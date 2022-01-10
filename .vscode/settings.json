@@ -10,7 +10,8 @@
     "authorization",
     "food-logs",
     "products",
-    "symptoms"
+    "symptoms",
+    "allergens"
   ],
   "cSpell.words": ["Alergify"]
 }
