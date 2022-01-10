@@ -61,8 +61,9 @@ export const refreshTokenMiddleware = async (
 
       req.userId = userId;
       next();
+    } else {
+      next(unauthorizedError);
     }
-    next(unauthorizedError);
   } catch (error) {
     next(unauthorizedError);
   }
