@@ -18,6 +18,8 @@ tags:
     description: product API
   - name: symptom
     description: symptom API
+  - name: allergen
+    description: allergen API
 
 components:
   securitySchemes:
@@ -271,6 +273,23 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/intensity-log'
+    allergens-get:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            ingredient:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ingredient name
+                id:
+                  type: number
+            likelihood:
+              type: number
+            confirmed:
+              type: boolean
     param-paginate:
       type: object
       properties:
@@ -714,6 +733,52 @@ paths:
         - bearerAuth: []
       tags:
         - symptom
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          description: OK
+
+  /allergens:
+    get:
+      summary: Get available allergens
+      security:
+        - bearerAuth: []
+      tags:
+        - allergen
+      responses:
+        200:
+          description: Allergens
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/paginate-response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/allergens-get'
+  /allergens/{id}:
+    post:
+      summary: Set ingredient as confirmed allergen
+      security:
+        - bearerAuth: []
+      tags:
+        - allergen
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          description: OK
+    delete:
+      summary: Remove ingredient as confirmed allergen
+      security:
+        - bearerAuth: []
+      tags:
+        - allergen
       parameters:
         - $ref: '#/components/parameters/id'
       responses:

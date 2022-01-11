@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
+
 import { CreateProductDto } from '@dtos/products.dto';
+import { ProductGetRequest } from '@interfaces/products.interface';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import ProductsService from '@services/products.service';
-import { ProductGetRequest } from '../interfaces/products.interface';
-import { RequestWithUser } from '../interfaces/internal/auth.interface';
 
 class ProductsController {
   public productService = new ProductsService();

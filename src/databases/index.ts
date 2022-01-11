@@ -7,7 +7,7 @@ const { database }: DbConfig = config.get('dbConfig');
 export const dbConnection: ConnectionOptions = {
   type: 'sqlite',
   database,
-  synchronize: true,
+  synchronize: false,
   logging: true,
   entities: [path.join(__dirname, '../**/*.entity{.ts,.js}')],
   migrations: [path.join(__dirname, '../**/*.migration{.ts,.js}')],

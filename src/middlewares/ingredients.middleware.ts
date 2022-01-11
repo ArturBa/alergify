@@ -1,7 +1,9 @@
 import { NextFunction, Response } from 'express';
+
 import { IngredientGetRequest } from '@interfaces/ingredients.interface';
+import { isEmpty } from '@utils/util';
+
 import { paginateParamsMiddleware } from './internal/paginate.middleware';
-import { isEmpty } from '../utils/util';
 
 const getIngredientsDtoMiddleware = (
   req: IngredientGetRequest,

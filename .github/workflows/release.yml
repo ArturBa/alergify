@@ -8,7 +8,7 @@ on:
 env:
   IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
   GITLAB: ${{ secrets.GITLAB }}
-  DOCKER_REGISTRY: registry.gitlab.com 
+  DOCKER_REGISTRY: registry.gitlab.com
   VERSION: $(node -pe "require('./package.json').version" )
 
 jobs:
@@ -21,23 +21,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Get package version 
+      - name: Get package version
         run: echo ${{env.VERSION}}
 
       - name: Docker login
-        run: echo ${{ env.GITLAB }} | docker login -u ArturBa --password-stdin ${{ env.DOCKER_REGISTRY }} 
-      
+        run: echo ${{ env.GITLAB }} | docker login -u ArturBa --password-stdin ${{ env.DOCKER_REGISTRY }}
+
       - name: Pull latests image
         run: docker pull ${{ env.IMAGE_NAME }}:latest
 
-      - name: Build docker image 
-        run: | 
+      - name: Build docker image
+        run: |
           docker build -t ${{ env.IMAGE_NAME }}:${{ env.VERSION }} .
           docker build -t ${{ env.IMAGE_NAME }}:latest .
       - name: Push images
-        run: | 
+        run: |
           docker push ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
           docker push ${{ env.IMAGE_NAME }}:latest
-      
+
       - name: Docker logout
-        run: docker logout ${{ env.DOCKER_REGISTRY }} 
+        run: docker logout ${{ env.DOCKER_REGISTRY }}

@@ -5,6 +5,7 @@ import 'dotenv/config';
 // eslint-disable-next-line import/order
 import App from '@/app';
 
+import AllergensRoute from '@routes/allergens.route';
 import AuthRoute from '@routes/auth.route';
 import FoodLogsRoute from '@routes/food-log.route';
 import FoodsRoute from '@routes/food.route';
@@ -23,6 +24,7 @@ const app = new App([
   new IndexRoute(),
   new UsersRoute(),
   new AuthRoute(),
+  new AllergensRoute(),
   new FoodLogsRoute(),
   new FoodsRoute(),
   new IngredientRoute(),
