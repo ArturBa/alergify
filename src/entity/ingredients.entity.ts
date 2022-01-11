@@ -14,7 +14,9 @@ export class IngredientEntity extends BaseEntity implements Ingredient {
   @Column({ nullable: true })
   userId: number;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId' })
   user: User;
 }

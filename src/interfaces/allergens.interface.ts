@@ -7,7 +7,8 @@ import { User } from './users.interface';
 export interface Allergen extends BaseInterface {
   user: User;
   ingredient: Ingredient;
-  likelihood: number;
+  points: number;
+  count: number;
   confirmed: boolean;
 }
 

@@ -13,24 +13,35 @@ export class AllergensEntity extends BaseEntity implements Allergen {
   @Column()
   userId: number;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId' })
   user: User;
 
   @Column()
   ingredientId: number;
 
-  @ManyToOne(() => IngredientEntity)
+  @ManyToOne(() => IngredientEntity, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'ingredientId' })
   ingredient: Ingredient;
-
-  @Column({ nullable: true })
-  likelihood: number;
 
   @Column({
     default: false,
   })
   confirmed: boolean;
+
+  @Column({
+    default: 0,
+  })
+  count: number;
+
+  @Column({
+    default: 0,
+  })
+  points: number;
 }
 
 export default AllergensEntity;

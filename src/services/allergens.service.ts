@@ -1,10 +1,61 @@
-import { getRepository } from 'typeorm';
+import { getRepository, Repository, SelectQueryBuilder } from 'typeorm';
 
 import { AllergensEntity } from '@entity/allergens.entity';
 import { GetAllergensRequest } from '@interfaces/allergens.interface';
 import { IngredientEntity } from '@entity/ingredients.entity';
 
 import { checkIfConflict } from './common.service';
+import { isEmpty } from '../utils/util';
+import { PaginateResponse } from '../interfaces/internal/response.interface';
+
+class GetAllergensQueryBuilder {
+  protected query: SelectQueryBuilder<AllergensEntity>;
+
+  protected limit: number;
+
+  protected start: number;
+
+  constructor(repository: Repository<AllergensEntity>) {
+    this.query = repository
+      .createQueryBuilder('allergens')
+      .innerJoinAndSelect('allergens.ingredient', 'ingredient');
+  }
+
+  build(request: GetAllergensRequest): void {
+    this.addUser(request);
+    this.savePagination(request);
+    this.addSelect();
+  }
+
+  get(): SelectQueryBuilder<AllergensEntity> {
+    return this.query.take(this.limit).skip(this.start);
+  }
+
+  getTotal(): SelectQueryBuilder<AllergensEntity> {
+    return this.query;
+  }
+
+  protected addUser({ userId }: GetAllergensRequest): void {
+    if (isEmpty(userId)) return;
+    this.query = this.query.andWhere('allergens.userId = :userId', { userId });
+  }
+
+  protected savePagination({ limit, start }: GetAllergensRequest): void {
+    this.limit = limit;
+    this.start = start;
+  }
+
+  protected addSelect(): void {
+    this.query.select([
+      'ingredient.id',
+      'ingredient.name',
+      'allergens.id',
+      'allergens.points',
+      'allergens.count',
+      'allergens.confirmed',
+    ]);
+  }
+}
 
 class AllergensService {
   readonly allergens = AllergensEntity;
@@ -14,18 +65,23 @@ class AllergensService {
   public async getAllergens(
     userId: number,
     req: GetAllergensRequest,
-  ): Promise<any> {
+  ): Promise<PaginateResponse<any>> {
     const allergensRepository = await getRepository(this.allergens);
-    const data = await allergensRepository.find({
-      // select: ['likelihood', 'confirmed'],
-      where: { userId },
-      relations: ['ingredient'],
-      take: req.limit,
-      skip: req.start,
-    });
-    const total = await allergensRepository.count({
-      where: { userId },
-    });
+    const queryBuilder = new GetAllergensQueryBuilder(allergensRepository);
+    queryBuilder.build(req);
+    const data = (await queryBuilder.get().getMany())
+      .map(allergen => ({
+        ...allergen,
+        likelihood: allergen.points / allergen.count,
+      }))
+      .map(allergen => {
+        const allergenCopy = allergen;
+        delete allergenCopy.count;
+        delete allergenCopy.points;
+        delete allergenCopy.id;
+        return allergenCopy;
+      });
+    const total = await queryBuilder.getTotal().getCount();
     return { total, data };
   }
 
@@ -46,9 +102,11 @@ class AllergensService {
       where: { userId, ingredientId },
     });
 
-    const allergen = allergenFromDb || new AllergensEntity();
-    allergen.userId = userId;
-    allergen.ingredientId = ingredientId;
+    const newAllergen = new AllergensEntity();
+    newAllergen.userId = userId;
+    newAllergen.ingredientId = ingredientId;
+
+    const allergen = allergenFromDb || newAllergen;
     allergen.confirmed = true;
 
     await allergensRepository.save(allergen);
@@ -62,7 +120,6 @@ class AllergensService {
     const allergenFromDb = await allergensRepository.findOne({
       where: { userId, ingredientId },
     });
-    console.log(allergenFromDb);
     checkIfConflict(!allergenFromDb, 'Allergen does not exist');
 
     await allergensRepository.delete({
