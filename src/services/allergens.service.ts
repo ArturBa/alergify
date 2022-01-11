@@ -3,10 +3,10 @@ import { getRepository, Repository, SelectQueryBuilder } from 'typeorm';
 import { AllergensEntity } from '@entity/allergens.entity';
 import { GetAllergensRequest } from '@interfaces/allergens.interface';
 import { IngredientEntity } from '@entity/ingredients.entity';
+import { isEmpty } from '@utils/util';
+import { PaginateResponse } from '@interfaces/internal/response.interface';
 
 import { checkIfConflict } from './common.service';
-import { isEmpty } from '../utils/util';
-import { PaginateResponse } from '../interfaces/internal/response.interface';
 
 class GetAllergensQueryBuilder {
   protected query: SelectQueryBuilder<AllergensEntity>;
@@ -63,7 +63,6 @@ class AllergensService {
   readonly ingredients = IngredientEntity;
 
   public async getAllergens(
-    userId: number,
     req: GetAllergensRequest,
   ): Promise<PaginateResponse<any>> {
     const allergensRepository = await getRepository(this.allergens);

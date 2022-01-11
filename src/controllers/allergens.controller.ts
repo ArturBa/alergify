@@ -14,8 +14,7 @@ class AllergensController {
     next: NextFunction,
   ) => {
     try {
-      const { userId } = req;
-      const response = await this.allergensService.getAllergens(userId, req);
+      const response = await this.allergensService.getAllergens(req);
       res.status(HttpStatusCode.OK).json(response);
     } catch (error) {
       next(error);

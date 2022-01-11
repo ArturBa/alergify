@@ -1,7 +1,9 @@
 import { NextFunction, Response } from 'express';
+
+import { isEmpty } from '@utils/util';
 import { ProductGetRequest } from '@interfaces/products.interface';
+
 import { paginateParamsMiddleware } from './internal/paginate.middleware';
-import { isEmpty } from '../utils/util';
 
 const getProductsDtoMiddleware = (
   req: ProductGetRequest,

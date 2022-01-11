@@ -1,9 +1,10 @@
 import { Response, NextFunction } from 'express';
+
+import { CreateIngredientDto } from '@dtos/ingredients.dto';
+import { IngredientGetRequest } from '@interfaces/ingredients.interface';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import IngredientsService from '@services/ingredients.service';
-import { CreateIngredientDto } from '@dtos/ingredients.dto';
-import { IngredientGetRequest } from '../interfaces/ingredients.interface';
-import { RequestWithUser } from '../interfaces/internal/auth.interface';
 
 class IngredientsController {
   public ingredientService = new IngredientsService();

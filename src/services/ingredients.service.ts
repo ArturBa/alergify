@@ -1,13 +1,15 @@
 import { getRepository } from 'typeorm';
+
+import { CreateIngredientDto } from '@dtos/ingredients.dto';
 import { IngredientEntity } from '@entity/ingredients.entity';
 import {
   Ingredient,
   IngredientGetRequest,
 } from '@interfaces/ingredients.interface';
-import { CreateIngredientDto } from '@dtos/ingredients.dto';
+import { PaginateResponse } from '@interfaces/internal/response.interface';
+
 import { checkIfConflict, checkIfEmpty } from './common.service';
 import GetQueryBuilder from './internal/get-params-builder';
-import { PaginateResponse } from '../interfaces/internal/response.interface';
 
 class IngredientQueryBuilder extends GetQueryBuilder<
   IngredientEntity,
