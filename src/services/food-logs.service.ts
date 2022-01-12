@@ -111,7 +111,7 @@ class FoodLogsService {
   public async createUserFoodLogs(
     userId: number,
     foodLog: CreateFoodLogDto,
-  ): Promise<void> {
+  ): Promise<FoodLogEntity> {
     checkIfConflict(isEmpty(foodLog) || isEmpty(userId));
     const foodLogsRepository = getRepository(this.foodLogs);
     const foodLogEntity = await this.getFoodLogEntityFromCreateDto(foodLog);
@@ -119,7 +119,7 @@ class FoodLogsService {
     const user = await usersRepository.findOne({ where: { id: userId } });
     foodLogEntity.user = user;
 
-    await foodLogsRepository.save(foodLogEntity);
+    return foodLogsRepository.save(foodLogEntity);
   }
 
   public async updateUserFoodLogs(
@@ -138,21 +138,6 @@ class FoodLogsService {
     foodLogEntity.ingredients = foodLogEntityCreated.ingredients;
     foodLogEntity.products = foodLogEntityCreated.products;
     await foodLogsRepository.save(foodLogEntity);
-  }
-
-  public async findUserFoodLogById(
-    userId: number,
-    foodLogId: number,
-  ): Promise<FoodLog> {
-    checkIfConflict(isEmpty(foodLogId) || isEmpty(userId));
-
-    const foodLogsRepository = getRepository(this.foodLogs);
-    const foodLog = await foodLogsRepository.findOne({
-      where: { id: foodLogId, userId },
-    });
-    checkIfConflict(!foodLog);
-
-    return foodLog;
   }
 
   public async deleteFoodLogById(

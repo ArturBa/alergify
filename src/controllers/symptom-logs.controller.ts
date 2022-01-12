@@ -14,7 +14,7 @@ class SymptomLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const symptomLogs = await this.symptomLogService.getAllSymptomLogs(req);
+      const symptomLogs = await this.symptomLogService.getSymptomLogs(req);
 
       res.status(HttpStatusCode.OK).json(symptomLogs);
     } catch (error) {

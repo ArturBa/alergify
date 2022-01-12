@@ -74,7 +74,7 @@ class SymptomLogService {
 
   public intensityLogsService = new IntensityLogService();
 
-  public async getAllSymptomLogs(
+  public async getSymptomLogs(
     request: SymptomLogGetRequest,
   ): Promise<PaginateResponse<Partial<SymptomLog>>> {
     const symptomLogRepository = getRepository(this.symptomLogs);

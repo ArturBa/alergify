@@ -126,6 +126,34 @@ class AllergensService {
       ingredientId,
     });
   }
+
+  public async decrementAllergen(
+    userId: number,
+    ingredientId: number,
+    points: number,
+  ): Promise<void> {
+    const allergensRepository = getRepository(this.allergens);
+    await allergensRepository.increment(
+      { userId, ingredientId },
+      'points',
+      -points,
+    );
+    await allergensRepository.increment({ userId, ingredientId }, 'count', -1);
+  }
+
+  public async incrementAllergen(
+    userId: number,
+    ingredientId: number,
+    points: number,
+  ): Promise<void> {
+    const allergensRepository = getRepository(this.allergens);
+    await allergensRepository.increment(
+      { userId, ingredientId },
+      'points',
+      points,
+    );
+    await allergensRepository.increment({ userId, ingredientId }, 'count', 1);
+  }
 }
 
 export default AllergensService;
