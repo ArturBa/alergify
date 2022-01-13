@@ -116,10 +116,19 @@ class SymptomLogService {
     return symptomLog;
   }
 
+  public async getSymptomLogById(symptomLogId: number): Promise<SymptomLog> {
+    checkIfEmpty(symptomLogId);
+
+    const symptomLogRepository = getRepository(this.symptomLogs);
+    return symptomLogRepository.findOne({
+      where: { id: symptomLogId },
+    });
+  }
+
   public async createSymptom(
     symptomData: CreateSymptomLogDto,
     userId: number,
-  ): Promise<void> {
+  ): Promise<SymptomLog> {
     checkIfEmpty(symptomData);
     checkIfEmpty(symptomData.intensityLogs);
     checkIfEmpty(userId);
@@ -134,7 +143,7 @@ class SymptomLogService {
     symptom.user = user;
 
     const symptomLogRepository = getRepository(this.symptomLogs);
-    await symptomLogRepository.save(symptom);
+    return symptomLogRepository.save(symptom);
   }
 
   public async updateSymptom(

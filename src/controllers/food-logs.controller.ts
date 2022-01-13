@@ -31,13 +31,13 @@ export class FoodLogsController {
   ): Promise<void> => {
     try {
       const { userId } = req;
-      const foodLog = await this.foodLogsService.createUserFoodLogs(
+      const { id } = await this.foodLogsService.createUserFoodLogs(
         userId,
         req.body,
       );
       res.sendStatus(HttpStatusCode.CREATED);
-      console.log('added a food log', foodLog);
-      this.allergensController.addFoodLogAllergens(userId, foodLog);
+      const foodLog = await this.foodLogsService.getFoodLogById(id);
+      this.allergensController.addFoodLogAllergens(foodLog);
     } catch (err) {
       next(err);
     }
@@ -50,8 +50,15 @@ export class FoodLogsController {
   ): Promise<void> => {
     try {
       const { userId } = req;
+      const prevFoodLog = await this.foodLogsService.getFoodLogById(
+        req.body.id,
+      );
       await this.foodLogsService.updateUserFoodLogs(userId, req.body);
       res.sendStatus(HttpStatusCode.OK);
+      const nextFoodLog = await this.foodLogsService.getFoodLogById(
+        req.body.id,
+      );
+      this.allergensController.diffFoodLogAllergens(prevFoodLog, nextFoodLog);
     } catch (err) {
       next(err);
     }
@@ -65,8 +72,10 @@ export class FoodLogsController {
     try {
       const { userId } = req;
       const foodId = Number(req.params.id);
+      const foodLog = await this.foodLogsService.getFoodLogById(foodId);
       await this.foodLogsService.deleteFoodLogById(userId, foodId);
       res.sendStatus(HttpStatusCode.OK);
+      this.allergensController.removeFoodLogAllergens(foodLog);
     } catch (err) {
       next(err);
     }

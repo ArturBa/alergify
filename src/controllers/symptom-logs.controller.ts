@@ -5,8 +5,12 @@ import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import { SymptomLogGetRequest } from '@interfaces/symptom-logs.interface';
 
+import AllergensController from './allergens.controller';
+
 class SymptomLogsController {
   public symptomLogService = new SymptomLogService();
+
+  public allergensController = new AllergensController();
 
   public getSymptomLogs = async (
     req: SymptomLogGetRequest,
@@ -46,9 +50,14 @@ class SymptomLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      await this.symptomLogService.createSymptom(req.body, req.userId);
+      const { id } = await this.symptomLogService.createSymptom(
+        req.body,
+        req.userId,
+      );
 
       res.sendStatus(HttpStatusCode.CREATED);
+      const symptomLog = await this.symptomLogService.getSymptomLogById(id);
+      this.allergensController.addSymptomLogAllergens(symptomLog);
     } catch (error) {
       next(error);
     }
@@ -60,9 +69,19 @@ class SymptomLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
+      const prevSymptomLog = await this.symptomLogService.getSymptomLogById(
+        req.body.id,
+      );
       await this.symptomLogService.updateSymptom(req.body, req.userId);
 
       res.sendStatus(HttpStatusCode.OK);
+      const nextSymptomLog = await this.symptomLogService.getSymptomLogById(
+        req.body.id,
+      );
+      this.allergensController.diffSymptomLogAllergens(
+        prevSymptomLog,
+        nextSymptomLog,
+      );
     } catch (error) {
       next(error);
     }
@@ -75,9 +94,13 @@ class SymptomLogsController {
   ): Promise<void> => {
     try {
       const symptomId = Number(req.params.id);
+      const symptomLog = await this.symptomLogService.getSymptomLogById(
+        symptomId,
+      );
       await this.symptomLogService.deleteSymptomLog(symptomId, req.userId);
 
       res.sendStatus(HttpStatusCode.OK);
+      this.allergensController.removeSymptomLogAllergens(symptomLog);
     } catch (error) {
       next(error);
     }

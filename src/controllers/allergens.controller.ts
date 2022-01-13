@@ -4,7 +4,7 @@ import { GetAllergensRequest } from '@interfaces/allergens.interface';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import AllergensService from '@services/allergens.service';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
-import { FoodLog } from '../interfaces/food-logs.interface';
+import { FoodLog, FoodLogGetRequest } from '../interfaces/food-logs.interface';
 import {
   SymptomLog,
   SymptomLogGetRequest,
@@ -67,36 +67,66 @@ class AllergensController {
     }
   };
 
-  public addFoodLogAllergens = async (
-    userId: number,
-    foodLog: FoodLog,
-  ): Promise<void> => {
+  public addFoodLogAllergens = async (foodLog: FoodLog): Promise<void> => {
+    this.diffFoodLogAllergens(null, foodLog);
+
+    const ingredientIds = await this.getIngredientIds(foodLog);
     const symptomLogs = await this.getSymptomNextDay(
       foodLog.user.id,
       foodLog.date,
     );
-    const ingredients = await this.getIngredientIds(foodLog);
-    this.addAllergens(
-      userId,
-      [{ ...foodLog, ingredientsIds: ingredients }],
-      symptomLogs,
+
+    this.addAllergens([{ ...foodLog, ingredientIds }], symptomLogs);
+  };
+
+  public removeFoodLogAllergens = async (foodLog: FoodLog): Promise<void> => {
+    this.diffFoodLogAllergens(foodLog, null);
+
+    const ingredientIds = await this.getIngredientIds(foodLog);
+    const symptomLogs = await this.getSymptomNextDay(
+      foodLog.user.id,
+      foodLog.date,
     );
+
+    this.removeAllergens([{ ...foodLog, ingredientIds }], symptomLogs);
+  };
+
+  public diffFoodLogAllergens = async (
+    prevFoodLog: FoodLog,
+    nextFoodLog: FoodLog,
+  ): Promise<void> => {
+    this.removeFoodLogAllergens(prevFoodLog);
+    this.addFoodLogAllergens(nextFoodLog);
   };
 
   protected addAllergens = (
-    userId: number,
-    foodLogs: (FoodLog & { ingredientsIds: number[] })[],
+    foodLogs: (FoodLog & { ingredientIds: number[] })[],
     symptomLogs: SymptomLog[],
   ): void => {
+    const userId = foodLogs[0].user?.id || symptomLogs[0].userId;
     foodLogs.forEach(foodLog => {
       symptomLogs.forEach(symptomLog => {
         const points = this.getPoints(foodLog, symptomLog);
-        foodLog.ingredientsIds.forEach(ingredientId => {
+        foodLog.ingredientIds.forEach(ingredientId => {
           this.allergensService.incrementAllergen(userId, ingredientId, points);
         });
       });
     });
-    this.addSymptomLogAllergens(null);
+  };
+
+  protected removeAllergens = (
+    foodLogs: (FoodLog & { ingredientIds: number[] })[],
+    symptomLogs: SymptomLog[],
+  ): void => {
+    const userId = foodLogs[0].user?.id || symptomLogs[0].userId;
+    foodLogs.forEach(foodLog => {
+      symptomLogs.forEach(symptomLog => {
+        const points = this.getPoints(foodLog, symptomLog);
+        foodLog.ingredientIds.forEach(ingredientId => {
+          this.allergensService.decrementAllergen(userId, ingredientId, points);
+        });
+      });
+    });
   };
 
   // eslint-disable-next-line class-methods-use-this
@@ -111,12 +141,52 @@ class AllergensController {
 
   public addSymptomLogAllergens = async (
     symptom: SymptomLog,
-  ): Promise<void> => {};
+  ): Promise<void> => {
+    const foodLogs = await this.getFoodLogPreviousDay(
+      symptom.userId,
+      symptom.date,
+    );
+
+    const foodLogsWithIngredientIds = await Promise.all(
+      foodLogs.map(async foodLog => ({
+        ...foodLog,
+        ingredientIds: await this.getIngredientIds(foodLog),
+      })),
+    );
+
+    this.addAllergens(foodLogsWithIngredientIds, [symptom]);
+  };
+
+  public removeSymptomLogAllergens = async (
+    symptom: SymptomLog,
+  ): Promise<void> => {
+    const foodLogs = await this.getFoodLogPreviousDay(
+      symptom.user.id,
+      symptom.date,
+    );
+
+    const foodLogsWithIngredientIds = await Promise.all(
+      foodLogs.map(async foodLog => ({
+        ...foodLog,
+        ingredientIds: await this.getIngredientIds(foodLog),
+      })),
+    );
+
+    this.removeAllergens(foodLogsWithIngredientIds, [symptom]);
+  };
+
+  public diffSymptomLogAllergens = async (
+    prevSymptom: SymptomLog,
+    nextSymptom: SymptomLog,
+  ): Promise<void> => {
+    this.removeSymptomLogAllergens(prevSymptom);
+    this.addSymptomLogAllergens(nextSymptom);
+  };
 
   protected getIngredientIds = (foodLog: FoodLog): Promise<number[]> => {
     const ingredientIds =
-      foodLog.ingredients?.map(ingredient => ingredient.id) || [];
-    const productIds = foodLog.products?.map(product => product.id) || [];
+      foodLog?.ingredients?.map(ingredient => ingredient.id) || [];
+    const productIds = foodLog?.products?.map(product => product.id) || [];
 
     return Promise.all([
       ...productIds.map(id => this.productService.getProductById(id)),
@@ -129,8 +199,29 @@ class AllergensController {
     });
   };
 
-  protected getFoodLogPreviousDay = (userId: number, date: Date): FoodLog[] => {
-    return [];
+  protected getFoodLogPreviousDay = (
+    userId: number,
+    date: Date,
+  ): Promise<FoodLog[]> => {
+    const previousDay = (next: Date): Date => {
+      const resultDay = new Date(next);
+      next.setDate(resultDay.getDate() - 1);
+      return next;
+    };
+    const startDate = previousDay(date);
+    const endDate = date;
+
+    // TODO: remove limit and get them all
+    const limit = 100;
+
+    return this.foodLogService
+      .getUserFoodLogs({
+        userId,
+        startDate,
+        endDate,
+        limit,
+      } as FoodLogGetRequest)
+      .then(foodLogs => foodLogs.data);
   };
 
   protected getSymptomNextDay = (
@@ -147,7 +238,6 @@ class AllergensController {
     const endDate = nextDay(date);
 
     const limit = 100;
-    console.log('userId', userId);
 
     return this.symptomLogService
       .getSymptomLogs({
@@ -157,8 +247,6 @@ class AllergensController {
         limit,
       } as SymptomLogGetRequest)
       .then(symptomLogs => symptomLogs.data as Partial<SymptomLog[]>);
-
-    return Promise.resolve([]);
   };
 }
 

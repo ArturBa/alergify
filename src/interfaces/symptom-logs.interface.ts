@@ -11,6 +11,7 @@ export interface SymptomLog extends BaseInterface {
   date: Date;
   intensityLogs?: IntensityLog[];
   user: User;
+  userId: number;
 }
 
 export interface SymptomLogGetRequest

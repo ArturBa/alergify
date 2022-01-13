@@ -151,8 +151,15 @@ class FoodLogsService {
       where: { id: foodLogId, userId },
     });
     checkIfConflict(!foodLog);
+    console.log('foodLog to remove', foodLog);
 
     await foodLogsRepository.delete(foodLogId);
+  }
+
+  public async getFoodLogById(foodLogId: number): Promise<FoodLogEntity> {
+    checkIfConflict(isEmpty(foodLogId));
+    const foodLogsRepository = getRepository(this.foodLogs);
+    return foodLogsRepository.findOne({ where: { id: foodLogId } });
   }
 
   protected async getFoodLogEntityFromCreateDto(
