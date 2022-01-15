@@ -151,7 +151,6 @@ class FoodLogsService {
       where: { id: foodLogId, userId },
     });
     checkIfConflict(!foodLog);
-    console.log('foodLog to remove', foodLog);
 
     await foodLogsRepository.delete(foodLogId);
   }
