@@ -51,7 +51,6 @@ class GetAllergensQueryBuilder {
       'ingredient.name',
       'allergens.id',
       'allergens.points',
-      'allergens.count',
       'allergens.confirmed',
     ]);
   }
@@ -71,11 +70,10 @@ class AllergensService {
     const data = (await queryBuilder.get().getMany())
       .map(allergen => ({
         ...allergen,
-        likelihood: allergen.points / allergen.count,
+        likelihood: allergen.points,
       }))
       .map(allergen => {
         const allergenCopy = allergen;
-        delete allergenCopy.count;
         delete allergenCopy.points;
         delete allergenCopy.id;
         return allergenCopy;
@@ -138,7 +136,6 @@ class AllergensService {
       'points',
       -points,
     );
-    await allergensRepository.increment({ userId, ingredientId }, 'count', -1);
   }
 
   public async incrementAllergen(
@@ -152,7 +149,6 @@ class AllergensService {
       'points',
       points,
     );
-    await allergensRepository.increment({ userId, ingredientId }, 'count', 1);
   }
 }
 

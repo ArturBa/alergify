@@ -3,6 +3,7 @@ import { Food, FoodGetRequest } from '@interfaces/foods.interface';
 import { ProductGetRequest } from '@interfaces/products.interface';
 import ProductsService from './products.service';
 import IngredientsService from './ingredients.service';
+import BaseService from './internal/base.service';
 
 class FoodsService {
   readonly productService = new ProductsService();

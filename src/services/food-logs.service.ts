@@ -1,13 +1,15 @@
 import { getRepository, In, Repository, SelectQueryBuilder } from 'typeorm';
+import { addYears, subYears } from 'date-fns';
+
 import { isEmpty } from '@utils/util';
 import { FoodLogEntity } from '@entity/food-logs.entity';
-import { FoodLog, FoodLogGetRequest } from '@interfaces/food-logs.interface';
+import { FoodLog, FoodLogFindRequest } from '@interfaces/food-logs.interface';
 import { UserEntity } from '@entity/users.entity';
 import { CreateFoodLogDto, UpdateFoodLogDto } from '@dtos/food-logs.dto';
 import { ProductEntity } from '@entity/products.entity';
 import { IngredientEntity } from '@entity/ingredients.entity';
 import { PaginateResponse } from '@interfaces/internal/response.interface';
-import { addYears, subYears } from 'date-fns';
+
 import { checkIfConflict } from './common.service';
 import { formatDate } from './internal/get-params-builder';
 
@@ -25,7 +27,7 @@ class GetFoodLogQueryBuilder {
       .leftJoinAndSelect('foodLog.ingredients', 'ingredient');
   }
 
-  build(request: FoodLogGetRequest): void {
+  build(request: FoodLogFindRequest): void {
     this.addUser(request);
     this.addDate(request);
     this.savePagination(request);
@@ -41,12 +43,12 @@ class GetFoodLogQueryBuilder {
     return this.query;
   }
 
-  protected addUser({ userId }: FoodLogGetRequest): void {
+  protected addUser({ userId }: FoodLogFindRequest): void {
     if (isEmpty(userId)) return;
     this.query = this.query.andWhere('foodLog.userId = :userId', { userId });
   }
 
-  protected addDate({ startDate, endDate }: FoodLogGetRequest): void {
+  protected addDate({ startDate, endDate }: FoodLogFindRequest): void {
     let startDateInput = startDate;
     let endDateInput = endDate;
     if (isEmpty(startDate) && isEmpty(endDate)) {
@@ -66,7 +68,7 @@ class GetFoodLogQueryBuilder {
     );
   }
 
-  protected savePagination({ limit, start }: FoodLogGetRequest): void {
+  protected savePagination({ limit, start }: FoodLogFindRequest): void {
     this.limit = limit;
     this.start = start;
   }
@@ -88,7 +90,7 @@ class GetFoodLogQueryBuilder {
   }
 }
 
-class FoodLogsService {
+export class FoodLogsService {
   public foodLogs = FoodLogEntity;
 
   public users = UserEntity;
@@ -98,7 +100,7 @@ class FoodLogsService {
   public ingredients = IngredientEntity;
 
   public async getUserFoodLogs(
-    req: FoodLogGetRequest,
+    req: FoodLogFindRequest,
   ): Promise<PaginateResponse<FoodLog>> {
     const foodLogsRepository = getRepository(this.foodLogs);
     const queryBuilder = new GetFoodLogQueryBuilder(foodLogsRepository);

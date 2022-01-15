@@ -36,11 +36,6 @@ export class AllergensEntity extends BaseEntity implements Allergen {
   @Column({
     default: 0,
   })
-  count: number;
-
-  @Column({
-    default: 0,
-  })
   points: number;
 }
 

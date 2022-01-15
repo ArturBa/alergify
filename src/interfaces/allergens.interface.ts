@@ -8,7 +8,6 @@ export interface Allergen extends BaseInterface {
   user: User;
   ingredient: Ingredient;
   points: number;
-  count: number;
   confirmed: boolean;
 }
 

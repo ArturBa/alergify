@@ -4,7 +4,7 @@ import { GetAllergensRequest } from '@interfaces/allergens.interface';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import AllergensService from '@services/allergens.service';
 import HttpStatusCode from '@interfaces/internal/http-codes.interface';
-import { FoodLog, FoodLogGetRequest } from '../interfaces/food-logs.interface';
+import { FoodLog, FoodLogFindRequest } from '../interfaces/food-logs.interface';
 import {
   SymptomLog,
   SymptomLogGetRequest,
@@ -68,11 +68,9 @@ class AllergensController {
   };
 
   public addFoodLogAllergens = async (foodLog: FoodLog): Promise<void> => {
-    this.diffFoodLogAllergens(null, foodLog);
-
     const ingredientIds = await this.getIngredientIds(foodLog);
     const symptomLogs = await this.getSymptomNextDay(
-      foodLog.user.id,
+      foodLog.userId,
       foodLog.date,
     );
 
@@ -80,11 +78,9 @@ class AllergensController {
   };
 
   public removeFoodLogAllergens = async (foodLog: FoodLog): Promise<void> => {
-    this.diffFoodLogAllergens(foodLog, null);
-
     const ingredientIds = await this.getIngredientIds(foodLog);
     const symptomLogs = await this.getSymptomNextDay(
-      foodLog.user.id,
+      foodLog.userId,
       foodLog.date,
     );
 
@@ -220,7 +216,7 @@ class AllergensController {
         startDate,
         endDate,
         limit,
-      } as FoodLogGetRequest)
+      } as FoodLogFindRequest)
       .then(foodLogs => foodLogs.data);
   };
 

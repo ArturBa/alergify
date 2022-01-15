@@ -4,13 +4,13 @@ import { decorate } from 'ts-mixer';
 
 export class PaginateDto implements PaginateParameters {
   @decorate(IsOptional())
-  @decorate(IsInt())
   @decorate(Min(0))
+  @decorate(IsInt())
   start: number;
 
   @decorate(IsOptional())
-  @decorate(IsInt())
   @decorate(Min(1))
+  @decorate(IsInt())
   limit: number;
 }
 
