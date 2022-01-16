@@ -1,9 +1,10 @@
-/* eslint-disable import/prefer-default-export */
-import { IsString } from 'class-validator';
 import { decorate, Mixin } from 'ts-mixer';
-import { PaginateDto } from './internal/parameters/paginate.dto';
+import { IsString } from 'class-validator';
 
-export class CreateIngredientDto {
+import { PaginateDto } from './internal/parameters/paginate.dto';
+import { UserIdDto } from './internal/parameters/user-id.dto';
+
+export class CreateIngredientDto extends Mixin(UserIdDto) {
   @decorate(IsString())
   name: string;
 }

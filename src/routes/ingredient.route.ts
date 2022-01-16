@@ -22,19 +22,19 @@ class IngredientRoute implements Routes {
       `${this.path}`,
       authMiddleware,
       validationMiddleware(CreateIngredientDto),
-      this.ingredientsController.createIngredient,
+      this.ingredientsController.create,
     );
     this.router.get(
       `${this.path}/:id(\\d+)`,
       authMiddleware,
-      this.ingredientsController.getIngredientById,
+      this.ingredientsController.get,
     );
     this.router.get(
       `${this.path}`,
       authMiddleware,
       validationMiddleware(GetIngredientDto, 'query'),
       getIngredientsMiddleware,
-      this.ingredientsController.findIngredients,
+      this.ingredientsController.find,
     );
   }
 }

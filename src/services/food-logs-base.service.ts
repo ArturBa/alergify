@@ -38,10 +38,14 @@ class FoodLogsFindQueryBuilder extends BaseFindParametersQueryBuilder<FoodLogEnt
 export class FoodLogsServiceBase extends BaseService<FoodLogEntity> {
   protected entity = FoodLogEntity;
 
+  protected getQueryBuilder(): BaseFindParametersQueryBuilder<FoodLogEntity> {
+    return new FoodLogsFindQueryBuilder(this.getRepository());
+  }
+
   protected getQuery(
     params: Partial<BaseGetParameters>,
   ): SelectQueryBuilder<FoodLogEntity> {
-    const queryBuilder = new FoodLogsFindQueryBuilder(this.getRepository());
+    const queryBuilder = this.getQueryBuilder();
     queryBuilder.build(params);
     queryBuilder.select([
       'foodLog.id',
@@ -56,25 +60,8 @@ export class FoodLogsServiceBase extends BaseService<FoodLogEntity> {
     return queryBuilder.get();
   }
 
-  find(params: FoodLogFindRequest): Promise<FoodLogEntity[]> {
-    return this.getQuery(params).getMany();
-  }
-
-  count(params: BaseFindParameters): Promise<number> {
-    const countParams = { ...params, start: null, limit: null };
-    return this.getQuery(countParams).getCount();
-  }
-
-  async get(params: BaseGetParameters): Promise<FoodLogEntity> {
-    const entity = await this.getQuery(params).getOne();
-    if (!entity) {
-      throw new HttpException(HttpStatusCode.NOT_FOUND, 'Not found');
-    }
-    return Promise.resolve(entity);
-  }
-
   async create(foodLogDto: CreateFoodLogDto): Promise<FoodLogEntity> {
-    const entity = await this.getCreateEntity(foodLogDto);
+    const entity = await this.createEntity(foodLogDto);
     return this.getRepository().save(entity);
   }
 
@@ -83,13 +70,7 @@ export class FoodLogsServiceBase extends BaseService<FoodLogEntity> {
     throw new Error('Method not implemented.');
   }
 
-  async remove(params: BaseGetParameters): Promise<FoodLogEntity> {
-    const entity = await this.get(params);
-    return this.getRepository().remove(entity);
-    // 404
-  }
-
-  protected async getCreateEntity(
+  protected async createEntity(
     entityDto: CreateFoodLogDto,
   ): Promise<FoodLogEntity> {
     console.log(this.entity);

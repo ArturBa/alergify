@@ -10,24 +10,52 @@ import {
   BaseFindParameters,
   BaseGetParameters,
 } from '@interfaces/internal/parameters.interface';
+import { HttpException } from '@exceptions/HttpException';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+
+import { BaseFindParametersQueryBuilder } from './base-find-params-builder';
 
 export abstract class BaseService<Entity extends BaseEntity> {
   protected abstract entity: EntityTarget<Entity>;
+
+  abstract create(params: unknown): Promise<Entity>;
+  abstract update(params: unknown): Promise<Entity>;
+
+  find(params: BaseFindParameters): Promise<Entity[]> {
+    return this.getQuery(params).getMany();
+  }
+
+  count(params: BaseFindParameters): Promise<number> {
+    const countParams = { ...params, start: null, limit: null };
+    return this.getQuery(countParams).getCount();
+  }
+
+  async get(params: BaseGetParameters): Promise<Entity> {
+    const entity = await this.getQuery(params).getOne();
+    if (!entity) {
+      throw new HttpException(HttpStatusCode.NOT_FOUND, 'Not found');
+    }
+    return Promise.resolve(entity);
+  }
+
+  async remove(params: BaseGetParameters): Promise<Entity> {
+    const entity = await this.get(params);
+    return this.getRepository().remove(entity);
+  }
 
   protected getRepository(): Repository<Entity> {
     return getRepository(this.entity);
   }
 
-  protected abstract getQuery(
-    _: BaseFindParameters,
-  ): SelectQueryBuilder<Entity>;
+  protected getQueryBuilder(): BaseFindParametersQueryBuilder<Entity> {
+    return new BaseFindParametersQueryBuilder(this.getRepository());
+  }
 
-  abstract find(_: BaseFindParameters): Promise<Entity[]>;
-  abstract count(_: BaseFindParameters): Promise<number>;
-  abstract get(_: BaseGetParameters): Promise<Entity>;
-  abstract create(_: unknown): Promise<Entity>;
-  abstract update(_: unknown): Promise<Entity>;
-  abstract remove(_: BaseGetParameters): Promise<Entity>;
+  protected getQuery(params: BaseFindParameters): SelectQueryBuilder<Entity> {
+    const queryBuilder = this.getQueryBuilder();
+    queryBuilder.build(params);
+    return queryBuilder.get();
+  }
 }
 
 export default BaseService;

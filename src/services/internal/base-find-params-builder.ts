@@ -16,9 +16,7 @@ enum DateFormatSQLITE {
 export const formatDate = (date: Date) =>
   format(date, DateFormatSQLITE.DATE_TIME);
 
-export abstract class BaseFindParametersQueryBuilder<
-  Entity extends BaseEntity,
-> {
+export class BaseFindParametersQueryBuilder<Entity extends BaseEntity> {
   protected query: SelectQueryBuilder<Entity>;
 
   constructor(repository: Repository<Entity>) {

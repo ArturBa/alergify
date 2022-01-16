@@ -125,7 +125,6 @@ class AllergensController {
     });
   };
 
-  // eslint-disable-next-line class-methods-use-this
   protected getPoints(
     { date: foodLogDate }: FoodLog,
     { date: symptomLogDate }: SymptomLog,
