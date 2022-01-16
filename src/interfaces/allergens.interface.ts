@@ -1,4 +1,4 @@
-import { BaseInterface } from './base.interface';
+import { BaseInterface } from './internal/base.interface';
 import { Ingredient } from './ingredients.interface';
 import { PaginateParameters } from './internal/parameters.interface';
 import { RequestWithUser } from './internal/auth.interface';

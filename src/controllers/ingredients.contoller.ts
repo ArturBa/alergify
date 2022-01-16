@@ -1,14 +1,14 @@
 import { Response, NextFunction } from 'express';
 
 import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
-import { IngredientGetRequest } from '@interfaces/ingredients.interface';
-import { IngredientsServiceBase } from '@services/ingredients-base.service';
+import { IngredientFindRequest } from '@interfaces/ingredients.interface';
+import { IngredientsService } from '@services/ingredients.service';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
 
 import { ControllerOmitHelper } from './internal/omit-helper';
 
 class IngredientsController {
-  public ingredientServiceBase = new IngredientsServiceBase();
+  public ingredientServiceBase = new IngredientsService();
 
   public get = async (
     req: RequestWithUser,
@@ -43,7 +43,7 @@ class IngredientsController {
   };
 
   public find = async (
-    req: IngredientGetRequest,
+    req: IngredientFindRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {

@@ -1,18 +1,16 @@
-import { BaseInterface } from './base.interface';
+import { BaseUserInterface } from './internal/base.interface';
 import { RequestWithUser } from './internal/auth.interface';
 import { PaginateParameters } from './internal/parameters.interface';
-import { User } from './users.interface';
 
-export interface Ingredient extends BaseInterface {
+export interface Ingredient extends BaseUserInterface {
   name: string;
-  user?: User;
 }
 
-interface GetIngredientParameters {
-  name?: string;
+interface IngredientFindParameters {
+  name: string;
 }
 
-export interface IngredientGetRequest
+export interface IngredientFindRequest
   extends RequestWithUser,
-    GetIngredientParameters,
+    IngredientFindParameters,
     PaginateParameters {}

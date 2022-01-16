@@ -1,4 +1,4 @@
-import { BaseInterface } from './base.interface';
+import { BaseInterface } from './internal/base.interface';
 import { Symptom } from './symptoms.interface';
 
 export interface IntensityLog extends BaseInterface {

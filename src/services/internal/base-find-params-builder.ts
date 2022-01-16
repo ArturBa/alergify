@@ -17,10 +17,15 @@ export const formatDate = (date: Date) =>
   format(date, DateFormatSQLITE.DATE_TIME);
 
 export class BaseFindParametersQueryBuilder<Entity extends BaseEntity> {
+  protected getAlias(): string {
+    return null;
+  }
+
   protected query: SelectQueryBuilder<Entity>;
 
   constructor(repository: Repository<Entity>) {
-    this.query = repository.createQueryBuilder();
+    console.log('alias', this.getAlias());
+    this.query = repository.createQueryBuilder(this.getAlias());
   }
 
   select(select: string[]): void {
@@ -38,9 +43,15 @@ export class BaseFindParametersQueryBuilder<Entity extends BaseEntity> {
     return this.query;
   }
 
+  protected getAliasPrefix(): string {
+    return this.getAlias() ? `${this.getAlias()}.` : '';
+  }
+
   protected addUser({ userId }: BaseFindParameters): void {
     if (userId) {
-      this.query.andWhere('userId = :userId', { userId });
+      this.query.andWhere(`${this.getAliasPrefix()}userId = :userId`, {
+        userId,
+      });
     }
   }
 
@@ -56,7 +67,7 @@ export class BaseFindParametersQueryBuilder<Entity extends BaseEntity> {
       startDateInput = subYears(endDate, 100);
     }
     this.query = this.query.andWhere(
-      'foodLog.date BETWEEN :startDate AND :endDate',
+      `${this.getAliasPrefix()}date BETWEEN :startDate AND :endDate`,
       {
         startDate: formatDate(startDateInput),
         endDate: formatDate(endDateInput),
@@ -76,7 +87,9 @@ export class BaseFindParametersQueryBuilder<Entity extends BaseEntity> {
 
   protected addId({ id }: BaseGetParameters): void {
     if (id) {
-      this.query = this.query.andWhere('id = :id', { id });
+      this.query = this.query.andWhere(`${this.getAliasPrefix()}id = :id`, {
+        id,
+      });
     }
   }
 }

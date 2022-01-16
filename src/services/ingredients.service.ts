@@ -1,99 +1,56 @@
-import { getRepository } from 'typeorm';
-
-import { CreateIngredientDto } from '@dtos/ingredients.dto';
+import { BaseFindParameters } from '@interfaces/internal/parameters.interface';
+import { IngredientCreateDto } from '@dtos/ingredients.dto';
 import { IngredientEntity } from '@entity/ingredients.entity';
-import {
-  Ingredient,
-  IngredientGetRequest,
-} from '@interfaces/ingredients.interface';
-import { PaginateResponse } from '@interfaces/internal/response.interface';
+import { IngredientFindRequest } from '@interfaces/ingredients.interface';
 
-import { checkIfConflict, checkIfEmpty } from './common.service';
-import GetQueryBuilder from './internal/get-params-builder';
+import { BaseFindParametersQueryBuilder } from './internal/base-find-params-builder';
+import { BaseService } from './internal/base.service';
 
-class IngredientQueryBuilder extends GetQueryBuilder<
-  IngredientEntity,
-  IngredientGetRequest
-> {
-  constructor() {
-    super();
-    this.query = {
-      select: ['id', 'name'],
-    };
-  }
-
-  build(request: IngredientGetRequest): void {
+export class IngredientFindQueryBuilder extends BaseFindParametersQueryBuilder<IngredientEntity> {
+  build(request: IngredientFindRequest): void {
+    super.build(request);
     this.addName(request);
-    this.addUser(request);
-    this.addPagination(request);
   }
 
-  protected addName({ name }: IngredientGetRequest): void {
-    if (name) {
-      this.appendWhere(` name Like '%${name}%' `);
-    }
-  }
-
-  protected addUser({ userId }: IngredientGetRequest): void {
+  protected addUser({ userId }: BaseFindParameters): void {
     if (userId) {
-      this.appendWhere(`(userId IS ${userId} or userId IS NULL)`);
+      this.query = this.query.andWhere(
+        `(userId IS :userId or userId IS NULL)`,
+        { userId },
+      );
     }
   }
 
-  protected addPagination({ start, limit }: IngredientGetRequest): void {
-    this.query = {
-      ...this.query,
-      take: limit,
-      skip: start,
-    };
+  protected addName({ name }: IngredientFindRequest): void {
+    if (name) {
+      this.query = this.query.andWhere(`name LIKE :name`, {
+        name: `%${name}%`,
+      });
+    }
   }
 }
 
-class IngredientsService {
-  public ingredients = IngredientEntity;
+export class IngredientsService extends BaseService<IngredientEntity> {
+  protected entity = IngredientEntity;
 
-  public async findIngredients(
-    req: IngredientGetRequest,
-  ): Promise<PaginateResponse<Partial<Ingredient>>> {
-    checkIfEmpty(req);
-
-    const ingredientsRepository = getRepository(this.ingredients);
-    const queryBuilder = new IngredientQueryBuilder();
-    queryBuilder.build(req);
-    const data = await ingredientsRepository.find(queryBuilder.get());
-    const total = await ingredientsRepository.count(queryBuilder.getTotal());
-
-    return { data, total };
+  create(params: IngredientCreateDto): Promise<IngredientEntity> {
+    const entity = this.createDto(params);
+    return this.getRepository().save(entity);
   }
 
-  public async getIngredientById(
-    ingredientId: number,
-  ): Promise<Partial<Ingredient>> {
-    checkIfEmpty(ingredientId);
-
-    const ingredientsRepository = getRepository(this.ingredients);
-    const ingredient = await ingredientsRepository.findOne({
-      where: { id: ingredientId },
-      select: ['id', 'name'],
-    });
-    checkIfConflict(!ingredient);
-
-    return ingredient;
+  update(_: unknown): Promise<IngredientEntity> {
+    throw new Error('Method not implemented.');
   }
 
-  public async createIngredient(
-    userId: number,
-    ingredientData: CreateIngredientDto,
-  ): Promise<void> {
-    checkIfEmpty(ingredientData);
+  protected getQueryBuilder(): IngredientFindQueryBuilder {
+    return new IngredientFindQueryBuilder(this.getRepository());
+  }
 
-    const ingredientsRepository = getRepository(this.ingredients);
-
-    const ingredient = new IngredientEntity();
-    ingredient.name = ingredientData.name;
-    ingredient.userId = userId;
-
-    await ingredientsRepository.save(ingredient);
+  protected createDto(params: IngredientCreateDto): IngredientEntity {
+    const entity = new IngredientEntity();
+    entity.name = params.name;
+    entity.userId = params.userId;
+    return entity;
   }
 }
 

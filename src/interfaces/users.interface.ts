@@ -1,4 +1,4 @@
-import { BaseInterface } from './base.interface';
+import { BaseInterface } from './internal/base.interface';
 import { FoodLog } from './food-logs.interface';
 import { SymptomLog } from './symptom-logs.interface';
 

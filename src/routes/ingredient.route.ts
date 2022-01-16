@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import IngredientsController from '@controllers/ingredients.contoller';
-import { CreateIngredientDto, GetIngredientDto } from '@dtos/ingredients.dto';
+import { IngredientCreateDto, IngredientFindDto } from '@dtos/ingredients.dto';
 import { Routes } from '@interfaces/internal/routes.interface';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
-import { getIngredientsMiddleware } from '@middlewares/ingredients.middleware';
+import { ingredientsFindMiddleware } from '@middlewares/ingredients.middleware';
 
 class IngredientRoute implements Routes {
   public path = '/ingredient';
@@ -21,7 +21,7 @@ class IngredientRoute implements Routes {
     this.router.post(
       `${this.path}`,
       authMiddleware,
-      validationMiddleware(CreateIngredientDto),
+      validationMiddleware(IngredientCreateDto),
       this.ingredientsController.create,
     );
     this.router.get(
@@ -32,8 +32,7 @@ class IngredientRoute implements Routes {
     this.router.get(
       `${this.path}`,
       authMiddleware,
-      validationMiddleware(GetIngredientDto, 'query'),
-      getIngredientsMiddleware,
+      ingredientsFindMiddleware,
       this.ingredientsController.find,
     );
   }

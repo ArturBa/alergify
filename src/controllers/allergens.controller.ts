@@ -9,7 +9,7 @@ import {
   SymptomLog,
   SymptomLogGetRequest,
 } from '../interfaces/symptom-logs.interface';
-import ProductsService from '../services/products.service';
+import { ProductsService } from '../services/products.service';
 import FoodLogsService from '../services/food-logs.service';
 import SymptomLogService from '../services/symptom-logs.service';
 
@@ -184,7 +184,7 @@ class AllergensController {
     const productIds = foodLog?.products?.map(product => product.id) || [];
 
     return Promise.all([
-      ...productIds.map(id => this.productService.getProductById(id)),
+      ...productIds.map(id => this.productService.get({ id })),
     ]).then(products => {
       const productIngredientIds = products
         .map(product => product.ingredients)

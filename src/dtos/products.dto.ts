@@ -10,8 +10,9 @@ import {
 import { Mixin } from 'ts-mixer';
 
 import { PaginateDto } from './internal/parameters/paginate.dto';
+import { UserIdDto } from './internal/parameters/user-id.dto';
 
-export class CreateProductDto {
+export class ProductCreateDto extends Mixin(UserIdDto) {
   @IsOptional()
   @IsNumber()
   public barcode: number;

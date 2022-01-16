@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import ProductsController from '@controllers/products.contoller';
-import { CreateProductDto, GetProductDto } from '@dtos/products.dto';
+import { ProductCreateDto, GetProductDto } from '@dtos/products.dto';
 import { Routes } from '@interfaces/internal/routes.interface';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
@@ -21,13 +21,13 @@ class ProductRoute implements Routes {
     this.router.post(
       `${this.path}`,
       authMiddleware,
-      validationMiddleware(CreateProductDto),
+      validationMiddleware(ProductCreateDto),
       this.productsController.createProduct,
     );
     this.router.get(
       `${this.path}/:id(\\d+)`,
       authMiddleware,
-      this.productsController.getProductById,
+      this.productsController.get,
     );
     this.router.get(
       `${this.path}`,

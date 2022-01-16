@@ -1,4 +1,4 @@
-import { BaseInterface } from './base.interface';
+import { BaseInterface } from './internal/base.interface';
 import { IntensityLog } from './intensity-logs.interface';
 import { RequestWithUser } from './internal/auth.interface';
 import {

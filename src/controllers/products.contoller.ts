@@ -1,24 +1,33 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 
-import { CreateProductDto } from '@dtos/products.dto';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+import { IngredientsService } from '@services/ingredients.service';
+import { ProductCreateDto } from '@dtos/products.dto';
+import { ProductEntity } from '@entity/products.entity';
 import { ProductGetRequest } from '@interfaces/products.interface';
+import { ProductsService } from '@services/products.service';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
-import HttpStatusCode from '@interfaces/internal/http-codes.interface';
-import ProductsService from '@services/products.service';
+
+import { ControllerOmitHelper } from './internal/omit-helper';
 
 class ProductsController {
   public productService = new ProductsService();
 
-  public getProductById = async (
-    req: Request,
+  public ingredientsService = new IngredientsService();
+
+  public get = async (
+    req: RequestWithUser,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
       const productId = Number(req.params.id);
-      const product = await this.productService.getProductById(productId);
-
-      res.status(HttpStatusCode.OK).json({ ...product });
+      const { userId } = req;
+      const product = await this.productService
+        .get({ userId, id: productId })
+        .then(ControllerOmitHelper.omitCreatedUpdatedAt)
+        .then(ControllerOmitHelper.omitUserId);
+      res.status(HttpStatusCode.OK).json(product);
     } catch (error) {
       next(error);
     }
@@ -30,9 +39,9 @@ class ProductsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const productData: CreateProductDto = req.body;
+      const productData: ProductCreateDto = req.body;
       const { userId } = req;
-      await this.productService.createProduct(userId, productData);
+      await this.productService.create({ ...productData, userId });
 
       res.sendStatus(HttpStatusCode.CREATED);
     } catch (error) {
@@ -46,9 +55,27 @@ class ProductsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const response = await this.productService.findProduct(req);
+      const omitIngredients = (
+        product: ProductEntity,
+      ): Partial<ProductEntity> => {
+        const productCopy = { ...product };
+        delete productCopy.ingredients;
+        return productCopy;
+      };
+      const omitIngredientsArray = (
+        product: ProductEntity[],
+      ): Partial<ProductEntity>[] => {
+        return ControllerOmitHelper.omitArray(product, omitIngredients);
+      };
 
-      res.status(HttpStatusCode.OK).json(response);
+      const data = await this.productService
+        .find(req)
+        .then(omitIngredientsArray)
+        .then(ControllerOmitHelper.omitCreatedUpdatedAtArray)
+        .then(ControllerOmitHelper.omitUserIdArray);
+      const count = await this.productService.count(req);
+
+      res.status(HttpStatusCode.OK).json({ data, count });
     } catch (error) {
       next(error);
     }
