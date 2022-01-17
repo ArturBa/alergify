@@ -7,12 +7,6 @@ import { checkIfConflict, checkIfEmpty } from './common.service';
 class UserService {
   public users = UserEntity;
 
-  public async findAllUser(): Promise<User[]> {
-    const userRepository = getRepository(this.users);
-    const users: User[] = await userRepository.find();
-    return users;
-  }
-
   public async findUserById(userId: number): Promise<Partial<User>> {
     checkIfEmpty(userId);
 

@@ -13,8 +13,9 @@ import {
 } from './intensity-logs.dto';
 import { DateDto } from './internal/parameters/date.dto';
 import { PaginateDto } from './internal/parameters/paginate.dto';
+import { UserIdDto } from './internal/parameters/user-id.dto';
 
-export class CreateSymptomLogDto {
+export class CreateSymptomLogDto extends Mixin(UserIdDto) {
   @IsISO8601()
   public date: string;
 
@@ -31,4 +32,4 @@ export class UpdateSymptomLogDto extends CreateSymptomLogDto {
   public intensityLogs: UpdateIntensityLogDto[];
 }
 
-export class GetSymptomLogsDto extends Mixin(PaginateDto, DateDto) {}
+export class GetSymptomLogsDto extends Mixin(PaginateDto, DateDto, UserIdDto) {}

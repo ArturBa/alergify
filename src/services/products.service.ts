@@ -1,15 +1,15 @@
 import { Repository, SelectQueryBuilder } from 'typeorm';
 
+import { BaseFindParameters } from '@interfaces/internal/parameters.interface';
+import { HttpException } from '@exceptions/HttpException';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+import { ProductCreateDto } from '@dtos/products.dto';
 import { ProductEntity } from '@entity/products.entity';
+import { ProductFindRequest } from '@interfaces/products.interface';
 
 import { BaseService } from './internal/base.service';
-import { ProductFindRequest } from '../interfaces/products.interface';
 import { BaseFindParametersQueryBuilder } from './internal/base-find-params-builder';
-import { ProductCreateDto } from '../dtos/products.dto';
 import { IngredientsService } from './ingredients.service';
-import { HttpException } from '../exceptions/HttpException';
-import { HttpStatusCode } from '../interfaces/internal/http-codes.interface';
-import { BaseFindParameters } from '../interfaces/internal/parameters.interface';
 
 export class ProductsFindQueryBuilder extends BaseFindParametersQueryBuilder<ProductEntity> {
   constructor(repository: Repository<ProductEntity>) {

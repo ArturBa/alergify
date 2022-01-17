@@ -1,8 +1,9 @@
 import { NextFunction, Response } from 'express';
-import HttpException from '@exceptions/HttpException';
-import { RequestWithUser } from '@interfaces/internal/auth.interface';
-import HttpStatusCode from '@interfaces/internal/http-codes.interface';
+
+import { HttpException } from '@exceptions/HttpException';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
 import { JsonWebToken } from '@utils/jwt';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
 
 const unauthorizedError = new HttpException(
   HttpStatusCode.UNAUTHORIZED,

@@ -1,24 +1,24 @@
 import { NextFunction, Response } from 'express';
 
+import { AllergensEntity } from '@entity/allergens.entity';
+import { AllergensService } from '@services/allergens.service';
+import { FoodLog } from '@interfaces/food-logs.interface';
+import { FoodLogsService } from '@services/food-logs.service';
 import { GetAllergensRequest } from '@interfaces/allergens.interface';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+import { ProductsService } from '@services/products.service';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
-import AllergensService from '@services/allergens.service';
-import HttpStatusCode from '@interfaces/internal/http-codes.interface';
-import { FoodLog, FoodLogFindRequest } from '../interfaces/food-logs.interface';
-import {
-  SymptomLog,
-  SymptomLogGetRequest,
-} from '../interfaces/symptom-logs.interface';
-import { ProductsService } from '../services/products.service';
-import FoodLogsService from '../services/food-logs.service';
-import SymptomLogService from '../services/symptom-logs.service';
+import { SymptomLog } from '@interfaces/symptom-logs.interface';
+import { SymptomLogsService } from '@services/symptom-logs.service';
 
-class AllergensController {
+import { ControllerOmitHelper } from './internal/omit-helper';
+
+export class AllergensController {
   public allergensService = new AllergensService();
 
   public foodLogService = new FoodLogsService();
 
-  public symptomLogService = new SymptomLogService();
+  public symptomLogService = new SymptomLogsService();
 
   public productService = new ProductsService();
 
@@ -27,9 +27,29 @@ class AllergensController {
     res: Response,
     next: NextFunction,
   ) => {
+    const likelihood = (
+      dto: AllergensEntity,
+    ): Partial<AllergensEntity> & { likelihood: number } => {
+      const dtoCopy: any = { ...dto };
+      dtoCopy.likelihood = dtoCopy.points / dtoCopy.count / 24;
+      delete dtoCopy.points;
+      delete dtoCopy.count;
+      return dtoCopy;
+    };
+    const likelihoodArray = (
+      dto: AllergensEntity[],
+    ): (Partial<AllergensEntity> & { likelihood: number })[] => {
+      return ControllerOmitHelper.omitArray(dto, likelihood);
+    };
+
     try {
-      const response = await this.allergensService.getAllergens(req);
-      res.status(HttpStatusCode.OK).json(response);
+      const data = await this.allergensService
+        .find({ ...req })
+        .then(likelihoodArray)
+        .then(ControllerOmitHelper.omitCreatedUpdatedAtArray)
+        .then(ControllerOmitHelper.omitUserIdArray);
+      const count = await this.allergensService.count({ ...req });
+      res.status(HttpStatusCode.OK).json({ data, count });
     } catch (error) {
       next(error);
     }
@@ -43,15 +63,15 @@ class AllergensController {
     try {
       const ingredientId = Number(req.params.id);
       const { userId } = req;
-      await this.allergensService.setAllergen(userId, ingredientId);
+      await this.allergensService.set({ ingredientId, userId });
 
-      res.sendStatus(HttpStatusCode.OK);
+      res.sendStatus(HttpStatusCode.NO_CONTENT);
     } catch (error) {
       next(error);
     }
   };
 
-  public removeAllergen = async (
+  public unsetAllergen = async (
     req: RequestWithUser,
     res: Response,
     next: NextFunction,
@@ -59,7 +79,7 @@ class AllergensController {
     try {
       const ingredientId = Number(req.params.id);
       const { userId } = req;
-      await this.allergensService.removeAllergen(userId, ingredientId);
+      await this.allergensService.unset({ userId, ingredientId });
 
       res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
@@ -74,6 +94,12 @@ class AllergensController {
       foodLog.date,
     );
 
+    ingredientIds.forEach(ingredientId => {
+      this.allergensService.increment({
+        ingredientId,
+        userId: foodLog.userId,
+      });
+    });
     this.addAllergens([{ ...foodLog, ingredientIds }], symptomLogs);
   };
 
@@ -84,6 +110,12 @@ class AllergensController {
       foodLog.date,
     );
 
+    ingredientIds.forEach(ingredientId => {
+      this.allergensService.decrement({
+        ingredientId,
+        userId: foodLog.userId,
+      });
+    });
     this.removeAllergens([{ ...foodLog, ingredientIds }], symptomLogs);
   };
 
@@ -99,12 +131,12 @@ class AllergensController {
     foodLogs: (FoodLog & { ingredientIds: number[] })[],
     symptomLogs: SymptomLog[],
   ): void => {
-    const userId = foodLogs[0].user?.id || symptomLogs[0].userId;
+    const { userId } = foodLogs[0];
     foodLogs.forEach(foodLog => {
       symptomLogs.forEach(symptomLog => {
         const points = this.getPoints(foodLog, symptomLog);
         foodLog.ingredientIds.forEach(ingredientId => {
-          this.allergensService.incrementAllergen(userId, ingredientId, points);
+          this.allergensService.addPoints({ userId, ingredientId }, points);
         });
       });
     });
@@ -114,12 +146,15 @@ class AllergensController {
     foodLogs: (FoodLog & { ingredientIds: number[] })[],
     symptomLogs: SymptomLog[],
   ): void => {
-    const userId = foodLogs[0].user?.id || symptomLogs[0].userId;
+    const { userId } = foodLogs[0];
     foodLogs.forEach(foodLog => {
       symptomLogs.forEach(symptomLog => {
         const points = this.getPoints(foodLog, symptomLog);
         foodLog.ingredientIds.forEach(ingredientId => {
-          this.allergensService.decrementAllergen(userId, ingredientId, points);
+          this.allergensService.subtractPoints(
+            { userId, ingredientId },
+            points,
+          );
         });
       });
     });
@@ -129,7 +164,7 @@ class AllergensController {
     { date: foodLogDate }: FoodLog,
     { date: symptomLogDate }: SymptomLog,
   ): number {
-    return Math.floor(
+    return Math.ceil(
       Math.abs(foodLogDate.getTime() - symptomLogDate.getTime()) / 3.6e6,
     );
   }
@@ -206,17 +241,11 @@ class AllergensController {
     const startDate = previousDay(date);
     const endDate = date;
 
-    // TODO: remove limit and get them all
-    const limit = 100;
-
-    return this.foodLogService
-      .getUserFoodLogs({
-        userId,
-        startDate,
-        endDate,
-        limit,
-      } as FoodLogFindRequest)
-      .then(foodLogs => foodLogs.data);
+    return this.foodLogService.find({
+      userId,
+      startDate,
+      endDate,
+    });
   };
 
   protected getSymptomNextDay = (
@@ -232,16 +261,11 @@ class AllergensController {
     const startDate = new Date(date);
     const endDate = nextDay(date);
 
-    const limit = 100;
-
-    return this.symptomLogService
-      .getSymptomLogs({
-        userId,
-        startDate,
-        endDate,
-        limit,
-      } as SymptomLogGetRequest)
-      .then(symptomLogs => symptomLogs.data as Partial<SymptomLog[]>);
+    return this.symptomLogService.find({
+      userId,
+      startDate,
+      endDate,
+    });
   };
 }
 

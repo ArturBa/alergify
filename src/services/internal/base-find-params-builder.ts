@@ -24,7 +24,6 @@ export class BaseFindParametersQueryBuilder<Entity extends BaseEntity> {
   protected query: SelectQueryBuilder<Entity>;
 
   constructor(repository: Repository<Entity>) {
-    console.log('alias', this.getAlias());
     this.query = repository.createQueryBuilder(this.getAlias());
   }
 

@@ -3,7 +3,7 @@ import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import UserService from '@services/users.service';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
-import HttpStatusCode from '@interfaces/internal/http-codes.interface';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
 
 class UserController {
   public userService = new UserService();
@@ -33,7 +33,7 @@ class UserController {
       const userData: CreateUserDto = req.body;
       await this.userService.updateUser(req.userId, userData);
 
-      res.sendStatus(HttpStatusCode.OK);
+      res.sendStatus(HttpStatusCode.NO_CONTENT);
     } catch (error) {
       next(error);
     }
@@ -47,7 +47,7 @@ class UserController {
     try {
       await this.userService.deleteUser(req.userId);
 
-      res.sendStatus(HttpStatusCode.OK);
+      res.sendStatus(HttpStatusCode.NO_CONTENT);
     } catch (error) {
       next(error);
     }

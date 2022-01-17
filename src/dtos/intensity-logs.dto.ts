@@ -1,7 +1,10 @@
 /* eslint-disable import/prefer-default-export */
 import { IsInt, IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
+import { Mixin } from 'ts-mixer';
 
-export class CreateIntensityLogDto {
+import { UserIdDto } from './internal/parameters/user-id.dto';
+
+export class CreateIntensityLogDto extends Mixin(UserIdDto) {
   @IsInt()
   @Min(1)
   @Max(10)

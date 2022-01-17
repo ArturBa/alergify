@@ -7,7 +7,7 @@ import { RequestWithUser } from '@interfaces/internal/auth.interface';
 
 import { ControllerOmitHelper } from './internal/omit-helper';
 
-class IngredientsController {
+export class IngredientsController {
   public ingredientServiceBase = new IngredientsService();
 
   public get = async (

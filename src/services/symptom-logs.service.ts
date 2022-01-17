@@ -1,222 +1,130 @@
-import { getRepository } from 'typeorm';
-import { User } from '@interfaces/users.interface';
-import {
-  SymptomLog,
-  SymptomLogGetRequest,
-} from '@interfaces/symptom-logs.interface';
+import { Repository, SelectQueryBuilder } from 'typeorm';
+
 import { SymptomLogEntity } from '@entity/symptom-logs.entity';
+
+import { BaseFindParameters } from '@interfaces/internal/parameters.interface';
+import { CreateIntensityLogDto } from '@dtos/intensity-logs.dto';
 import {
   CreateSymptomLogDto,
   UpdateSymptomLogDto,
 } from '@dtos/symptom-logs.dto';
-import { UserEntity } from '@entity/users.entity';
+import { HttpException } from '@exceptions/HttpException';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+import { IntensityLog } from '@interfaces/intensity-logs.interface';
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
-import { PaginateResponse } from '@interfaces/internal/response.interface';
-import { CreateIntensityLogDto } from '@dtos/intensity-logs.dto';
-import { isEmpty } from '@utils/util';
-import { checkIfConflict, checkIfEmpty } from './common.service';
-import IntensityLogService from './intensity-logs.service';
-import {
-  afterDate,
-  beforeDate,
-  betweenDates,
-  GetParamsBuilder,
-} from './internal/get-params-builder';
 
-class GetSymptomLogsParamsBuilder extends GetParamsBuilder<
-  SymptomLogEntity,
-  SymptomLogGetRequest
-> {
-  constructor() {
-    super();
-    this.query = {
-      ...this.query,
-      select: ['id', 'date'],
-      relations: ['intensityLogs'],
-    };
+import { BaseFindParametersQueryBuilder } from './internal/base-find-params-builder';
+import { BaseService } from './internal/base.service';
+import { IntensityLogService } from './intensity-logs.service';
+
+export class SymptomLogFindQueryBuilder extends BaseFindParametersQueryBuilder<SymptomLogEntity> {
+  constructor(repository: Repository<SymptomLogEntity>) {
+    super(repository);
+    this.query = this.query.leftJoinAndSelect(
+      `${this.getAliasPrefix()}symptoms`,
+      'intensityLogs',
+    );
   }
 
-  build(request: SymptomLogGetRequest): void {
-    this.addUserId(request);
-    this.addPaginate(request);
-    this.addDate(request);
+  protected getAlias(): string {
+    return 'symptomLog';
+  }
+}
+
+export class SymptomLogsService extends BaseService<SymptomLogEntity> {
+  protected entity = SymptomLogEntity;
+
+  async create(params: CreateSymptomLogDto): Promise<SymptomLogEntity> {
+    const entity = await this.createEntity(params);
+    return this.getRepository().save(entity);
   }
 
-  protected addUserId({ userId }: SymptomLogGetRequest): void {
-    this.appendWhere({ userId });
+  async update(params: UpdateSymptomLogDto): Promise<SymptomLogEntity> {
+    const entity = await this.get({ id: params.id, userId: params.userId });
+    this.updateEntity(entity, params);
+    return this.getRepository().save(entity);
   }
 
-  protected addPaginate({ start, limit }: SymptomLogGetRequest) {
-    this.query = {
-      ...this.query,
-      skip: start,
-      take: limit,
-    };
+  protected getQuery(
+    params: Partial<BaseFindParameters>,
+  ): SelectQueryBuilder<SymptomLogEntity> {
+    const queryBuilder = this.getQueryBuilder();
+    queryBuilder.build(params);
+    queryBuilder.select([
+      'symptomLog.id',
+      'symptomLog.userId',
+      'symptomLog.date',
+      'intensityLogs.symptomId',
+      'intensityLogs.intensity',
+      'intensityLogs.name',
+    ]);
+    return queryBuilder.get();
   }
 
-  protected addDate({ startDate, endDate }: SymptomLogGetRequest) {
-    let date = null;
-    if (!isEmpty(startDate) && !isEmpty(endDate)) {
-      date = betweenDates(startDate, endDate);
-    } else if (!isEmpty(startDate)) {
-      date = afterDate(startDate);
-    } else if (!isEmpty(endDate)) {
-      date = beforeDate(endDate);
-    } else {
-      return;
+  protected getQueryBuilder(): BaseFindParametersQueryBuilder<SymptomLogEntity> {
+    return new SymptomLogFindQueryBuilder(this.getRepository());
+  }
+
+  protected async createEntity(
+    params: CreateSymptomLogDto,
+  ): Promise<SymptomLogEntity> {
+    const entity = new SymptomLogEntity();
+    entity.date = new Date(params.date);
+    entity.intensityLogs = await this.createIntensityLog(params.intensityLogs);
+    entity.userId = params.userId;
+    return entity;
+  }
+
+  /* eslint-disable no-param-reassign */
+  protected async updateEntity(
+    entity: SymptomLogEntity,
+    params: UpdateSymptomLogDto,
+  ): Promise<SymptomLogEntity> {
+    entity.date = new Date(params.date);
+    if (!this.areAllIntensityLogsInSymptomLog(entity.intensityLogs, entity)) {
+      throw new HttpException(
+        HttpStatusCode.NOT_MODIFIED,
+        'Some intensity logs are non valid',
+      );
     }
-    this.appendWhere({ date });
-  }
-}
-
-class SymptomLogService {
-  public symptomLogs = SymptomLogEntity;
-
-  public intensityLogsService = new IntensityLogService();
-
-  public async getSymptomLogs(
-    request: SymptomLogGetRequest,
-  ): Promise<PaginateResponse<Partial<SymptomLog>>> {
-    const symptomLogRepository = getRepository(this.symptomLogs);
-    const paramsBuilder = new GetSymptomLogsParamsBuilder();
-    paramsBuilder.build(request);
-    const symptoms: SymptomLog[] = await symptomLogRepository.find(
-      paramsBuilder.get(),
+    entity.intensityLogs = await this.updateIntensityLog(
+      entity.intensityLogs as IntensityLogEntity[],
+      params.intensityLogs,
     );
-
-    const data = symptoms.map(symptom => {
-      return {
-        ...symptom,
-        intensityLogs: symptom.intensityLogs.map(intensityLog => {
-          const response = { ...intensityLog };
-          delete response.createdAt;
-          delete response.updatedAt;
-          return response;
-        }),
-      };
-    });
-
-    const total = await symptomLogRepository.count(paramsBuilder.getTotal());
-    return { data, total };
+    entity.date = new Date(params.date);
+    return entity;
   }
+  /* eslint-enable no-param-reassign */
 
-  public async findSymptomLogById(
-    symptomLogId: number,
-    userId: number,
-  ): Promise<Partial<SymptomLog>> {
-    checkIfEmpty(symptomLogId);
-    checkIfEmpty(userId);
-
-    const symptomLogRepository = getRepository(this.symptomLogs);
-    const symptomLog: SymptomLog = await symptomLogRepository.findOne({
-      select: ['id', 'intensityLogs', 'date'],
-      where: { userId, id: symptomLogId },
-    });
-    checkIfConflict(!symptomLog);
-    return symptomLog;
-  }
-
-  public async getSymptomLogById(symptomLogId: number): Promise<SymptomLog> {
-    checkIfEmpty(symptomLogId);
-
-    const symptomLogRepository = getRepository(this.symptomLogs);
-    return symptomLogRepository.findOne({
-      where: { id: symptomLogId },
-    });
-  }
-
-  public async createSymptom(
-    symptomData: CreateSymptomLogDto,
-    userId: number,
-  ): Promise<SymptomLog> {
-    checkIfEmpty(symptomData);
-    checkIfEmpty(symptomData.intensityLogs);
-    checkIfEmpty(userId);
-
-    const symptom = new SymptomLogEntity();
-    symptom.date = new Date(symptomData.date);
-    const intensityLogs = await this.createIntensityLogs(
-      symptomData.intensityLogs,
-    );
-    symptom.intensityLogs = intensityLogs;
-    const user = await SymptomLogService.getUserById(userId);
-    symptom.user = user;
-
-    const symptomLogRepository = getRepository(this.symptomLogs);
-    return symptomLogRepository.save(symptom);
-  }
-
-  public async updateSymptom(
-    symptomData: UpdateSymptomLogDto,
-    userId: number,
-  ): Promise<void> {
-    checkIfEmpty(symptomData);
-    checkIfEmpty(userId);
-
-    const symptomLogRepository = getRepository(this.symptomLogs);
-    const symptomLog: SymptomLog = await symptomLogRepository.findOne({
-      where: { id: symptomData.id, userId },
-      relations: ['intensityLogs'],
-    });
-    checkIfConflict(!symptomLog);
-
-    // TODO: remove unused intensity logs
-    const intensityLogs = await Promise.all(
-      symptomData.intensityLogs.map(async intensityLog => {
-        return intensityLog.id
-          ? this.intensityLogsService.updateIntensityLog(intensityLog)
-          : this.intensityLogsService.createIntensityLog(intensityLog);
-      }),
-    );
-    symptomLog.intensityLogs = intensityLogs;
-    symptomLog.date = new Date(symptomData.date);
-    await symptomLogRepository.save(symptomLog);
-  }
-
-  public async deleteSymptomLog(
-    symptomLogId: number,
-    userId: number,
-  ): Promise<void> {
-    checkIfEmpty(symptomLogId);
-    checkIfEmpty(userId);
-
-    const symptomLogRepository = getRepository(this.symptomLogs);
-    const symptomLog: SymptomLog = await symptomLogRepository.findOne({
-      where: { userId, id: symptomLogId },
-    });
-    checkIfConflict(!symptomLog);
-    await symptomLogRepository.delete({ id: symptomLogId, userId });
-  }
-
-  protected static async getUserById(userId: number): Promise<User> {
-    const users = UserEntity;
-    const userRepository = getRepository(users);
-    const user = await userRepository.findOne({
-      where: { id: userId },
-    });
-    checkIfConflict(!user);
-    return user;
-  }
-
-  protected static async getIntensityLogsByIds(
-    ingredientIds: number[],
+  protected createIntensityLog(
+    params: CreateIntensityLogDto[],
   ): Promise<IntensityLogEntity[]> {
-    const intensityLog = IntensityLogEntity;
-    const intensityLogRepository = getRepository(intensityLog);
-    const intensityLogs = await intensityLogRepository.findByIds(ingredientIds);
-    checkIfConflict(!intensityLogs);
-    return intensityLogs;
-  }
-
-  protected async createIntensityLogs(
-    intensityLogs: CreateIntensityLogDto[],
-  ): Promise<IntensityLogEntity[]> {
+    const intensityLogService = new IntensityLogService();
     return Promise.all(
-      intensityLogs.map(async intensityLog => {
-        return this.intensityLogsService.createIntensityLog(intensityLog);
-      }),
+      params.map(intensityDto => intensityLogService.create(intensityDto)),
     );
   }
-}
 
-export default SymptomLogService;
+  protected areAllIntensityLogsInSymptomLog(
+    intensityLogs: IntensityLog[],
+    symptomLog: SymptomLogEntity,
+  ): boolean {
+    return intensityLogs.every(
+      intensityLog => intensityLog.symptomLogId === symptomLog.id,
+    );
+  }
+
+  protected async updateIntensityLog(
+    intensityLogs: IntensityLogEntity[],
+    params: CreateIntensityLogDto[],
+  ): Promise<IntensityLogEntity[]> {
+    const intensityLogService = new IntensityLogService();
+    await Promise.all(
+      intensityLogs.map(async intensityLog => {
+        intensityLogService.remove({ id: intensityLog.id });
+      }),
+    );
+
+    return this.createIntensityLog(params);
+  }
+}

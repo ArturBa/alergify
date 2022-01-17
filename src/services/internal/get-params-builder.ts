@@ -6,8 +6,6 @@ import {
 } from 'typeorm';
 import { addYears, format, subYears } from 'date-fns';
 
-import { BaseFindParameters } from '@interfaces/internal/parameters.interface';
-
 export abstract class GetParamsBuilder<Entity, Request> {
   protected query: FindManyOptions<Entity> = {};
 
