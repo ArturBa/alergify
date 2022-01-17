@@ -2,7 +2,7 @@ import { Response, NextFunction } from 'express';
 
 import { FoodGetRequest } from '@interfaces/foods.interface';
 import FoodsService from '@services/foods.service';
-import HttpStatusCode from '@interfaces/internal/http-codes.interface';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
 
 export class FoodsController {
   readonly foodService = new FoodsService();

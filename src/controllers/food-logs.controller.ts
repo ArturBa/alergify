@@ -5,7 +5,7 @@ import { FoodLogsService } from '@services/food-logs.service';
 import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
 
-import AllergensController from './allergens.controller';
+import { AllergensController } from './allergens.controller';
 
 export class FoodLogsController {
   public foodLogsService = new FoodLogsService();

@@ -5,7 +5,7 @@ import { RequestWithUser } from '@interfaces/internal/auth.interface';
 import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
 import { SymptomLogFindRequest } from '@interfaces/symptom-logs.interface';
 
-import AllergensController from './allergens.controller';
+import { AllergensController } from './allergens.controller';
 
 class SymptomLogsController {
   public symptomLogService = new SymptomLogsService();

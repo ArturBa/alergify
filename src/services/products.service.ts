@@ -71,7 +71,7 @@ export class ProductsService extends BaseService<ProductEntity> {
     return this.getRepository().save(entity);
   }
 
-  update(params: unknown): Promise<ProductEntity> {
+  update(_: unknown): Promise<ProductEntity> {
     throw new Error('Method not implemented.');
   }
 

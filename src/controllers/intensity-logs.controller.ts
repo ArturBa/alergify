@@ -1,8 +1,8 @@
 import { NextFunction, Response } from 'express';
 
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+import { IntensityLogService } from '@services/intensity-logs.service';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
-import HttpStatusCode from '@interfaces/internal/http-codes.interface';
-import IntensityLogService from '@services/intensity-logs.service';
 
 class IntensityLogsController {
   public intensityLogService = new IntensityLogService();
@@ -13,7 +13,7 @@ class IntensityLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      await this.intensityLogService.createIntensityLog(req.body);
+      await this.intensityLogService.create(req.body);
 
       res.status(HttpStatusCode.CREATED);
     } catch (error) {
@@ -27,7 +27,7 @@ class IntensityLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      await this.intensityLogService.updateIntensityLog(req.body);
+      await this.intensityLogService.update(req.body);
 
       res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
@@ -42,7 +42,10 @@ class IntensityLogsController {
   ): Promise<void> => {
     try {
       const intensityLogId = Number(req.params.id);
-      await this.intensityLogService.deleteIntensityLog(intensityLogId);
+      await this.intensityLogService.remove({
+        id: intensityLogId,
+        userId: req.userId,
+      });
 
       res.sendStatus(HttpStatusCode.OK);
     } catch (error) {
