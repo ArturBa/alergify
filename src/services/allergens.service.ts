@@ -36,7 +36,7 @@ class GetAllergensQueryBuilder extends BaseFindParametersQueryBuilder<AllergensE
 }
 
 export class AllergensService extends BaseService<AllergensEntity> {
-  protected entity = AllergensEntity;
+  entity = AllergensEntity;
 
   create(params: AllergenSetParameters): Promise<AllergensEntity> {
     const entity = this.createEntity(params);

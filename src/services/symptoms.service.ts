@@ -3,7 +3,11 @@ import { SymptomEntity } from '@entity/symptoms.entity';
 import { BaseService } from './internal/base.service';
 
 export class SymptomService extends BaseService<SymptomEntity> {
-  protected entity = SymptomEntity;
+  entity = SymptomEntity;
+
+  find(_: unknown): Promise<SymptomEntity[]> {
+    return super.find(_);
+  }
 
   create(_: unknown): Promise<SymptomEntity> {
     throw new Error('Method not implemented.');

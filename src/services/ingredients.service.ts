@@ -31,7 +31,7 @@ export class IngredientFindQueryBuilder extends BaseFindParametersQueryBuilder<I
 }
 
 export class IngredientsService extends BaseService<IngredientEntity> {
-  protected entity = IngredientEntity;
+  entity = IngredientEntity;
 
   create(params: IngredientCreateDto): Promise<IngredientEntity> {
     const entity = this.createDto(params);

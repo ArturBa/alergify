@@ -4,7 +4,7 @@
     "host": "localhost",
     "user": "root",
     "password": "password",
-    "database": "typeorm"
+    "database": "test.sqlite3"
   },
   "secretKey": "secretKey",
   "log": {

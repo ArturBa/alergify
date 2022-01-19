@@ -6,7 +6,7 @@ import {
 import { BaseService } from './internal/base.service';
 
 export class IntensityLogService extends BaseService<IntensityLogEntity> {
-  protected entity = IntensityLogEntity;
+  entity = IntensityLogEntity;
 
   create(params: CreateIntensityLogDto): Promise<IntensityLogEntity> {
     const entity = this.createEntity(params);

@@ -27,7 +27,7 @@ class FoodLogsFindQueryBuilder extends BaseFindParametersQueryBuilder<FoodLogEnt
 }
 
 export class FoodLogsService extends BaseService<FoodLogEntity> {
-  protected entity = FoodLogEntity;
+  entity = FoodLogEntity;
 
   protected getQueryBuilder(): BaseFindParametersQueryBuilder<FoodLogEntity> {
     return new FoodLogsFindQueryBuilder(this.getRepository());

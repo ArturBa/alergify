@@ -76,7 +76,7 @@ export class BaseFindParametersQueryBuilder<Entity extends BaseEntity> {
 
   protected addPagination({ start, limit }: BaseFindParameters): void {
     if (start && limit) {
-      this.query = this.query.skip(0).take(10);
+      this.query = this.query.skip(start).take(limit);
     } else if (start) {
       this.query = this.query.skip(start);
     } else if (limit) {

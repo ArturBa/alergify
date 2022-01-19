@@ -64,7 +64,7 @@ export class ProductsFindQueryBuilder extends BaseFindParametersQueryBuilder<Pro
 }
 
 export class ProductsService extends BaseService<ProductEntity> {
-  protected entity = ProductEntity;
+  entity = ProductEntity;
 
   async create(params: ProductCreateDto): Promise<ProductEntity> {
     const entity = await this.createDto(params);

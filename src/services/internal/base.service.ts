@@ -16,7 +16,7 @@ import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
 import { BaseFindParametersQueryBuilder } from './base-find-params-builder';
 
 export abstract class BaseService<Entity extends BaseEntity> {
-  protected abstract entity: EntityTarget<Entity>;
+  abstract entity: EntityTarget<Entity>;
 
   abstract create(params: unknown): Promise<Entity>;
   abstract update(params: unknown): Promise<Entity>;

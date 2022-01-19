@@ -32,7 +32,7 @@ export class SymptomLogFindQueryBuilder extends BaseFindParametersQueryBuilder<S
 }
 
 export class SymptomLogsService extends BaseService<SymptomLogEntity> {
-  protected entity = SymptomLogEntity;
+  entity = SymptomLogEntity;
 
   async create(params: CreateSymptomLogDto): Promise<SymptomLogEntity> {
     const entity = await this.createEntity(params);
