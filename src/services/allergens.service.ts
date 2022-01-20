@@ -19,6 +19,7 @@ class GetAllergensQueryBuilder extends BaseFindParametersQueryBuilder<AllergensE
   build(params): void {
     super.build(params);
     this.addIngredientId(params);
+    this.orderBy();
   }
 
   protected getAlias(): string {
@@ -32,6 +33,12 @@ class GetAllergensQueryBuilder extends BaseFindParametersQueryBuilder<AllergensE
         { ingredientId },
       );
     }
+  }
+
+  protected orderBy(): void {
+    this.query
+      .orderBy(`${this.getAliasPrefix()}confirmed`)
+      .addOrderBy(`${this.getAliasPrefix()}points/${this.getAliasPrefix}count`);
   }
 }
 

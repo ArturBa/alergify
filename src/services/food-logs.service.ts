@@ -37,7 +37,7 @@ export class FoodLogsService extends BaseService<FoodLogEntity> {
     params: Partial<BaseGetParameters>,
   ): SelectQueryBuilder<FoodLogEntity> {
     const queryBuilder = this.getQueryBuilder();
-    queryBuilder.build(params);
+    queryBuilder.build(params, { orderByDate: true });
     queryBuilder.select([
       'foodLog.id',
       'foodLog.userId',

@@ -31,11 +31,18 @@ export class BaseFindParametersQueryBuilder<Entity extends BaseEntity> {
     this.query = this.query.select(select);
   }
 
-  build(request: BaseFindParameters): void {
+  build(
+    request: BaseFindParameters,
+    { orderByDate }: { orderByDate: boolean } = { orderByDate: false },
+  ): void {
     this.addUser(request);
     this.addDateRange(request);
     this.addPagination(request);
     this.addId(request as BaseGetParameters);
+
+    if (orderByDate) {
+      this.orderByDate();
+    }
   }
 
   get(): SelectQueryBuilder<Entity> {
@@ -90,6 +97,10 @@ export class BaseFindParametersQueryBuilder<Entity extends BaseEntity> {
         id,
       });
     }
+  }
+
+  protected orderByDate(): void {
+    this.query = this.query.orderBy(`${this.getAliasPrefix()}date`);
   }
 }
 

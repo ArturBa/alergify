@@ -51,7 +51,7 @@ export class SymptomLogsService extends BaseService<SymptomLogEntity> {
     params: Partial<BaseFindParameters>,
   ): SelectQueryBuilder<SymptomLogEntity> {
     const queryBuilder = this.getQueryBuilder();
-    queryBuilder.build(params);
+    queryBuilder.build(params, { orderByDate: true });
     queryBuilder.select([
       'symptomLog.id',
       'symptomLog.userId',

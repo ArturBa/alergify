@@ -1,4 +1,3 @@
-import { PaginateResponse } from '@interfaces/internal/response.interface';
 import { Food, FoodGetRequest } from '@interfaces/foods.interface';
 import { ProductGetRequest } from '@interfaces/products.interface';
 import { ProductsService } from './products.service';
@@ -9,9 +8,7 @@ class FoodsService {
 
   readonly ingredientService = new IngredientsService();
 
-  async findFood(
-    req: FoodGetRequest,
-  ): Promise<PaginateResponse<Partial<Food>>> {
+  async find(req: FoodGetRequest): Promise<Partial<Food>[]> {
     const ingredients = await this.ingredientService.find(req);
     const totalIngredients = await this.ingredientService.count(req);
 
@@ -27,25 +24,28 @@ class FoodsService {
       productsRequest.limit === 0
         ? []
         : await this.productService.find(productsRequest);
-    const totalProducts = await this.productService.count(productsRequest);
 
-    return {
-      data: [
-        ...ingredients.map(
-          (ingredient): Partial<Food> => ({
-            ...ingredient,
-            type: 'ingredient',
-          }),
-        ),
-        ...products.map(
-          (product): Partial<Food> => ({
-            ...product,
-            type: 'product',
-          }),
-        ),
-      ],
-      total: totalIngredients + totalProducts,
-    };
+    return [
+      ...ingredients.map(
+        (ingredient): Partial<Food> => ({
+          ...ingredient,
+          type: 'ingredient',
+        }),
+      ),
+      ...products.map(
+        (product): Partial<Food> => ({
+          ...product,
+          type: 'product',
+        }),
+      ),
+    ];
+  }
+
+  async count(req: FoodGetRequest): Promise<number> {
+    return Promise.all([
+      this.ingredientService.count(req),
+      this.productService.count(req),
+    ]).then(counts => counts.reduce((a, b) => a + b, 0));
   }
 }
 

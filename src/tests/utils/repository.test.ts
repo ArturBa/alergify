@@ -34,6 +34,8 @@ export function createQueryBuilderMock(
     ),
     getCount: jest.fn().mockReturnValue(Promise.resolve(getMany.length)),
     getOne: jest.fn().mockReturnValue(Promise.resolve(getOneResp)),
+    orderBy: jest.fn().mockReturnThis(),
+    addOrderBy: jest.fn().mockReturnThis(),
   });
 }
 
