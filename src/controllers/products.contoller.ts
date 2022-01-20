@@ -1,7 +1,6 @@
 import { Response, NextFunction } from 'express';
 
 import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
-import { IngredientsService } from '@services/ingredients.service';
 import { ProductCreateDto } from '@dtos/products.dto';
 import { ProductEntity } from '@entity/products.entity';
 import { ProductGetRequest } from '@interfaces/products.interface';
@@ -12,8 +11,6 @@ import { ControllerOmitHelper } from './internal/omit-helper';
 
 class ProductsController {
   public productService = new ProductsService();
-
-  public ingredientsService = new IngredientsService();
 
   public get = async (
     req: RequestWithUser,
@@ -73,9 +70,9 @@ class ProductsController {
         .then(omitIngredientsArray)
         .then(ControllerOmitHelper.omitCreatedUpdatedAtArray)
         .then(ControllerOmitHelper.omitUserIdArray);
-      const count = await this.productService.count(req);
+      const total = await this.productService.count(req);
 
-      res.status(HttpStatusCode.OK).json({ data, count });
+      res.status(HttpStatusCode.OK).json({ data, total });
     } catch (error) {
       next(error);
     }

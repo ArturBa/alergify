@@ -1,12 +1,19 @@
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
+
 import {
   CreateIntensityLogDto,
   UpdateIntensityLogDto,
 } from '@dtos/intensity-logs.dto';
+import { HttpException } from '@exceptions/HttpException';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+
 import { BaseService } from './internal/base.service';
+import { SymptomService } from './symptoms.service';
 
 export class IntensityLogService extends BaseService<IntensityLogEntity> {
   entity = IntensityLogEntity;
+
+  readonly symptomsService = new SymptomService();
 
   create(params: CreateIntensityLogDto): Promise<IntensityLogEntity> {
     const entity = this.createEntity(params);
@@ -26,6 +33,11 @@ export class IntensityLogService extends BaseService<IntensityLogEntity> {
   ): IntensityLogEntity {
     entity.value = params.value;
     entity.symptomId = params.symptomId;
+    try {
+      this.symptomsService.get({ id: params.symptomId });
+    } catch (error) {
+      throw new HttpException(HttpStatusCode.NOT_FOUND, 'Symptom not found');
+    }
     return entity;
   }
   /* eslint-enable no-param-reassign */

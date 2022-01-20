@@ -34,6 +34,8 @@ export class SymptomLogFindQueryBuilder extends BaseFindParametersQueryBuilder<S
 export class SymptomLogsService extends BaseService<SymptomLogEntity> {
   entity = SymptomLogEntity;
 
+  readonly intensityLogService = new IntensityLogService();
+
   async create(params: CreateSymptomLogDto): Promise<SymptomLogEntity> {
     const entity = await this.createEntity(params);
     return this.getRepository().save(entity);
@@ -99,9 +101,8 @@ export class SymptomLogsService extends BaseService<SymptomLogEntity> {
   protected createIntensityLog(
     params: CreateIntensityLogDto[],
   ): Promise<IntensityLogEntity[]> {
-    const intensityLogService = new IntensityLogService();
     return Promise.all(
-      params.map(intensityDto => intensityLogService.create(intensityDto)),
+      params.map(intensityDto => this.intensityLogService.create(intensityDto)),
     );
   }
 
@@ -118,10 +119,9 @@ export class SymptomLogsService extends BaseService<SymptomLogEntity> {
     intensityLogs: IntensityLogEntity[],
     params: CreateIntensityLogDto[],
   ): Promise<IntensityLogEntity[]> {
-    const intensityLogService = new IntensityLogService();
     await Promise.all(
       intensityLogs.map(async intensityLog => {
-        intensityLogService.remove({ id: intensityLog.id });
+        this.intensityLogService.remove({ id: intensityLog.id });
       }),
     );
 

@@ -66,6 +66,8 @@ export class ProductsFindQueryBuilder extends BaseFindParametersQueryBuilder<Pro
 export class ProductsService extends BaseService<ProductEntity> {
   entity = ProductEntity;
 
+  readonly ingredientService = new IngredientsService();
+
   async create(params: ProductCreateDto): Promise<ProductEntity> {
     const entity = await this.createDto(params);
     return this.getRepository().save(entity);
@@ -96,8 +98,6 @@ export class ProductsService extends BaseService<ProductEntity> {
   }
 
   protected async createDto(params: ProductCreateDto): Promise<ProductEntity> {
-    const ingredientService = new IngredientsService();
-
     const entity = new ProductEntity();
     entity.name = params.name;
     entity.userId = params.userId;
@@ -105,7 +105,7 @@ export class ProductsService extends BaseService<ProductEntity> {
     try {
       entity.ingredients = await Promise.all(
         params.ingredients.map(id =>
-          ingredientService.get({ id, userId: params.userId }),
+          this.ingredientService.get({ id, userId: params.userId }),
         ),
       );
     } catch {

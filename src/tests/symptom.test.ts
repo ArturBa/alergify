@@ -51,14 +51,17 @@ describe('Testing symptoms', () => {
         .get(symptomsRoute.path)
         .expect(HttpStatusCode.UNAUTHORIZED);
     });
-    it('should return symptoms', () => {
-      return request(app.getServer())
+    it('should return symptoms', async () => {
+      await request(app.getServer())
         .get(symptomsRoute.path)
         .auth(accessToken, { type: 'bearer' })
         .expect(HttpStatusCode.OK)
         .then(res => {
           expect(res.body).toEqual(symptoms);
         });
+
+      expect(repository.createQueryBuilder).toHaveBeenCalledTimes(1);
+      expect(repository.createQueryBuilder().getMany).toHaveBeenCalledTimes(1);
     });
   });
 });

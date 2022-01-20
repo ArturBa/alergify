@@ -9,7 +9,7 @@ import { TokenData } from '@interfaces/internal/auth.interface';
 import { User } from '@interfaces/users.interface';
 import { UserEntity } from '@entity/users.entity';
 
-import { checkIfConflict } from './common.service';
+import { checkIfConflict } from './internal/common.service';
 
 class AuthService {
   public users = UserEntity;

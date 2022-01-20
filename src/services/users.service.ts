@@ -2,7 +2,7 @@ import { getRepository } from 'typeorm';
 import { CreateUserDto } from '@dtos/users.dto';
 import { UserEntity } from '@entity/users.entity';
 import { User } from '@interfaces/users.interface';
-import { checkIfConflict, checkIfEmpty } from './common.service';
+import { checkIfConflict, checkIfEmpty } from './internal/common.service';
 
 class UserService {
   public users = UserEntity;

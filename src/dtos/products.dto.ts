@@ -27,12 +27,10 @@ export class ProductCreateDto extends Mixin(UserIdDto) {
 
 export class GetProductDto extends Mixin(PaginateDto) {
   @ValidateIf(o => o.name === undefined)
-  @IsOptional()
-  @IsNumber()
-  barcode: number;
-
-  @ValidateIf(o => o.barcode === undefined)
-  @IsOptional()
   @IsString()
   name: string;
+
+  @ValidateIf(o => o.name === undefined)
+  @IsNumber()
+  barcode: number;
 }

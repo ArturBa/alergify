@@ -19,9 +19,9 @@ class SymptomLogsController {
   ): Promise<void> => {
     try {
       const data = await this.symptomLogService.find(req);
-      const count = await this.symptomLogService.count(req);
+      const total = await this.symptomLogService.count(req);
 
-      res.status(HttpStatusCode.OK).json({ data, count });
+      res.status(HttpStatusCode.OK).json({ data, total });
     } catch (error) {
       next(error);
     }

@@ -1,5 +1,5 @@
 /* eslint-disable import/first */
-process.env.NODE_CONFIG_DIR = `${__dirname}/configs`;
+process.env.NODE_CONFIG_DIR = `${__dirname}/src/configs`;
 
 const { pathsToModuleNameMapper } = require('ts-jest/utils');
 const { compilerOptions } = require('./tsconfig.json');
@@ -24,4 +24,10 @@ module.exports = {
     prefix: '<rootDir>/src',
   }),
   coverageReporters: ['lcov'],
+  collectCoverage: true,
+  collectCoverageFrom: [
+    '<rootDir>/src/**',
+    '!<rootDir>/src/tests/**',
+    '!<rootDir>/src/configs/**',
+  ],
 };
