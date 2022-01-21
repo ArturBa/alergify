@@ -29,6 +29,10 @@ class FoodLogsFindQueryBuilder extends BaseFindParametersQueryBuilder<FoodLogEnt
 export class FoodLogsService extends BaseService<FoodLogEntity> {
   entity = FoodLogEntity;
 
+  readonly productsService = new ProductsService();
+
+  readonly ingredientsService = new IngredientsService();
+
   protected getQueryBuilder(): BaseFindParametersQueryBuilder<FoodLogEntity> {
     return new FoodLogsFindQueryBuilder(this.getRepository());
   }
@@ -95,9 +99,8 @@ export class FoodLogsService extends BaseService<FoodLogEntity> {
     userId: number,
   ): Promise<ProductEntity[]> {
     try {
-      const productsService = new ProductsService();
       return await Promise.all(
-        ids.map(id => productsService.get({ id, userId })),
+        ids.map(id => this.productsService.get({ id, userId })),
       );
     } catch {
       throw new HttpException(HttpStatusCode.NOT_FOUND, 'Products not found');
@@ -109,9 +112,8 @@ export class FoodLogsService extends BaseService<FoodLogEntity> {
     userId: number,
   ): Promise<IngredientEntity[]> {
     try {
-      const ingredientsService = new IngredientsService();
       return await Promise.all(
-        ids.map(id => ingredientsService.get({ id, userId })),
+        ids.map(id => this.ingredientsService.get({ id, userId })),
       );
     } catch {
       throw new HttpException(HttpStatusCode.NOT_FOUND, 'Ingredient not found');

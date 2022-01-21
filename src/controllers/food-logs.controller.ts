@@ -6,6 +6,7 @@ import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
 
 import { AllergensController } from './allergens.controller';
+import { ControllerOmitHelper } from './internal/omit-helper';
 
 export class FoodLogsController {
   public foodLogsService = new FoodLogsService();
@@ -18,15 +19,14 @@ export class FoodLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const data = await this.foodLogsService.find(req).then(foodLogs => {
-        return foodLogs.map(foodLog => {
-          const foodLogNoUserId = { ...foodLog };
-          delete foodLogNoUserId.userId;
-          return foodLogNoUserId;
-        });
-      });
-      const count = await this.foodLogsService.count(req);
-      res.status(HttpStatusCode.OK).json({ data, count });
+      const data = await this.foodLogsService
+        .find(req)
+        .then(
+          ControllerOmitHelper.omitCreatedUpdatedAtArray,
+          ControllerOmitHelper.omitUserIdArray,
+        );
+      const total = await this.foodLogsService.count(req);
+      res.status(HttpStatusCode.OK).json({ data, total });
     } catch (err) {
       next(err);
     }
