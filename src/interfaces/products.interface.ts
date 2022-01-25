@@ -14,7 +14,7 @@ export interface Product extends BaseInterface {
 }
 
 interface FindProductsParameters {
-  barcode?: number;
+  barcode?: string;
   name?: string;
 }
 
