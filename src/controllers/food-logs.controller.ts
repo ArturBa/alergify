@@ -66,7 +66,6 @@ export class FoodLogsController {
       res.sendStatus(HttpStatusCode.NO_CONTENT);
       this.allergensController.diffFoodLogAllergens(prevFoodLog, nextFoodLog);
     } catch (err) {
-      console.log(err);
       next(err);
     }
   };

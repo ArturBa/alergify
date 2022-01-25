@@ -45,7 +45,6 @@ export class SymptomLogsService extends BaseService<SymptomLogEntity> {
         symptomLogId: symptom.id,
       };
     });
-    console.log(intensityLogsParams);
     await this.createIntensityLog(intensityLogsParams);
 
     return this.getRepository().findOne(symptom.id);

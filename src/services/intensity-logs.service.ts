@@ -16,7 +16,6 @@ export class IntensityLogService extends BaseService<IntensityLogEntity> {
   readonly symptomsService = new SymptomService();
 
   create(params: CreateIntensityLogDto): Promise<IntensityLogEntity> {
-    console.log('create intensity log', params);
     const entity = this.createEntity(params);
     return this.getRepository().save(entity);
   }

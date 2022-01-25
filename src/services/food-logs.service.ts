@@ -65,7 +65,7 @@ export class FoodLogsService extends BaseService<FoodLogEntity> {
       id: foodLogDto.id,
       userId: foodLogDto.userId,
     });
-    this.updateEntity(entity, foodLogDto);
+    await this.updateEntity(entity, foodLogDto);
     return this.getRepository().save(entity);
   }
 
@@ -83,7 +83,6 @@ export class FoodLogsService extends BaseService<FoodLogEntity> {
     entityDto: CreateFoodLogDto,
   ): Promise<FoodLogEntity> {
     entity.date = new Date(entityDto.date);
-    console.log('entityDto.products', entityDto.products);
     entity.products = await this.getProducts(
       entityDto.products || [],
       entityDto.userId,
