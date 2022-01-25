@@ -17,10 +17,13 @@ export class IngredientsController {
   ): Promise<void> => {
     try {
       const ingredientId = Number(req.params.id);
-      const ingredient = await this.ingredientService.get({
-        ...req,
-        id: ingredientId,
-      });
+      const ingredient = await this.ingredientService
+        .get({
+          ...req,
+          id: ingredientId,
+        })
+        .then(ControllerOmitHelper.omitUserId)
+        .then(ControllerOmitHelper.omitCreatedUpdatedAt);
       res.status(HttpStatusCode.OK).json({ ...ingredient });
     } catch (error) {
       next(error);

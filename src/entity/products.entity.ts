@@ -20,7 +20,7 @@ export class ProductEntity extends BaseEntity implements Product {
   @Column({
     nullable: true,
   })
-  barcode: number;
+  barcode: string;
 
   @Column()
   name: string;

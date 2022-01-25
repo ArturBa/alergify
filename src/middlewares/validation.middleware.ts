@@ -32,6 +32,7 @@ const validationMiddleware = (
       value === 'query'
         ? plainToInstance(type, queryParamsToNumeric(req[value]))
         : plainToInstance(type, req[value]);
+    console.log(checkObject);
     validate(checkObject, {
       skipMissingProperties,
       whitelist,

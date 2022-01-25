@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { getRepository } from 'typeorm';
 import { CreateUserDto } from '@dtos/users.dto';
 import { UserEntity } from '@entity/users.entity';
@@ -40,15 +41,16 @@ class UserService {
     userId: number,
     userData: CreateUserDto,
   ): Promise<User> {
-    checkIfEmpty(userData);
-
     const userRepository = getRepository(this.users);
     const findUser: User = await userRepository.findOne({
       where: { id: userId },
     });
-    checkIfConflict(!findUser);
 
-    await userRepository.update(userId, {
+    findUser.username = userData.username;
+    findUser.email = userData.email;
+    findUser.password = bcrypt.hashSync(userData.password, 10);
+
+    userRepository.update(userId, {
       ...userData,
     });
 

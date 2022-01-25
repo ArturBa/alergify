@@ -7,7 +7,7 @@ import {
 import { RequestWithUser } from './internal/auth.interface';
 
 export interface Product extends BaseInterface {
-  barcode: number;
+  barcode: string;
   name: string;
   ingredients?: Ingredient[];
   userId?: number;

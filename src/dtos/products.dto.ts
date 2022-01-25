@@ -15,7 +15,7 @@ import { UserIdDto } from './internal/parameters/user-id.dto';
 export class ProductCreateDto extends Mixin(UserIdDto) {
   @IsOptional()
   @IsNumber()
-  public barcode: number;
+  public barcode: string;
 
   @IsString()
   name: string;
@@ -26,11 +26,11 @@ export class ProductCreateDto extends Mixin(UserIdDto) {
 }
 
 export class GetProductDto extends Mixin(PaginateDto) {
-  @ValidateIf(o => o.name === undefined)
+  @ValidateIf(o => o.barcode === undefined)
   @IsString()
   name: string;
 
-  @ValidateIf(o => o.name === undefined)
+  @IsOptional()
   @IsNumber()
-  barcode: number;
+  barcode: string;
 }

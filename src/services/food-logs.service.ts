@@ -73,6 +73,7 @@ export class FoodLogsService extends BaseService<FoodLogEntity> {
     entityDto: CreateFoodLogDto,
   ): Promise<FoodLogEntity> {
     const entity = new FoodLogEntity();
+    entity.userId = entityDto.userId;
     return this.updateEntity(entity, entityDto);
   }
 

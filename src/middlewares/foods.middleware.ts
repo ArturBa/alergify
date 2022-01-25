@@ -1,7 +1,6 @@
 import { NextFunction, Response } from 'express';
 
 import { FoodGetRequest } from '@interfaces/foods.interface';
-import { isEmpty } from '@utils/util';
 
 import { paginateParamsMiddleware } from './internal/paginate.middleware';
 
@@ -11,11 +10,10 @@ const getFoodDtoMiddleware = (
   next: NextFunction,
 ) => {
   try {
-    const name = req.query.name as string;
-    if (isEmpty(name)) {
-      throw new Error('name is required');
-    }
+    const name = (req.query.name as string) || '';
+    const barcode = (req.query.barcode as string) || undefined;
     req.name = name;
+    req.barcode = barcode;
     next();
   } catch (error) {
     next(error);

@@ -21,10 +21,8 @@ export class FoodLogsController {
     try {
       const data = await this.foodLogsService
         .find(req)
-        .then(
-          ControllerOmitHelper.omitCreatedUpdatedAtArray,
-          ControllerOmitHelper.omitUserIdArray,
-        );
+        .then(ControllerOmitHelper.omitCreatedUpdatedAtArray)
+        .then(ControllerOmitHelper.omitUserIdArray);
       const total = await this.foodLogsService.count(req);
       res.status(HttpStatusCode.OK).json({ data, total });
     } catch (err) {
