@@ -12,6 +12,9 @@ export class CreateIntensityLogDto extends Mixin(UserIdDto) {
 
   @IsNotEmpty()
   public symptomId: number;
+
+  @IsOptional()
+  public symptomLogId: number;
 }
 
 export class UpdateIntensityLogDto extends CreateIntensityLogDto {

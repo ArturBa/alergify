@@ -9,7 +9,6 @@ class FoodsService {
   readonly ingredientService = new IngredientsService();
 
   async find(req: FoodGetRequest): Promise<Partial<Food>[]> {
-    console.log('find foods ', req);
     const ingredients = req.name ? await this.ingredientService.find(req) : [];
     const totalIngredients = req.name
       ? await this.ingredientService.count(req)
@@ -22,8 +21,6 @@ class FoodsService {
       limit:
         req.limit - ingredients.length < 0 ? 0 : req.limit - ingredients.length,
     } as unknown as ProductGetRequest;
-
-    console.log('productsRequest', productsRequest);
 
     const products =
       productsRequest.limit === 0

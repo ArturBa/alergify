@@ -19,13 +19,13 @@ export class CreateFoodLogDto {
   @IsISO8601()
   public date: string;
 
-  @ValidateIf(o => o.products === [])
   @IsArray()
+  @ValidateIf(o => o.products === [])
   @IsNotEmpty()
   public ingredients: number[];
 
-  @ValidateIf(o => o.ingredients === [])
   @IsArray()
+  @ValidateIf(o => o.ingredients === [])
   @IsNotEmpty()
   public products: number[];
 }
