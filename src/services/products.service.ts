@@ -15,7 +15,7 @@ export class ProductsFindQueryBuilder extends BaseFindParametersQueryBuilder<Pro
   constructor(repository: Repository<ProductEntity>) {
     super(repository);
     this.query = this.query.leftJoinAndSelect(
-      'product.ingredients',
+      `${this.getAliasPrefix()}ingredients`,
       'ingredients',
     );
   }

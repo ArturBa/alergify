@@ -38,7 +38,9 @@ class GetAllergensQueryBuilder extends BaseFindParametersQueryBuilder<AllergensE
   protected orderBy(): void {
     this.query
       .orderBy(`${this.getAliasPrefix()}confirmed`)
-      .addOrderBy(`${this.getAliasPrefix()}points/${this.getAliasPrefix}count`);
+      .addOrderBy(
+        `${this.getAliasPrefix()}points/${this.getAliasPrefix()}count`,
+      );
   }
 }
 

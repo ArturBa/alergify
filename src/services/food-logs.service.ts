@@ -83,12 +83,13 @@ export class FoodLogsService extends BaseService<FoodLogEntity> {
     entityDto: CreateFoodLogDto,
   ): Promise<FoodLogEntity> {
     entity.date = new Date(entityDto.date);
+    console.log('entityDto.products', entityDto.products);
     entity.products = await this.getProducts(
-      entityDto.products,
+      entityDto.products || [],
       entityDto.userId,
     );
     entity.ingredients = await this.getIngredients(
-      entityDto.ingredients,
+      entityDto.ingredients || [],
       entityDto.userId,
     );
     return entity;

@@ -21,7 +21,7 @@ export class SymptomLogFindQueryBuilder extends BaseFindParametersQueryBuilder<S
   constructor(repository: Repository<SymptomLogEntity>) {
     super(repository);
     this.query = this.query.leftJoinAndSelect(
-      `${this.getAliasPrefix()}symptoms`,
+      `${this.getAliasPrefix()}intensityLogs`,
       'intensityLogs',
     );
   }
@@ -38,7 +38,17 @@ export class SymptomLogsService extends BaseService<SymptomLogEntity> {
 
   async create(params: CreateSymptomLogDto): Promise<SymptomLogEntity> {
     const entity = await this.createEntity(params);
-    return this.getRepository().save(entity);
+    const symptom = await this.getRepository().save(entity);
+    const intensityLogsParams = params.intensityLogs.map(intensityLog => {
+      return {
+        ...intensityLog,
+        symptomLogId: symptom.id,
+      };
+    });
+    console.log(intensityLogsParams);
+    await this.createIntensityLog(intensityLogsParams);
+
+    return this.getRepository().findOne(symptom.id);
   }
 
   async update(params: UpdateSymptomLogDto): Promise<SymptomLogEntity> {
@@ -56,9 +66,9 @@ export class SymptomLogsService extends BaseService<SymptomLogEntity> {
       'symptomLog.id',
       'symptomLog.userId',
       'symptomLog.date',
+      'intensityLogs.id',
       'intensityLogs.symptomId',
-      'intensityLogs.intensity',
-      'intensityLogs.name',
+      'intensityLogs.value',
     ]);
     return queryBuilder.get();
   }
@@ -72,7 +82,6 @@ export class SymptomLogsService extends BaseService<SymptomLogEntity> {
   ): Promise<SymptomLogEntity> {
     const entity = new SymptomLogEntity();
     entity.date = new Date(params.date);
-    entity.intensityLogs = await this.createIntensityLog(params.intensityLogs);
     entity.userId = params.userId;
     return entity;
   }
