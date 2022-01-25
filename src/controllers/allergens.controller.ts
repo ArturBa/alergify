@@ -32,6 +32,9 @@ export class AllergensController {
     ): Partial<AllergensEntity> & { likelihood: number } => {
       const dtoCopy: any = { ...dto };
       dtoCopy.likelihood = dtoCopy.points / dtoCopy.count / 24;
+      dtoCopy.likelihood = dtoCopy.likelihood
+        ? dtoCopy.likelihood.toFixed(2)
+        : null;
       delete dtoCopy.points;
       delete dtoCopy.count;
       return dtoCopy;
@@ -48,8 +51,8 @@ export class AllergensController {
         .then(likelihoodArray)
         .then(ControllerOmitHelper.omitCreatedUpdatedAtArray)
         .then(ControllerOmitHelper.omitUserIdArray);
-      const count = await this.allergensService.count({ ...req });
-      res.status(HttpStatusCode.OK).json({ data, count });
+      const total = await this.allergensService.count({ ...req });
+      res.status(HttpStatusCode.OK).json({ data, total });
     } catch (error) {
       next(error);
     }
