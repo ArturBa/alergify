@@ -1,12 +1,17 @@
 import { Response, NextFunction } from 'express';
 
-import FoodLogsService from '@services/food-logs.service';
-import { RequestWithUser } from '@interfaces/internal/auth.interface';
-import HttpStatusCode from '@interfaces/internal/http-codes.interface';
 import { FoodLogGetRequest } from '@interfaces/food-logs.interface';
+import { FoodLogsService } from '@services/food-logs.service';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+import { RequestWithUser } from '@interfaces/internal/auth.interface';
+
+import { AllergensController } from './allergens.controller';
+import { ControllerOmitHelper } from './internal/omit-helper';
 
 export class FoodLogsController {
   public foodLogsService = new FoodLogsService();
+
+  public allergensController = new AllergensController();
 
   public getUserFoodLogs = async (
     req: FoodLogGetRequest,
@@ -14,8 +19,12 @@ export class FoodLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const foodLogs = await this.foodLogsService.getUserFoodLogs(req);
-      res.status(HttpStatusCode.OK).json(foodLogs);
+      const data = await this.foodLogsService
+        .find(req)
+        .then(ControllerOmitHelper.omitCreatedUpdatedAtArray)
+        .then(ControllerOmitHelper.omitUserIdArray);
+      const total = await this.foodLogsService.count(req);
+      res.status(HttpStatusCode.OK).json({ data, total });
     } catch (err) {
       next(err);
     }
@@ -28,8 +37,12 @@ export class FoodLogsController {
   ): Promise<void> => {
     try {
       const { userId } = req;
-      await this.foodLogsService.createUserFoodLogs(userId, req.body);
+      const foodLog = await this.foodLogsService.create({
+        ...req.body,
+        userId,
+      });
       res.sendStatus(HttpStatusCode.CREATED);
+      this.allergensController.addFoodLogAllergens(foodLog);
     } catch (err) {
       next(err);
     }
@@ -42,26 +55,16 @@ export class FoodLogsController {
   ): Promise<void> => {
     try {
       const { userId } = req;
-      await this.foodLogsService.updateUserFoodLogs(userId, req.body);
-      res.sendStatus(HttpStatusCode.OK);
-    } catch (err) {
-      next(err);
-    }
-  };
-
-  public getUserFoodLogById = async (
-    req: RequestWithUser,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      const { userId } = req;
-      const foodId = Number(req.params.id);
-      const foodLog = await this.foodLogsService.findUserFoodLogById(
+      const prevFoodLog = await this.foodLogsService.get({
+        id: req.body.id,
         userId,
-        foodId,
-      );
-      res.status(HttpStatusCode.OK).json(foodLog);
+      });
+      const nextFoodLog = await this.foodLogsService.update({
+        ...req.body,
+        userId,
+      });
+      res.sendStatus(HttpStatusCode.NO_CONTENT);
+      this.allergensController.diffFoodLogAllergens(prevFoodLog, nextFoodLog);
     } catch (err) {
       next(err);
     }
@@ -75,8 +78,12 @@ export class FoodLogsController {
     try {
       const { userId } = req;
       const foodId = Number(req.params.id);
-      await this.foodLogsService.deleteFoodLogById(userId, foodId);
-      res.sendStatus(HttpStatusCode.OK);
+      const foodLog = await this.foodLogsService.remove({
+        userId,
+        id: foodId,
+      });
+      res.sendStatus(HttpStatusCode.NO_CONTENT);
+      this.allergensController.removeFoodLogAllergens(foodLog);
     } catch (err) {
       next(err);
     }

@@ -5,11 +5,12 @@ export interface Food {
   id: number;
   type: 'product' | 'ingredient';
   name: string;
-  barcode?: number;
+  barcode?: string;
 }
 
 interface GetFoodsParameters {
-  name: string;
+  name?: string;
+  barcode?: string;
 }
 
 export interface FoodGetRequest

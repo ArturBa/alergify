@@ -1,21 +1,29 @@
-import { BaseInterface } from './base.interface';
+import { BaseInterface } from './internal/base.interface';
 import { Ingredient } from './ingredients.interface';
+import {
+  PaginateParameters,
+  UserParameters,
+} from './internal/parameters.interface';
 import { RequestWithUser } from './internal/auth.interface';
-import { PaginateParameters } from './internal/parameters.interface';
 
 export interface Product extends BaseInterface {
-  barcode: number;
+  barcode: string;
   name: string;
   ingredients?: Ingredient[];
   userId?: number;
 }
 
-interface GetProductsParameters {
+interface FindProductsParameters {
   barcode?: number;
   name?: string;
 }
 
 export interface ProductGetRequest
   extends RequestWithUser,
-    GetProductsParameters,
+    FindProductsParameters,
+    PaginateParameters {}
+
+export interface ProductFindRequest
+  extends UserParameters,
+    FindProductsParameters,
     PaginateParameters {}

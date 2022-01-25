@@ -8,17 +8,27 @@ import {
 } from '@interfaces/internal/auth.interface';
 
 export class JsonWebToken {
-  protected static readonly accessTokenTimeout =
-    (config.get('accessTokenTimeout') as number) || 60 * 60; // 1 hour
+  protected static readonly accessTokenTimeout = config.has(
+    'accessTokenTimeout',
+  )
+    ? (config.get('accessTokenTimeout') as number)
+    : 60 * 60; // 1 hour
 
-  protected static readonly refreshTokenTimeout =
-    (config.get('refreshTokenTimeout') as number) || 7 * 24 * 60 * 60; // 1 week
+  protected static readonly refreshTokenTimeout = config.has(
+    'refreshTokenTimeout',
+  )
+    ? (config.get('refreshTokenTimeout') as number)
+    : 7 * 24 * 60 * 60; // 1 week
 
-  protected static readonly accessTokenSecret =
-    (config.get('accessTokenJwtSecret') as string) || 'secret';
+  protected static readonly accessTokenSecret = config.has('accessTokenSecret')
+    ? (config.get('accessTokenJwtSecret') as string)
+    : 'secret';
 
-  protected static readonly refreshTokenSecret =
-    (config.get('refreshTokenJwtSecret') as string) || 'secret';
+  protected static readonly refreshTokenSecret = config.has(
+    'refreshTokenSecret',
+  )
+    ? (config.get('refreshTokenJwtSecret') as string)
+    : 'secret';
 
   protected static createAccessToken(userId: number): string {
     const data: DataStoredInAccessToken = {

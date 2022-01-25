@@ -1,57 +1,51 @@
-import { getRepository } from 'typeorm';
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
+
 import {
   CreateIntensityLogDto,
   UpdateIntensityLogDto,
 } from '@dtos/intensity-logs.dto';
-import { SymptomEntity } from '@entity/symptoms.entity';
-import { Symptom } from '@interfaces/symptoms.interface';
-import { checkIfConflict, checkIfEmpty } from './common.service';
+import { HttpException } from '@exceptions/HttpException';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
 
-class IntensityLogService {
-  intensityLog = IntensityLogEntity;
+import { BaseService } from './internal/base.service';
+import { SymptomService } from './symptoms.service';
 
-  public async createIntensityLog(
-    intensityData: CreateIntensityLogDto,
-  ): Promise<IntensityLogEntity> {
-    checkIfEmpty(intensityData);
-    const intensity = new IntensityLogEntity();
-    const symptom = await IntensityLogService.getSymptomById(
-      intensityData.symptomId,
-    );
-    checkIfConflict(!symptom);
-    intensity.symptom = symptom;
-    intensity.value = intensityData.value;
-    const intensityLogRepository = getRepository(this.intensityLog);
-    await intensityLogRepository.save(intensity);
-    return intensity;
+export class IntensityLogService extends BaseService<IntensityLogEntity> {
+  entity = IntensityLogEntity;
+
+  readonly symptomsService = new SymptomService();
+
+  create(params: CreateIntensityLogDto): Promise<IntensityLogEntity> {
+    const entity = this.createEntity(params);
+    return this.getRepository().save(entity);
   }
 
-  public async updateIntensityLog(
-    intensityData: UpdateIntensityLogDto,
-  ): Promise<IntensityLogEntity> {
-    checkIfEmpty(intensityData);
-    checkIfEmpty(intensityData.id);
-    const intensityLogRepository = getRepository(this.intensityLog);
-    const intensity = await intensityLogRepository.findOne(intensityData.id);
-    checkIfConflict(!intensity);
-    const symptom = await IntensityLogService.getSymptomById(
-      intensityData.symptomId,
-    );
-    intensity.symptom = symptom;
-    intensity.value = intensityData.value;
-    intensityLogRepository.save(intensity);
-    return intensity;
+  async update(params: UpdateIntensityLogDto): Promise<IntensityLogEntity> {
+    const entity = await this.get({ id: params.id, userId: params.userId });
+    this.modifyEntity(entity, params);
+    return this.getRepository().save(entity);
   }
 
-  public async deleteIntensityLog(intensityId: number): Promise<void> {
-    checkIfEmpty(intensityId);
-    const intensityLogRepository = getRepository(this.intensityLog);
-    intensityLogRepository.delete(intensityId);
+  /* eslint-disable no-param-reassign */
+  protected modifyEntity(
+    entity: IntensityLogEntity,
+    params: CreateIntensityLogDto,
+  ): IntensityLogEntity {
+    entity.value = params.value;
+    entity.symptomId = params.symptomId;
+    try {
+      this.symptomsService.get({ id: params.symptomId });
+    } catch (error) {
+      throw new HttpException(HttpStatusCode.NOT_FOUND, 'Symptom not found');
+    }
+    return entity;
   }
+  /* eslint-enable no-param-reassign */
 
-  protected static getSymptomById(id: number): Promise<Symptom> {
-    return getRepository(SymptomEntity).findOne(id);
+  protected createEntity(params: CreateIntensityLogDto): IntensityLogEntity {
+    const entity = new IntensityLogEntity();
+    this.modifyEntity(entity, params);
+    return entity;
   }
 }
 

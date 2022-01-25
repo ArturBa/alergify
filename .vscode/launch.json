@@ -1,35 +1,30 @@
 {
   "version": "0.2.0",
   "configurations": [
+
     {
       "type": "node-terminal",
       "request": "launch",
-      "name": "Dev typescript-express-starter",
-      "command": "npm run dev"
+      "name": "Dev alergify",
+      "command": "yarn run dev"
     },
     {
       "type": "node-terminal",
       "request": "launch",
-      "name": "Start typescript-express-starter",
-      "command": "npm run start"
+      "name": "Test alergify",
+      "command": "yarn run test"
     },
     {
       "type": "node-terminal",
       "request": "launch",
-      "name": "Test typescript-express-starter",
-      "command": "npm run test"
+      "name": "Lint alergify",
+      "command": "yarn run lint"
     },
     {
       "type": "node-terminal",
       "request": "launch",
-      "name": "Lint typescript-express-starter",
-      "command": "npm run lint"
-    },
-    {
-      "type": "node-terminal",
-      "request": "launch",
-      "name": "Lint:Fix typescript-express-starter",
-      "command": "npm run lint:fix"
+      "name": "Lint:Fix alergify",
+      "command": "yarn run lint:fix"
     }
   ]
 }

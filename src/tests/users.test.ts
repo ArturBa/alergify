@@ -1,14 +1,19 @@
-import bcrypt from 'bcrypt';
 import request from 'supertest';
-import { createConnection, getRepository } from 'typeorm';
+import { createConnection, getRepository, Repository } from 'typeorm';
 
 import { dbConnection } from '@databases';
 import { CreateUserDto } from '@dtos/users.dto';
-import UserRoute from '@routes/users.route';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+
 import App from '@/app';
+import UserRoute from '../routes/user.route';
+import { loginUser, userId } from './utils/jwt.test';
+
+let accessToken: string;
 
 beforeAll(async () => {
   await createConnection(dbConnection);
+  accessToken = await loginUser();
 });
 
 afterAll(async () => {
@@ -16,139 +21,83 @@ afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
 });
 
-describe('Testing Users', () => {
-  describe('[GET] /users', () => {
-    it('response findAll users', async () => {
-      const usersRoute = new UserRoute();
-      const { users } = usersRoute.usersController.userService;
-      const userRepository = getRepository(users);
+describe('Testing User', () => {
+  let app: App;
+  let userRepository: Repository<any>;
+  const userData: CreateUserDto = {
+    email: 'test@email.com',
+    password: 'q1w2e3r4!',
+    username: 'testUser',
+  };
 
-      userRepository.find = jest.fn().mockReturnValue([
-        {
-          id: 1,
-          email: 'a@email.com',
-          password: await bcrypt.hash('q1w2e3r4!', 10),
-        },
-        {
-          id: 2,
-          email: 'b@email.com',
-          password: await bcrypt.hash('a1s2d3f4!', 10),
-        },
-        {
-          id: 3,
-          email: 'c@email.com',
-          password: await bcrypt.hash('z1x2c3v4!', 10),
-        },
-      ]);
+  const userRoute = new UserRoute();
+  const userTestRoute = userRoute.path;
 
-      const app = new App([usersRoute]);
-      return request(app.getServer()).get(`${usersRoute.path}`).expect(200);
+  beforeEach(() => {
+    const { users } = userRoute.usersController.userService;
+    userRepository = getRepository(users);
+
+    userRepository.findOne = jest.fn().mockReturnValue(userData);
+    app = new App([userRoute]);
+  });
+
+  describe(`[GET] ${userTestRoute}`, () => {
+    it('should require logged user', () => {
+      return request(app.getServer())
+        .get(userTestRoute)
+        .expect(HttpStatusCode.UNAUTHORIZED);
+    });
+    it('should return user details', () => {
+      return request(app.getServer())
+        .get(userTestRoute)
+        .auth(accessToken, { type: 'bearer' })
+        .expect(HttpStatusCode.OK)
+        .then((res: request.Response) => {
+          expect(res.body).toHaveProperty('username', userData.username);
+          expect(res.body).toHaveProperty('email', userData.email);
+        });
     });
   });
 
-  describe('[GET] /users/:id', () => {
-    it('response findOne user', async () => {
-      const userId = 1;
+  describe(`[PUT] ${userTestRoute}`, () => {
+    const newUserData = { ...userData, username: 'newUserName' };
 
-      const usersRoute = new UserRoute();
-      const { users } = usersRoute.usersController.userService;
-      const userRepository = getRepository(users);
+    beforeEach(() => {
+      userRepository.findOne = jest.fn().mockReturnValue(userData);
+      userRepository.update = jest.fn().mockReturnValue(newUserData);
+      userRepository.delete = jest.fn().mockReturnValue(userData);
+      app = new App([userRoute]);
+    });
 
-      userRepository.findOne = jest.fn().mockReturnValue({
-        id: userId,
-        email: 'a@email.com',
-        password: await bcrypt.hash('q1w2e3r4!', 10),
-      });
-
-      const app = new App([usersRoute]);
+    it('should require logged user', () => {
       return request(app.getServer())
-        .get(`${usersRoute.path}/${userId}`)
-        .expect(200);
+        .put(userTestRoute)
+        .expect(HttpStatusCode.UNAUTHORIZED);
+    });
+    it('should update user details', async () => {
+      await request(app.getServer())
+        .put(userTestRoute)
+        .send(newUserData)
+        .auth(accessToken, { type: 'bearer' })
+        .expect(HttpStatusCode.NO_CONTENT);
+
+      expect(userRepository.update).toHaveBeenCalledWith(userId, newUserData);
     });
   });
 
-  describe('[POST] /users', () => {
-    it('response Create user', async () => {
-      const userData: CreateUserDto = {
-        email: 'test@email.com',
-        password: 'q1w2e3r4!',
-        username: 'testUser',
-      };
-
-      const usersRoute = new UserRoute();
-      const { users } = usersRoute.usersController.userService;
-      const userRepository = getRepository(users);
-
-      userRepository.findOne = jest.fn().mockReturnValue(null);
-      userRepository.save = jest.fn().mockReturnValue({
-        id: 1,
-        email: userData.email,
-        password: await bcrypt.hash(userData.password, 10),
-      });
-
-      const app = new App([usersRoute]);
+  describe(`[DELETE] ${userTestRoute}`, () => {
+    it('should require logged user', () => {
       return request(app.getServer())
-        .post(`${usersRoute.path}`)
-        .send(userData)
-        .expect(201);
+        .delete(userTestRoute)
+        .expect(HttpStatusCode.UNAUTHORIZED);
     });
-  });
+    it('should update user details', async () => {
+      await request(app.getServer())
+        .delete(userTestRoute)
+        .auth(accessToken, { type: 'bearer' })
+        .expect(HttpStatusCode.NO_CONTENT);
 
-  describe('[PUT] /users/:id', () => {
-    it('response Update user', async () => {
-      const userId = 1;
-      const userData: CreateUserDto = {
-        email: 'test@email.com',
-        password: '1q2w3e4r!',
-        username: 'testUser',
-      };
-
-      const usersRoute = new UserRoute();
-      const { users } = usersRoute.usersController.userService;
-      const userRepository = getRepository(users);
-
-      userRepository.findOne = jest.fn().mockReturnValue({
-        id: userId,
-        email: userData.email,
-        password: await bcrypt.hash(userData.password, 10),
-      });
-      userRepository.update = jest.fn().mockReturnValue({
-        generatedMaps: [],
-        raw: [],
-        affected: 1,
-      });
-      userRepository.findOne = jest.fn().mockReturnValue({
-        id: userId,
-        email: userData.email,
-        password: await bcrypt.hash(userData.password, 10),
-      });
-
-      const app = new App([usersRoute]);
-      return request(app.getServer())
-        .put(`${usersRoute.path}/${userId}`)
-        .send(userData)
-        .expect(200);
-    });
-  });
-
-  describe('[DELETE] /users/:id', () => {
-    it('response Delete user', async () => {
-      const userId = 1;
-
-      const usersRoute = new UserRoute();
-      const { users } = usersRoute.usersController.userService;
-      const userRepository = getRepository(users);
-
-      userRepository.findOne = jest.fn().mockReturnValue({
-        id: userId,
-        email: 'a@email.com',
-        password: await bcrypt.hash('q1w2e3r4!', 10),
-      });
-
-      const app = new App([usersRoute]);
-      return request(app.getServer())
-        .delete(`${usersRoute.path}/${userId}`)
-        .expect(200);
+      expect(userRepository.delete).toHaveBeenCalledWith({ id: userId });
     });
   });
 });

@@ -3,9 +3,9 @@ import { Router } from 'express';
 import { GetAllergensDto } from '@dtos/allergens.dto';
 import { getAllergensMiddleware } from '@middlewares/allergens.middleware';
 import { Routes } from '@interfaces/internal/routes.interface';
-import AllergensController from '@controllers/allergens.controller';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
+import { AllergensController } from '@/controllers/allergens.controller';
 
 class AllergensRoute implements Routes {
   public path = '/allergens';
@@ -34,7 +34,7 @@ class AllergensRoute implements Routes {
     this.router.delete(
       `${this.path}/:id(\\d+)`,
       authMiddleware,
-      this.allergensController.removeAllergen,
+      this.allergensController.unsetAllergen,
     );
   }
 }

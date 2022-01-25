@@ -1,22 +1,27 @@
 import { NextFunction, Response } from 'express';
 
-import SymptomLogService from '@services/symptom-logs.service';
+import { SymptomLogsService } from '@services/symptom-logs.service';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
-import HttpStatusCode from '@interfaces/internal/http-codes.interface';
-import { SymptomLogGetRequest } from '@interfaces/symptom-logs.interface';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+import { SymptomLogFindRequest } from '@interfaces/symptom-logs.interface';
+
+import { AllergensController } from './allergens.controller';
 
 class SymptomLogsController {
-  public symptomLogService = new SymptomLogService();
+  public symptomLogService = new SymptomLogsService();
+
+  public allergensController = new AllergensController();
 
   public getSymptomLogs = async (
-    req: SymptomLogGetRequest,
+    req: SymptomLogFindRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const symptomLogs = await this.symptomLogService.getAllSymptomLogs(req);
+      const data = await this.symptomLogService.find(req);
+      const total = await this.symptomLogService.count(req);
 
-      res.status(HttpStatusCode.OK).json(symptomLogs);
+      res.status(HttpStatusCode.OK).json({ data, total });
     } catch (error) {
       next(error);
     }
@@ -29,12 +34,12 @@ class SymptomLogsController {
   ): Promise<void> => {
     try {
       const symptomId = Number(req.params.id);
-      const findOneUserData = await this.symptomLogService.findSymptomLogById(
-        symptomId,
-        req.userId,
-      );
+      const data = await this.symptomLogService.get({
+        ...req,
+        id: symptomId,
+      });
 
-      res.status(HttpStatusCode.OK).json(findOneUserData);
+      res.status(HttpStatusCode.OK).json(data);
     } catch (error) {
       next(error);
     }
@@ -46,9 +51,13 @@ class SymptomLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      await this.symptomLogService.createSymptom(req.body, req.userId);
+      const symptomLog = await this.symptomLogService.create({
+        ...req.body,
+        userId: req.userId,
+      });
 
       res.sendStatus(HttpStatusCode.CREATED);
+      this.allergensController.addSymptomLogAllergens(symptomLog);
     } catch (error) {
       next(error);
     }
@@ -60,9 +69,20 @@ class SymptomLogsController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      await this.symptomLogService.updateSymptom(req.body, req.userId);
+      const prevSymptomLog = await this.symptomLogService.get({
+        id: req.body.id,
+        userId: req.userId,
+      });
+      const nextSymptomLog = await this.symptomLogService.update({
+        ...req.body,
+        userId: req.userId,
+      });
 
-      res.sendStatus(HttpStatusCode.OK);
+      res.sendStatus(HttpStatusCode.NO_CONTENT);
+      this.allergensController.diffSymptomLogAllergens(
+        prevSymptomLog,
+        nextSymptomLog,
+      );
     } catch (error) {
       next(error);
     }
@@ -75,9 +95,13 @@ class SymptomLogsController {
   ): Promise<void> => {
     try {
       const symptomId = Number(req.params.id);
-      await this.symptomLogService.deleteSymptomLog(symptomId, req.userId);
+      const symptomLog = await this.symptomLogService.remove({
+        id: symptomId,
+        userId: req.userId,
+      });
 
-      res.sendStatus(HttpStatusCode.OK);
+      res.sendStatus(HttpStatusCode.NO_CONTENT);
+      this.allergensController.removeSymptomLogAllergens(symptomLog);
     } catch (error) {
       next(error);
     }

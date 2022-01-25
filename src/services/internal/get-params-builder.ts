@@ -66,8 +66,8 @@ export const formatDate = (date: Date) =>
 export const afterDate = (date: Date) =>
   Between(formatDate(date), formatDate(addYears(date, 100)));
 export const beforeDate = (date: Date) =>
-  Between(subYears(date, 100).toISOString(), date.toISOString());
+  Between(formatDate(subYears(date, 100)), formatDate(date));
 export const betweenDates = (start: Date, end: Date) =>
-  Between(start.toISOString(), end.toISOString());
+  Between(formatDate(start), formatDate(end));
 
 export default GetParamsBuilder;

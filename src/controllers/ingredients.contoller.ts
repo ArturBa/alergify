@@ -1,40 +1,43 @@
 import { Response, NextFunction } from 'express';
 
-import { CreateIngredientDto } from '@dtos/ingredients.dto';
-import { IngredientGetRequest } from '@interfaces/ingredients.interface';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+import { IngredientFindRequest } from '@interfaces/ingredients.interface';
+import { IngredientsService } from '@services/ingredients.service';
 import { RequestWithUser } from '@interfaces/internal/auth.interface';
-import HttpStatusCode from '@interfaces/internal/http-codes.interface';
-import IngredientsService from '@services/ingredients.service';
 
-class IngredientsController {
+import { ControllerOmitHelper } from './internal/omit-helper';
+
+export class IngredientsController {
   public ingredientService = new IngredientsService();
 
-  public getIngredientById = async (
+  public get = async (
     req: RequestWithUser,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
       const ingredientId = Number(req.params.id);
-      const ingredient = await this.ingredientService.getIngredientById(
-        ingredientId,
-      );
-
+      const ingredient = await this.ingredientService
+        .get({
+          ...req,
+          id: ingredientId,
+        })
+        .then(ControllerOmitHelper.omitUserId)
+        .then(ControllerOmitHelper.omitCreatedUpdatedAt);
       res.status(HttpStatusCode.OK).json({ ...ingredient });
     } catch (error) {
       next(error);
     }
   };
 
-  public createIngredient = async (
+  public create = async (
     req: RequestWithUser,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
       const { userId } = req;
-      const ingredientData: CreateIngredientDto = req.body;
-      await this.ingredientService.createIngredient(userId, ingredientData);
+      await this.ingredientService.create({ ...req.body, userId });
 
       res.sendStatus(HttpStatusCode.CREATED);
     } catch (error) {
@@ -42,15 +45,19 @@ class IngredientsController {
     }
   };
 
-  public findIngredients = async (
-    req: IngredientGetRequest,
+  public find = async (
+    req: IngredientFindRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const products = await this.ingredientService.findIngredients(req);
+      const data = await this.ingredientService
+        .find(req)
+        .then(ControllerOmitHelper.omitUserIdArray)
+        .then(ControllerOmitHelper.omitCreatedUpdatedAtArray);
+      const total = await this.ingredientService.count(req);
 
-      res.status(HttpStatusCode.OK).json({ ...products });
+      res.status(HttpStatusCode.OK).json({ data, total });
     } catch (error) {
       next(error);
     }

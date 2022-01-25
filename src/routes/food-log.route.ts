@@ -1,14 +1,15 @@
 import { Router } from 'express';
-import { FoodLogsController } from '@controllers/food-logs.controller';
+
 import {
   CreateFoodLogDto,
-  GetFoodLogsDto,
+  FindFoodLogsDto,
   UpdateFoodLogDto,
 } from '@dtos/food-logs.dto';
+import { FoodLogsController } from '@controllers/food-logs.controller';
+import { getFoodLogsMiddleware } from '@middlewares/food-logs.middleware';
 import { Routes } from '@interfaces/internal/routes.interface';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
-import { getFoodLogsMiddleware } from '@middlewares/food-logs.middleware';
 
 class FoodLogsRoute implements Routes {
   public path = '/food-log';
@@ -25,7 +26,7 @@ class FoodLogsRoute implements Routes {
     this.router.get(
       `${this.path}`,
       authMiddleware,
-      validationMiddleware(GetFoodLogsDto, 'query'),
+      validationMiddleware(FindFoodLogsDto, 'query'),
       getFoodLogsMiddleware,
       this.foodLogsController.getUserFoodLogs,
     );

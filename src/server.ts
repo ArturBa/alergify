@@ -15,14 +15,12 @@ import ProductRoute from '@routes/product.route';
 import SymptomLogsRoute from '@routes/symptom-log.route';
 import SymptomsRoute from '@routes/symptom.route';
 import UserRoute from '@routes/user.route';
-import UsersRoute from '@routes/users.route';
 import validateEnv from '@utils/validateEnv';
 
 validateEnv();
 
 const app = new App([
   new IndexRoute(),
-  new UsersRoute(),
   new AuthRoute(),
   new AllergensRoute(),
   new FoodLogsRoute(),

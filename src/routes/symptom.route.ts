@@ -18,7 +18,7 @@ class SymptomsRoute implements Routes {
     this.router.get(
       `${this.path}`,
       authMiddleware,
-      this.symptomsController.getSymptoms,
+      this.symptomsController.get,
     );
   }
 }

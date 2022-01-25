@@ -1,29 +1,20 @@
-import { getRepository } from 'typeorm';
 import { SymptomEntity } from '@entity/symptoms.entity';
-import { Symptom } from '@interfaces/symptoms.interface';
-import { checkIfConflict, checkIfEmpty } from './common.service';
 
-class SymptomService {
-  public symptoms = SymptomEntity;
+import { BaseService } from './internal/base.service';
 
-  public async getAllSymptoms(): Promise<Partial<Symptom[]>> {
-    const symptomRepository = getRepository(this.symptoms);
-    const symptoms: Symptom[] = await symptomRepository.find({
-      select: ['id', 'name'],
-    });
-    return symptoms;
+export class SymptomService extends BaseService<SymptomEntity> {
+  entity = SymptomEntity;
+
+  find(_: unknown): Promise<SymptomEntity[]> {
+    return super.find(_);
   }
 
-  public async findSymptomById(symptomId: number): Promise<Partial<Symptom>> {
-    checkIfEmpty(symptomId);
+  create(_: unknown): Promise<SymptomEntity> {
+    throw new Error('Method not implemented.');
+  }
 
-    const symptomRepository = getRepository(this.symptoms);
-    const symptom: Symptom = await symptomRepository.findOne({
-      where: { id: symptomId },
-      select: ['id', 'name'],
-    });
-    checkIfConflict(!symptomId);
-    return symptom;
+  update(_: unknown): Promise<SymptomEntity> {
+    throw new Error('Method not implemented.');
   }
 }
 

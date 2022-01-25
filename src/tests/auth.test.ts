@@ -1,9 +1,12 @@
 import bcrypt from 'bcrypt';
 import request from 'supertest';
 import { createConnection, getRepository } from 'typeorm';
+
+import AuthRoute from '@routes/auth.route';
 import { dbConnection } from '@databases';
 import { CreateUserDto } from '@dtos/users.dto';
-import AuthRoute from '@routes/auth.route';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
+
 import App from '@/app';
 
 beforeAll(async () => {
@@ -17,13 +20,13 @@ afterAll(async () => {
 
 describe('Testing Auth', () => {
   describe('[POST] /signup', () => {
-    it('response should have the Create userData', async () => {
-      const userData: CreateUserDto = {
-        email: 'test@email.com',
-        password: 'q1w2e3r4!',
-        username: 'testUser',
-      };
+    const userData: CreateUserDto = {
+      email: 'test@email.com',
+      password: 'q1w2e3r4!',
+      username: 'testUser',
+    };
 
+    it('response should have the create userData', async () => {
       const authRoute = new AuthRoute();
       const { users } = authRoute.authController.authService;
       const userRepository = getRepository(users);
@@ -39,19 +42,33 @@ describe('Testing Auth', () => {
       return request(app.getServer())
         .post(`${authRoute.path}signup`)
         .send(userData)
-        .expect(201);
+        .expect(HttpStatusCode.OK);
+    });
+    it('should return 200 if user already exists', async () => {
+      const authRoute = new AuthRoute();
+      const { users } = authRoute.authController.authService;
+      const userRepository = getRepository(users);
+
+      userRepository.findOne = jest.fn().mockReturnValue({ ...userData });
+      const app = new App([authRoute]);
+      return request(app.getServer())
+        .post(`${authRoute.path}signup`)
+        .send(userData)
+        .expect(HttpStatusCode.OK);
     });
   });
 
   describe('[POST] /login', () => {
-    it('response should have the Set-Cookie header with the Authorization token', async () => {
-      const userData: CreateUserDto = {
-        email: 'test@email.com',
-        password: 'q1w2e3r4!',
-        username: 'testUser',
-      };
+    let app: App;
+    const authRoute = new AuthRoute();
+    const userData: CreateUserDto = {
+      email: 'test@email.com',
+      password: 'q1w2e3r4!',
+      username: 'testUser',
+    };
+    const loginPath = `${authRoute.path}login`;
 
-      const authRoute = new AuthRoute();
+    beforeEach(async () => {
       const { users } = authRoute.authController.authService;
       const userRepository = getRepository(users);
 
@@ -61,22 +78,62 @@ describe('Testing Auth', () => {
         password: await bcrypt.hash(userData.password, 10),
       });
 
-      const app = new App([authRoute]);
+      app = new App([authRoute]);
+    });
+
+    it('response should have return auth tokens', async () => {
       return request(app.getServer())
-        .post(`${authRoute.path}login`)
+        .post(loginPath)
         .send(userData)
-        .expect('Set-Cookie', /^Authorization=.+/);
+        .expect(HttpStatusCode.OK)
+        .then((res: request.Response) => {
+          expect(res.body).toHaveProperty('accessToken');
+          expect(res.body).toHaveProperty('refreshToken');
+          expect(res.body).toHaveProperty('expiresIn');
+        });
+    });
+
+    it('should return error if wrong email given', async () => {
+      const userDataMismatch = {
+        ...userData,
+        email: 'aa@aa.com',
+      };
+      const { users } = authRoute.authController.authService;
+      const userRepository = getRepository(users);
+      userRepository.findOne = jest.fn().mockReturnValue(null);
+
+      app = new App([authRoute]);
+
+      return request(app.getServer())
+        .post(loginPath)
+        .send(userDataMismatch)
+        .expect(HttpStatusCode.UNAUTHORIZED);
+    });
+
+    it('should return error if wrong password given', async () => {
+      const userDataMismatch = {
+        ...userData,
+        password: 'aa@aa.com',
+      };
+
+      return request(app.getServer())
+        .post(loginPath)
+        .send(userDataMismatch)
+        .expect(HttpStatusCode.UNAUTHORIZED);
     });
   });
 
-  // describe('[POST] /logout', () => {
-  //   it('logout Set-Cookie Authorization=; Max-age=0', async () => {
-  //     const authRoute = new AuthRoute();
-  //     const app = new App([authRoute]);
+  describe.skip('[POST] /logout', () => {
+    it('logout Set-Cookie Authorization=; Max-age=0', async () => {
+      const authRoute = new AuthRoute();
+      const app = new App([authRoute]);
 
-  //     return request(app.getServer())
-  //       .post(`${authRoute.path}logout`)
-  //       .expect('Set-Cookie', /^Authorization=\;/);
-  //   });
-  // });
+      return (
+        request(app.getServer())
+          .post(`${authRoute.path}logout`)
+          // eslint-disable-next-line no-useless-escape
+          .expect('Set-Cookie', /^Authorization=\;/)
+      );
+    });
+  });
 });

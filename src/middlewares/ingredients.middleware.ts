@@ -1,12 +1,14 @@
 import { NextFunction, Response } from 'express';
 
-import { IngredientGetRequest } from '@interfaces/ingredients.interface';
+import { IngredientFindDto } from '@dtos/ingredients.dto';
+import { IngredientFindRequest } from '@interfaces/ingredients.interface';
 import { isEmpty } from '@utils/util';
 
 import { paginateParamsMiddleware } from './internal/paginate.middleware';
+import validationMiddleware from './validation.middleware';
 
 const getIngredientsDtoMiddleware = (
-  req: IngredientGetRequest,
+  req: IngredientFindRequest,
   res: Response,
   next: NextFunction,
 ) => {
@@ -22,9 +24,10 @@ const getIngredientsDtoMiddleware = (
   }
 };
 
-export const getIngredientsMiddleware = [
+export const ingredientsFindMiddleware = [
+  validationMiddleware(IngredientFindDto, 'query'),
   paginateParamsMiddleware,
   getIngredientsDtoMiddleware,
 ];
 
-export default getIngredientsMiddleware;
+export default ingredientsFindMiddleware;
