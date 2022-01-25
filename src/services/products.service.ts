@@ -69,12 +69,27 @@ export class ProductsService extends BaseService<ProductEntity> {
   readonly ingredientService = new IngredientsService();
 
   async create(params: ProductCreateDto): Promise<ProductEntity> {
+    const duplicate = await this.find({
+      userId: params.userId,
+      barcode: params.barcode,
+    });
+    if (duplicate[0]) {
+      throw new HttpException(
+        HttpStatusCode.BAD_REQUEST,
+        'Product with this barcode already exists',
+      );
+    }
     const entity = await this.createDto(params);
     return this.getRepository().save(entity);
   }
 
   update(_: unknown): Promise<ProductEntity> {
     throw new Error('Method not implemented.');
+  }
+
+  find(params: Partial<ProductFindRequest>): Promise<ProductEntity[]> {
+    const query = this.getQuery(params);
+    return query.getMany();
   }
 
   protected getQueryBuilder(): BaseFindParametersQueryBuilder<ProductEntity> {

@@ -13,11 +13,8 @@ const getProductsDtoMiddleware = (
   try {
     const name = req.query.name as string;
     const barcode = req.query.barcode as string;
-    if (isEmpty(name) && isEmpty(barcode)) {
-      throw new Error('name or barcode is required');
-    }
     req.name = name;
-    req.barcode = parseInt(barcode, 10) || undefined;
+    req.barcode = barcode || undefined;
     next();
   } catch (error) {
     next(error);
