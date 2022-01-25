@@ -3,6 +3,8 @@ import { Repository, SelectQueryBuilder, UpdateResult } from 'typeorm';
 import { AllergensEntity } from '@entity/allergens.entity';
 import { AllergenSetParameters } from '@interfaces/allergens.interface';
 import { BaseFindParameters } from '@interfaces/internal/parameters.interface';
+import { HttpException } from '@exceptions/HttpException';
+import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
 
 import { BaseFindParametersQueryBuilder } from './internal/base-find-params-builder';
 import { BaseService } from './internal/base.service';
@@ -36,11 +38,9 @@ class GetAllergensQueryBuilder extends BaseFindParametersQueryBuilder<AllergensE
   }
 
   protected orderBy(): void {
-    this.query
-      .orderBy(`${this.getAliasPrefix()}confirmed`)
-      .addOrderBy(
-        `${this.getAliasPrefix()}points/${this.getAliasPrefix()}count`,
-      );
+    this.query.orderBy('likelihood', 'DESC');
+    // .orderBy(`${this.getAliasPrefix()}confirmed`, 'DESC')
+    // .addOrderBy('likelihood', 'DESC');
   }
 }
 
@@ -129,6 +129,16 @@ export class AllergensService extends BaseService<AllergensEntity> {
   ): SelectQueryBuilder<AllergensEntity> {
     const query = this.getQueryBuilder();
     query.build(params);
+    query.select([
+      'allergens.id',
+      'allergens.userId',
+      'allergens.confirmed',
+      'allergens.points',
+      'allergens.count',
+      'ingredient.id',
+      'ingredient.name',
+      'IIF(allergens.confirmed,24,allergens.points/allergens.count) AS likelihood',
+    ]);
     return query.get();
   }
 
@@ -146,13 +156,14 @@ export class AllergensService extends BaseService<AllergensEntity> {
     { userId, ingredientId }: AllergenSetParameters,
     create = false,
   ): Promise<AllergensEntity> {
-    try {
-      return this.find({ userId, ingredientId })[0];
-    } catch (e) {
-      if (create) {
-        return this.create({ userId, ingredientId });
-      }
-      throw e;
+    const entities = await this.find({ userId, ingredientId });
+    if (entities.length > 0) {
+      return entities[0];
     }
+    if (create) {
+      return this.create({ userId, ingredientId });
+    }
+
+    throw new HttpException(HttpStatusCode.NOT_FOUND, 'Allergen not found');
   }
 }
