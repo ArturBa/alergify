@@ -101,6 +101,18 @@ components:
             password:
               type: string
               description: user Password
+    user-login:
+      type: object
+      allOf:
+        - type: object
+          properties:
+            email:
+              type: string
+              format: email
+              description: user email
+            password:
+              type: string
+              description: user Password
     id:
       type: object
       required:
@@ -345,7 +357,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/user-create'
+              $ref: '#/components/schemas/user-login'
       responses:
         200:
           description: OK
