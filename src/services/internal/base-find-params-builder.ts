@@ -67,10 +67,10 @@ export class BaseFindParametersQueryBuilder<Entity extends BaseEntity> {
     if (isEmpty(startDate) && isEmpty(endDate)) {
       return;
     }
-    if (!isEmpty(startDate)) {
-      endDateInput = addYears(startDate, 100);
-    } else if (!isEmpty(endDate)) {
+    if (isEmpty(startDate)) {
       startDateInput = subYears(endDate, 100);
+    } else if (isEmpty(endDate)) {
+      endDateInput = addYears(startDate, 100);
     }
     this.query = this.query.andWhere(
       `${this.getAliasPrefix()}date BETWEEN :startDate AND :endDate`,
