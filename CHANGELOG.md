@@ -1,3 +1,10 @@
+## [0.2.1](https://github.com/ArturBa/alergify/compare/0.2.0...0.2.1) (2022-02-12)
+
+
+### Bug Fixes
+
+* **food-logs:** :bug: start and end date not working together ([#32](https://github.com/ArturBa/alergify/issues/32)) ([38a1b58](https://github.com/ArturBa/alergify/commit/38a1b58adedbcb3b921588ea78cf4943b99ce0cc))
+
 # [0.2.0](https://github.com/ArturBa/alergify/compare/0.1.0...0.2.0) (2022-01-25)
 
 
