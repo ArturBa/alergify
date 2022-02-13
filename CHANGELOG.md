@@ -1,3 +1,11 @@
+## [0.2.2](https://github.com/ArturBa/alergify/compare/0.2.1...0.2.2) (2022-02-13)
+
+
+### Bug Fixes
+
+* **allergens:** :bug: count allergen points ([#33](https://github.com/ArturBa/alergify/issues/33)) ([789c6df](https://github.com/ArturBa/alergify/commit/789c6dfc076961a553936f6ced234f8b69c00039))
+* **symptoms:** :bug: allow for adding multiple intensity logs ([#34](https://github.com/ArturBa/alergify/issues/34)) ([820ce44](https://github.com/ArturBa/alergify/commit/820ce4448f14d9d24c364c9e480f99910668bd25))
+
 ## [0.2.1](https://github.com/ArturBa/alergify/compare/0.2.0...0.2.1) (2022-02-12)
 
 
