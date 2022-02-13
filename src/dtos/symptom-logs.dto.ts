@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { Mixin } from 'ts-mixer';
 import {
   CreateIntensityLogDto,
@@ -21,7 +22,8 @@ export class CreateSymptomLogDto extends Mixin(UserIdDto) {
 
   @IsArray()
   @IsNotEmpty()
-  // @ValidateNested()
+  @ValidateNested()
+  @Type(() => CreateIntensityLogDto)
   public intensityLogs: CreateIntensityLogDto[];
 }
 

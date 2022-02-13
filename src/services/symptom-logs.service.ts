@@ -8,8 +8,6 @@ import {
   CreateSymptomLogDto,
   UpdateSymptomLogDto,
 } from '@dtos/symptom-logs.dto';
-import { HttpException } from '@exceptions/HttpException';
-import { HttpStatusCode } from '@interfaces/internal/http-codes.interface';
 import { IntensityLog } from '@interfaces/intensity-logs.interface';
 import { IntensityLogEntity } from '@entity/intensity-logs.entity';
 
@@ -52,7 +50,16 @@ export class SymptomLogsService extends BaseService<SymptomLogEntity> {
 
   async update(params: UpdateSymptomLogDto): Promise<SymptomLogEntity> {
     const entity = await this.get({ id: params.id, userId: params.userId });
-    this.updateEntity(entity, params);
+    const intensityLogsParams = params.intensityLogs.map(intensityLog => {
+      return {
+        ...intensityLog,
+        symptomLogId: entity.id,
+      };
+    });
+    this.updateEntity(entity, {
+      ...params,
+      intensityLogs: intensityLogsParams,
+    });
     return this.getRepository().save(entity);
   }
 
@@ -91,12 +98,6 @@ export class SymptomLogsService extends BaseService<SymptomLogEntity> {
     params: UpdateSymptomLogDto,
   ): Promise<SymptomLogEntity> {
     entity.date = new Date(params.date);
-    if (!this.areAllIntensityLogsInSymptomLog(entity.intensityLogs, entity)) {
-      throw new HttpException(
-        HttpStatusCode.NOT_MODIFIED,
-        'Some intensity logs are non valid',
-      );
-    }
     entity.intensityLogs = await this.updateIntensityLog(
       entity.intensityLogs as IntensityLogEntity[],
       params.intensityLogs,
@@ -106,32 +107,29 @@ export class SymptomLogsService extends BaseService<SymptomLogEntity> {
   }
   /* eslint-enable no-param-reassign */
 
-  protected createIntensityLog(
+  protected async createIntensityLog(
     params: CreateIntensityLogDto[],
   ): Promise<IntensityLogEntity[]> {
-    return Promise.all(
-      params.map(intensityDto => this.intensityLogService.create(intensityDto)),
-    );
-  }
-
-  protected areAllIntensityLogsInSymptomLog(
-    intensityLogs: IntensityLog[],
-    symptomLog: SymptomLogEntity,
-  ): boolean {
-    return intensityLogs.every(
-      intensityLog => intensityLog.symptomLogId === symptomLog.id,
-    );
+    const intensityLogEntities = [];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const intensityLog of params) {
+      intensityLogEntities.push(
+        // eslint-disable-next-line no-await-in-loop
+        await this.intensityLogService.create(intensityLog),
+      );
+    }
+    return Promise.resolve(intensityLogEntities);
   }
 
   protected async updateIntensityLog(
     intensityLogs: IntensityLogEntity[],
     params: CreateIntensityLogDto[],
   ): Promise<IntensityLogEntity[]> {
-    await Promise.all(
-      intensityLogs.map(async intensityLog => {
-        this.intensityLogService.remove({ id: intensityLog.id });
-      }),
-    );
+    // eslint-disable-next-line no-restricted-syntax
+    for (const intensityLog of intensityLogs) {
+      // eslint-disable-next-line no-await-in-loop
+      await this.intensityLogService.remove({ id: intensityLog.id });
+    }
 
     return this.createIntensityLog(params);
   }
