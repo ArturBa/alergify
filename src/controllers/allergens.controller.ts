@@ -22,6 +22,8 @@ export class AllergensController {
 
   public productService = new ProductsService();
 
+  readonly allergensMaxPoints = 24;
+
   public getAllergens = async (
     req: GetAllergensRequest,
     res: Response,
@@ -96,6 +98,7 @@ export class AllergensController {
       foodLog.userId,
       foodLog.date,
     );
+    const symptomLog = symptomLogs.length ? [symptomLogs[0]] : [];
 
     ingredientIds.forEach(ingredientId => {
       this.allergensService.increment({
@@ -103,7 +106,7 @@ export class AllergensController {
         userId: foodLog.userId,
       });
     });
-    this.addAllergens([{ ...foodLog, ingredientIds }], symptomLogs);
+    this.addAllergens([{ ...foodLog, ingredientIds }], symptomLog);
   };
 
   public removeFoodLogAllergens = async (foodLog: FoodLog): Promise<void> => {
@@ -112,6 +115,7 @@ export class AllergensController {
       foodLog.userId,
       foodLog.date,
     );
+    const symptomLog = symptomLogs.length ? [symptomLogs[0]] : [];
 
     ingredientIds.forEach(ingredientId => {
       this.allergensService.decrement({
@@ -119,7 +123,7 @@ export class AllergensController {
         userId: foodLog.userId,
       });
     });
-    this.removeAllergens([{ ...foodLog, ingredientIds }], symptomLogs);
+    this.removeAllergens([{ ...foodLog, ingredientIds }], symptomLog);
   };
 
   public diffFoodLogAllergens = async (
@@ -167,8 +171,11 @@ export class AllergensController {
     { date: foodLogDate }: FoodLog,
     { date: symptomLogDate }: SymptomLog,
   ): number {
-    return Math.ceil(
-      Math.abs(foodLogDate.getTime() - symptomLogDate.getTime()) / 3.6e6,
+    return (
+      this.allergensMaxPoints -
+      Math.floor(
+        Math.abs(symptomLogDate.getTime() - foodLogDate.getTime()) / 3.6e6,
+      )
     );
   }
 
@@ -187,14 +194,26 @@ export class AllergensController {
       })),
     );
 
-    this.addAllergens(foodLogsWithIngredientIds, [symptom]);
+    foodLogsWithIngredientIds.forEach(async foodLog => {
+      const symptomLogs = await this.getSymptomNextDay(
+        symptom.userId,
+        foodLog.date,
+      );
+
+      if (symptomLogs[0].id === symptom.id) {
+        this.addAllergens([foodLog], [symptom]);
+        if (symptomLogs[1]) {
+          this.removeAllergens([foodLog], [symptomLogs[1]]);
+        }
+      }
+    });
   };
 
   public removeSymptomLogAllergens = async (
     symptom: SymptomLog,
   ): Promise<void> => {
     const foodLogs = await this.getFoodLogPreviousDay(
-      symptom.user.id,
+      symptom.userId,
       symptom.date,
     );
 
@@ -205,7 +224,20 @@ export class AllergensController {
       })),
     );
 
-    this.removeAllergens(foodLogsWithIngredientIds, [symptom]);
+    foodLogsWithIngredientIds.forEach(async foodLog => {
+      const symptomLogs = await this.getSymptomNextDay(
+        symptom.userId,
+        foodLog.date,
+      );
+
+      if (symptomLogs.length && symptomLogs[0].date > symptom.date) {
+        this.removeAllergens([foodLog], [symptom]);
+        this.addAllergens([foodLog], [symptomLogs[0]]);
+      }
+      if (!symptomLogs.length) {
+        this.removeAllergens([foodLog], [symptom]);
+      }
+    });
   };
 
   public diffSymptomLogAllergens = async (
@@ -238,11 +270,11 @@ export class AllergensController {
   ): Promise<FoodLog[]> => {
     const previousDay = (next: Date): Date => {
       const resultDay = new Date(next);
-      next.setDate(resultDay.getDate() - 1);
-      return next;
+      resultDay.setDate(resultDay.getDate() - 1);
+      return resultDay;
     };
     const startDate = previousDay(date);
-    const endDate = date;
+    const endDate = new Date(date);
 
     return this.foodLogService.find({
       userId,
@@ -257,8 +289,8 @@ export class AllergensController {
   ): Promise<Partial<SymptomLog[]>> => {
     const nextDay = (next: Date): Date => {
       const resultDay = new Date(next);
-      next.setDate(resultDay.getDate() + 1);
-      return next;
+      resultDay.setDate(resultDay.getDate() + 1);
+      return resultDay;
     };
 
     const startDate = new Date(date);

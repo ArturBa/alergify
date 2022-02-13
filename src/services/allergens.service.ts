@@ -39,8 +39,6 @@ class GetAllergensQueryBuilder extends BaseFindParametersQueryBuilder<AllergensE
 
   protected orderBy(): void {
     this.query.orderBy('likelihood', 'DESC');
-    // .orderBy(`${this.getAliasPrefix()}confirmed`, 'DESC')
-    // .addOrderBy('likelihood', 'DESC');
   }
 }
 
