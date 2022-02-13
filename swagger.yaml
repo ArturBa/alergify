@@ -71,6 +71,12 @@ components:
         allOf:
           - $ref: '#/components/schemas/param-paginate'
           - $ref: '#/components/schemas/food'
+    get-allergens:
+      in: query
+      name: paginate allergens
+      schema:
+        allOf:
+          - $ref: '#/components/schemas/param-paginate'
   schemas:
     auth-jwt:
       type: object
@@ -758,6 +764,8 @@ paths:
         - bearerAuth: []
       tags:
         - allergen
+      parameters:
+        - $ref: '#/components/parameters/get-allergens'
       responses:
         200:
           description: Allergens
